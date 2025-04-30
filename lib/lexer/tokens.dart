@@ -18,8 +18,7 @@ sealed class Token {
 
   @override
   String toString() {
-    final json = toJson();
-    return jsonEncode(json);
+    return value;
   }
 }
 

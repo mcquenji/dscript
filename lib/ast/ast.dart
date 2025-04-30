@@ -111,10 +111,12 @@ class Parser {
 
   BooleanExpression _parseBooleanExpression([
     Token terminator = const SemiColonToken(),
-  ]) {}
+  ]) {
+    return BooleanLiteral(true);
+  }
 
   Expression _parseExpression([Token terminator = const SemiColonToken()]) {
-    return _parsePrimaryExpression();
+    return _parseAdditiveExpr();
   }
 
   Expression _parsePrimaryExpression() {
@@ -126,10 +128,14 @@ class Parser {
         return Identifier(identifier.value);
       case NumberToken():
         return _parseNumericLiteral();
+      case OpenParenthesisToken():
+        consume<OpenParenthesisToken>();
+        final expression = _parseExpression();
+        consume<CloseParenthesisToken>();
+        return expression;
       default:
         throw UnexpectedTokenException(
-          found: token.value,
-          message: 'Unexpected token in expression: ${token.value}',
+          found: token,
         );
     }
   }
@@ -148,7 +154,31 @@ class Parser {
     return IntegerLiteral(num.parse(number.value));
   }
 
-  BinaryExpression _parseBinaryExpression() {}
+  Expression _parseAdditiveExpr() {
+    var left = _parseMultiplicativeExpr();
+
+    while (peek().value == '+' || peek().value == '-') {
+      final operator = consume<BinaryOperatorToken>();
+      final right = _parseMultiplicativeExpr();
+
+      left = BinaryExpression(operator.value, left, right);
+    }
+
+    return left;
+  }
+
+  Expression _parseMultiplicativeExpr() {
+    var left = _parsePrimaryExpression();
+
+    while (peek().value == '*' || peek().value == '/' || peek().value == '%') {
+      final operator = consume<BinaryOperatorToken>();
+      final right = _parsePrimaryExpression();
+
+      left = BinaryExpression(operator.value, left, right);
+    }
+
+    return left;
+  }
 
   Contract _parseContract() {
     List<Implementation> implementations = [];
@@ -167,10 +197,15 @@ class Parser {
           throw ParseException(
             'Permission declaration must be before contract declaration.',
           );
+        case CloseBraceToken():
+          consume<CloseBraceToken>();
+          return Contract(
+            contractName.value,
+            implementations,
+          );
         default:
           throw UnexpectedTokenException(
-            found: peek().value,
-            message: 'Unexpected token in contract body: ${peek().value}',
+            found: peek(),
           );
       }
     }
@@ -190,8 +225,6 @@ class Parser {
     Contract? contract;
 
     while (peek() is! EndOfFileToken) {
-      print("Current token: ${peek()}");
-
       switch (peek()) {
         case SemiColonToken():
           consume<SemiColonToken>();
@@ -217,12 +250,9 @@ class Parser {
               continue;
             }
             final namespace = consume<IdentifierToken>();
-            consume<ColonToken>();
-            consume<ColonToken>();
+            consume<DoubleColonToken>();
             final permission = consume<IdentifierToken>();
             permissions.add(Permission(namespace.value, permission.value));
-
-            print(permissions);
           }
 
           consume<SemiColonToken>();
@@ -232,12 +262,9 @@ class Parser {
           break;
         default:
           throw UnexpectedTokenException(
-            found: peek().value,
-            message: 'Unexpected top-level token: ${peek().value}',
+            found: peek(),
           );
       }
-
-      consume();
     }
 
     if (contract == null) {
@@ -264,6 +291,6 @@ class Parser {
     if (token is T) {
       return _tokens.removeAt(0);
     }
-    throw UnexpectedTokenException(expected: T.toString(), found: token.value);
+    throw UnexpectedTokenException(expected: T, found: token);
   }
 }

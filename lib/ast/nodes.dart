@@ -3,13 +3,15 @@ part of 'ast.dart';
 sealed class Statement {
   const Statement();
 
-  Map<String, dynamic> toJson();
+  Map<String, dynamic> toMap();
+
+  Map<String, dynamic> toJson() {
+    return {'node': runtimeType.toString(), ...toMap()};
+  }
 
   @override
   String toString() {
-    final json = toJson();
-    json['node'] = runtimeType.toString();
-    return jsonEncode(json);
+    return jsonEncode(this);
   }
 }
 
@@ -20,7 +22,7 @@ class Script extends Statement {
   const Script(this.permissions, this.contract);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'permissions': permissions,
       'contract': contract,
@@ -30,15 +32,15 @@ class Script extends Statement {
 
 class Permission extends Statement {
   final String namespace;
-  final String permission;
+  final String method;
 
-  const Permission(this.namespace, this.permission);
+  const Permission(this.namespace, this.method);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'namespace': namespace,
-      'permission': permission,
+      'method': method,
     };
   }
 }
@@ -50,7 +52,7 @@ class Contract extends Statement {
   const Contract(this.name, this.body);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'body': body,
@@ -72,7 +74,7 @@ class FunctionDeclaration extends Statement {
   });
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'parameters': parameters,
@@ -107,7 +109,7 @@ class Parameter extends Statement {
   const Parameter(this.name, this.type);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'type': type,
@@ -127,7 +129,7 @@ class BinaryExpression extends Expression {
   const BinaryExpression(this.operator, this.left, this.right);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'operator': operator,
       'left': left,
@@ -142,7 +144,7 @@ class Identifier extends Expression {
   const Identifier(this.name);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
     };
@@ -155,7 +157,7 @@ sealed class NumericLiteral extends Expression {
   const NumericLiteral(this.value);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'value': value,
     };
@@ -176,7 +178,7 @@ class StringLiteral extends Expression {
   const StringLiteral(this.value);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'value': value,
     };
@@ -184,12 +186,12 @@ class StringLiteral extends Expression {
 }
 
 class BooleanLiteral extends BooleanExpression {
-  final String value;
+  final bool value;
 
   const BooleanLiteral(this.value);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'value': value,
     };
@@ -202,7 +204,7 @@ class ReturnStatement extends Statement {
   const ReturnStatement(this.expression);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'expression': expression,
     };
@@ -216,7 +218,7 @@ class AssignmentStatement extends Statement {
   const AssignmentStatement(this.variable, this.expression);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'variable': variable,
       'expression': expression,
@@ -236,7 +238,7 @@ class IfStatement extends FlowControlStatement {
   const IfStatement(this.condition, this.body, this.elseBody);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'condition': condition,
       'body': body,
@@ -251,7 +253,7 @@ class ElseStatement extends FlowControlStatement {
   const ElseStatement(this.body);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'body': body,
     };
@@ -264,7 +266,7 @@ class ElseIfStatement extends ElseStatement {
   const ElseIfStatement(this.condition, super.body);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'condition': condition,
       'body': body,
@@ -279,7 +281,7 @@ class WhileStatement extends FlowControlStatement {
   const WhileStatement(this.condition, this.body);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'condition': condition,
       'body': body,
@@ -299,7 +301,7 @@ class ComparisonExpression extends BooleanExpression {
   const ComparisonExpression(this.operator, this.left, this.right);
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'operator': operator,
       'left': left,

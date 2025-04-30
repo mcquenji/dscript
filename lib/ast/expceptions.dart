@@ -14,21 +14,19 @@ class ParseException implements Exception {
 }
 
 class UnexpectedTokenException extends ParseException {
-  final String? expected;
-  final String found;
+  final Object? expected;
+  final Token found;
 
   UnexpectedTokenException({
     this.expected,
     required this.found,
     String? message,
-    int line = -1,
-    int column = -1,
   }) : super(
           message ??
               (expected != null
                   ? 'Expected $expected but found $found'
                   : 'Unexpected token $found'),
-          line: line,
-          column: column,
+          line: found.line ?? -1,
+          column: found.column ?? -1,
         );
 }
