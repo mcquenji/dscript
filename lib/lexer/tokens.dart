@@ -157,3 +157,7 @@ class GreaterThanOrEqualsToken extends LogicToken {
 class EqualsEqualsToken extends LogicToken {
   const EqualsEqualsToken({super.line, super.column}) : super('==');
 }
+
+class StringToken extends Token {
+  const StringToken(super.value, {super.line, super.column});
+}

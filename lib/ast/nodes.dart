@@ -16,7 +16,7 @@ sealed class Statement {
 }
 
 class Script extends Statement {
-  final List<Permission> permissions;
+  final List<PermissionStmt> permissions;
   final Contract contract;
 
   const Script(this.permissions, this.contract);
@@ -30,11 +30,11 @@ class Script extends Statement {
   }
 }
 
-class Permission extends Statement {
+class PermissionStmt extends Statement {
   final String namespace;
   final String method;
 
-  const Permission(this.namespace, this.method);
+  const PermissionStmt(this.namespace, this.method);
 
   @override
   Map<String, dynamic> toMap() {
@@ -47,15 +47,17 @@ class Permission extends Statement {
 
 class Contract extends Statement {
   final String name;
-  final List<Implementation> body;
+  final List<Implementation> implementations;
+  final List<Hook> hooks;
 
-  const Contract(this.name, this.body);
+  const Contract(this.name, this.implementations, this.hooks);
 
   @override
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'body': body,
+      'implementations': implementations,
+      'hooks': hooks,
     };
   }
 }
@@ -97,9 +99,10 @@ class Hook extends FunctionDeclaration {
   const Hook({
     required super.name,
     required super.parameters,
-    required super.returnType,
     required super.body,
-  });
+  }) : super(
+          returnType: 'void',
+        );
 }
 
 class Parameter extends Statement {
@@ -182,6 +185,15 @@ class StringLiteral extends Expression {
     return {
       'value': value,
     };
+  }
+}
+
+class NullLiteral extends Expression {
+  const NullLiteral();
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {};
   }
 }
 

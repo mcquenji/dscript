@@ -60,6 +60,14 @@ List<Token> tokenize(SourceCode src) {
       continue;
     }
 
+    if (src.peek(2) == '//') {
+      while (src.isNotEmpty && src.peek() != '\n' && src.peek() != '\r') {
+        src.consume();
+      }
+
+      continue;
+    }
+
     if (src.length >= 2 && src.peek(2) == '->') {
       tokens.add(ArrowToken(line: src.line, column: src.column));
       src.consume(2);
@@ -308,15 +316,28 @@ List<Token> tokenize(SourceCode src) {
       continue;
     }
 
-    if (src.peek() == '"') {
-      tokens.add(QuoteToken(line: src.line, column: src.column));
-      src.consume();
-      continue;
-    }
+    if (src.peek() == '"' || src.peek() == "'") {
+      final terminator = src.consume();
+      var string = '';
 
-    if (src.peek() == "'") {
-      tokens.add(SingleQuoteToken(line: src.line, column: src.column));
-      src.consume();
+      while (src.isNotEmpty && src.peek() != terminator) {
+        string += src.consume();
+      }
+
+      if (src.isEmpty) {
+        throw Exception(
+          'Unterminated string literal at line ${src.line}, column ${src.column}',
+        );
+      }
+
+      src.consume(); // Consume the closing quote
+
+      tokens.add(StringToken(
+        string,
+        line: src.line,
+        column: src.column - string.length,
+      ));
+
       continue;
     }
 

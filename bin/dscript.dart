@@ -31,7 +31,19 @@ permissions ntwk::client, ntwk::server;
 
 contract Random {
   impl randomNumber(int foo) -> double {
-    return (foo - 5) * 2;
+    return foo * pi;
+  }
+
+  impl author() -> string {
+    return "John Doe";
+  }
+
+  impl randomString() -> string {
+    return 'Hello, "World"!';
+  }
+
+  hook onLogin(string username) {
+    // Hook implementation
   }
 }
 ''';
@@ -40,6 +52,16 @@ contract Random {
 
   final parser = Parser();
 
-  print(parser.parse(src));
-  // print(tokenize(src));
+  final script = parser.parse(src);
+
+  // print(script);
+
+  final runtime = Runtime(script);
+  runtime.allow(ScriptPermission.readFiles);
+  runtime.allow(ScriptPermission.writeFiles);
+  runtime.allow(ScriptPermission.networkClient);
+  runtime.allow(ScriptPermission.networkServer);
+
+  print(runtime.run('randomNumber', {'foo': 10}));
+  print(runtime.run('author', {}));
 }

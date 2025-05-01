@@ -24,8 +24,8 @@ class Parser {
       if (peek() is CommaToken) {
         consume<CommaToken>();
         if (peek() is CloseParenthesisToken) {
-          throw Exception(
-            'Unexpected token: ${peek()}',
+          throw UnexpectedTokenException(
+            found: peek(),
           );
         }
       }
@@ -45,6 +45,41 @@ class Parser {
       parameters: parameters,
       body: _parseBlock(),
       returnType: returnType,
+    );
+  }
+
+  Hook _parseHook() {
+    consume<HookToken>();
+    final functionName = consume<IdentifierToken>();
+
+    List<Parameter> parameters = [];
+    consume<OpenParenthesisToken>();
+
+    while (peek() is! CloseParenthesisToken) {
+      final parameterType = consume<IdentifierToken>();
+      final parameterName = consume<IdentifierToken>();
+      parameters.add(Parameter(parameterName.value, parameterType.value));
+
+      if (peek() is CommaToken) {
+        consume<CommaToken>();
+        if (peek() is CloseParenthesisToken) {
+          throw UnexpectedTokenException(
+            found: peek(),
+          );
+        }
+      }
+    }
+    consume<CloseParenthesisToken>();
+
+    if (peek() is ArrowToken) {
+      consume<ArrowToken>();
+      consume<IdentifierToken>();
+    }
+
+    return Hook(
+      name: functionName.value,
+      parameters: parameters,
+      body: _parseBlock(),
     );
   }
 
@@ -115,7 +150,7 @@ class Parser {
     return BooleanLiteral(true);
   }
 
-  Expression _parseExpression([Token terminator = const SemiColonToken()]) {
+  Expression _parseExpression() {
     return _parseAdditiveExpr();
   }
 
@@ -133,6 +168,14 @@ class Parser {
         final expression = _parseExpression();
         consume<CloseParenthesisToken>();
         return expression;
+      case BooleanToken():
+        final boolean = consume<BooleanToken>();
+        return BooleanLiteral(boolean.value == 'true');
+      case NullToken():
+        consume<NullToken>();
+        return const NullLiteral();
+      case StringToken():
+        return StringLiteral(consume<StringToken>().value);
       default:
         throw UnexpectedTokenException(
           found: token,
@@ -182,6 +225,7 @@ class Parser {
 
   Contract _parseContract() {
     List<Implementation> implementations = [];
+    List<Hook> hooks = [];
     consume<ContractToken>();
     final contractName = consume<IdentifierToken>();
     consume<OpenBraceToken>();
@@ -190,6 +234,9 @@ class Parser {
       switch (peek()) {
         case ImplToken():
           implementations.add(_parseImplementation());
+          continue;
+        case HookToken():
+          hooks.add(_parseHook());
           continue;
         case ContractToken():
           throw Exception("Can't declare nested contracts.");
@@ -202,6 +249,7 @@ class Parser {
           return Contract(
             contractName.value,
             implementations,
+            hooks,
           );
         default:
           throw UnexpectedTokenException(
@@ -215,13 +263,14 @@ class Parser {
     return Contract(
       contractName.value,
       implementations,
+      hooks,
     );
   }
 
   Script parse(SourceCode code) {
     _tokens = tokenize(code);
 
-    final List<Permission> permissions = [];
+    final List<PermissionStmt> permissions = [];
     Contract? contract;
 
     while (peek() is! EndOfFileToken) {
@@ -252,7 +301,7 @@ class Parser {
             final namespace = consume<IdentifierToken>();
             consume<DoubleColonToken>();
             final permission = consume<IdentifierToken>();
-            permissions.add(Permission(namespace.value, permission.value));
+            permissions.add(PermissionStmt(namespace.value, permission.value));
           }
 
           consume<SemiColonToken>();
