@@ -3,306 +3,130 @@ import 'dart:math';
 import 'package:dscript/dscript.dart';
 
 part 'values.dart';
+part 'interpreter.dart';
 
-class Scope {
-  final Map<String, dynamic> _variables = {
-    'true': const BooleanValue(true),
-    'false': const BooleanValue(false),
-    'null': const NullValue(),
-    'pi': const DoubleValue(pi),
-    'e': const DoubleValue(e),
-  };
-  final Scope? _parent;
-
-  Scope([this._parent]);
-
-  void set(String name, RuntimeValue value) {
-    _variables[name] = value;
-  }
-
-  RuntimeValue get(String name) {
-    if (_variables.containsKey(name)) {
-      return _variables[name];
-    } else if (_parent != null) {
-      return _parent.get(name);
-    } else {
-      throw Exception('Variable $name not found');
-    }
-  }
-
-  Scope get root {
-    return _parent?.root ?? this;
-  }
-}
-
+/// Represents a permission required or granted to execute script operations.
+///
+/// Permissions are identified by a [namespace] and a [method], matching the DSL's
+/// declared `permissions` statements. Custom host permissions use the `external` namespace.
 class ScriptPermission {
+  /// The namespace associated with this permission (e.g., 'fs', 'ntwk', or 'external').
   final String namespace;
+
+  /// The method or action within the namespace (e.g., 'read', 'write', 'client').
   final String method;
 
+  /// Creates a permission in a specific [namespace] for [method].
   const ScriptPermission._(this.namespace, this.method);
 
+  /// Creates a custom host-defined permission with the `external` namespace.
   const ScriptPermission.custom(this.method) : namespace = 'external';
 
   @override
-  String toString() {
-    return '$namespace::$method';
-  }
 
+  /// Returns the DSL-style string representation `namespace::method`.
+  String toString() => '$namespace::$method';
+
+  /// Permission to read from the filesystem (`fs::read`).
   static const readFiles = ScriptPermission._('fs', 'read');
+
+  /// Permission to write to the filesystem (`fs::write`).
   static const writeFiles = ScriptPermission._('fs', 'write');
+
+  /// Permission to perform network client requests (`ntwk::client`).
   static const networkClient = ScriptPermission._('ntwk', 'client');
+
+  /// Permission to start a network server (`ntwk::server`).
   static const networkServer = ScriptPermission._('ntwk', 'server');
 
   @override
+
+  /// Compares two permissions by namespace and method.
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
     if (other is! ScriptPermission) return false;
-
     return namespace == other.namespace && method == other.method;
   }
 
   @override
+
+  /// Generates a combined hash code for namespace and method.
   int get hashCode => Object.hash(namespace, method);
 }
 
+/// Executes a parsed DSL script by evaluating statements and expressions.
+///
+/// - Tracks declared and granted permissions.
+/// - Manages variable scoping for implementations (functions) and hooks.
+/// - Supports invocation of contract implementations and event hooks.
 class Runtime {
-  Scope scope = Scope();
-
+  /// Permissions that have been explicitly allowed for this run.
   final List<ScriptPermission> _permissions = [];
 
+  /// Permissions required by the script, derived from its top-level `permissions` statements.
   final List<ScriptPermission> _requiredPermissions = [];
 
+  /// The AST [Script] to execute.
   final Script _script;
 
+  /// Creates a [Runtime] for the given parsed DSL [_script].
+  ///
+  /// Populates [_requiredPermissions] from the script's declared permissions.
   Runtime(this._script) {
     _requiredPermissions.addAll(
       _script.permissions.map((p) => ScriptPermission._(p.namespace, p.method)),
     );
   }
 
+  /// The list of granted permissions (unmodifiable).
   List<ScriptPermission> get permissions => List.unmodifiable(_permissions);
+
+  /// Permissions declared but not yet granted.
   List<ScriptPermission> get missingPermissions =>
       _requiredPermissions.where((p) => !_permissions.contains(p)).toList();
 
+  /// Grants or revokes a [permission].
+  ///
+  /// If [allowed] is true (default), adds it; otherwise removes it.
   void allow(ScriptPermission permission, [bool allowed = true]) {
     if (allowed) {
       _permissions.add(permission);
     } else {
-      _permissions.removeWhere(
-        (p) =>
-            p.namespace == permission.namespace &&
-            p.method == permission.method,
-      );
+      _permissions.removeWhere((p) =>
+          p.namespace == permission.namespace && p.method == permission.method);
     }
   }
 
-  RuntimeValue _eval(Statement stmt) {
-    switch (stmt) {
-      case ComparisonExpression():
-      case IfStatement():
-      case ElseStatement():
-      case WhileStatement():
-        throw UnimplementedError(
-          'Control flow statements are not implemented yet.',
-        );
-
-      case Identifier():
-        return scope.get(stmt.name);
-      case StringLiteral():
-        return StringValue(
-          stmt.value,
-        );
-      case NullLiteral():
-        return const NullValue();
-
-      case IntegerLiteral():
-        return IntegerValue(
-          stmt.value,
-        );
-      case DoubleLiteral():
-        return DoubleValue(
-          stmt.value,
-        );
-      case BooleanLiteral():
-        return BooleanValue(
-          stmt.value,
-        );
-      case BinaryExpression():
-        return _evalBinop(stmt);
-      case AssignmentStatement():
-        final value = _eval(stmt.expression);
-        scope.set(stmt.variable, value);
-        return value;
-      case ReturnStatement():
-      case Script():
-      case PermissionStmt():
-      case Contract():
-      case FunctionDeclaration():
-      case Parameter():
-        throw Exception(
-          'Unexpected statement in function body: ${stmt.runtimeType}',
-        );
-    }
-  }
-
+  /// Invokes a [FunctionDeclaration] (implementation or hook) with the given [args].
   RuntimeValue _invoke(
     FunctionDeclaration function,
     Map<String, dynamic> args,
   ) {
     if (missingPermissions.isNotEmpty) {
-      throw Exception(
-        'Missing permissions: ${missingPermissions.join(', ')}',
-      );
+      throw Exception('Missing permissions: ${missingPermissions.join(', ')}');
     }
 
-    scope = Scope(scope);
+    final interpreter = Interpreter();
 
-    for (final param in function.parameters) {
-      if (args.containsKey(param.name)) {
-        if (param.type == 'string') {
-          scope.set(param.name, StringValue(args[param.name]));
-        } else if (param.type == 'int') {
-          scope.set(param.name, IntegerValue(args[param.name]));
-        } else if (param.type == 'double') {
-          scope.set(param.name, DoubleValue(args[param.name]));
-        } else if (param.type == 'boolean') {
-          scope.set(param.name, BooleanValue(args[param.name]));
-        } else {
-          throw Exception('Invalid parameter type: ${param.type}');
-        }
-      } else {
-        throw Exception('Missing argument: ${param.name}');
-      }
-    }
-
-    RuntimeValue result = const NullValue();
-
-    for (final stmt in function.body) {
-      if (stmt is ReturnStatement) {
-        result = _eval(stmt.expression);
-        break;
-      }
-
-      _eval(stmt);
-    }
-
-    scope = scope.root;
-
-    if (result.type != function.returnType) {
-      if (result.hasImplicitCast(function.returnType)) {
-        return result.implictCast(function.returnType);
-      }
-
-      throw Exception(
-        'Cannot return ${result.type} from ${function.returnType} function',
-      );
-    }
-
-    return result;
-  }
-
-  RuntimeValue _evalBinop(BinaryExpression binop) {
-    final left = _eval(binop.left);
-    final right = _eval(binop.right);
-
-    if (left is NumberValue && right is NumberValue) {
-      var intResult = left is IntegerValue && right is IntegerValue;
-
-      final num result;
-
-      switch (binop.operator) {
-        case '+':
-          result = left.value + right.value;
-          break;
-        case '-':
-          result = left.value - right.value;
-          break;
-        case '%':
-          result = left.value % right.value;
-          intResult = true;
-          break;
-        case '*':
-          result = left.value * right.value;
-          break;
-        case '/':
-          if (right.value == 0) {
-            throw Exception('Division by zero');
-          }
-          result = left.value / right.value;
-          intResult = false;
-          break;
-        case '==':
-          return BooleanValue(left.value == right.value);
-        case '!=':
-          return BooleanValue(left.value != right.value);
-        case '<':
-          return BooleanValue(left.value < right.value);
-        case '<=':
-          return BooleanValue(left.value <= right.value);
-        case '>':
-          return BooleanValue(left.value > right.value);
-        case '>=':
-          return BooleanValue(left.value >= right.value);
-        default:
-          throw Exception('Invalid number operator: ${binop.operator}');
-      }
-
-      if (intResult) {
-        return IntegerValue(result);
-      } else {
-        return DoubleValue(result);
-      }
-    } else if (left is StringValue || right is StringValue) {
-      final leftStr = left is StringValue ? left.value : '';
-      final rightStr = right is StringValue ? right.value : '';
-
-      switch (binop.operator) {
-        case '+':
-          return StringValue(leftStr + rightStr);
-        case '==':
-          return BooleanValue(leftStr == rightStr);
-        case '!=':
-          return BooleanValue(leftStr != rightStr);
-        default:
-          throw Exception('Invalid string operator: ${binop.operator}');
-      }
-    } else if (left is BooleanValue && right is BooleanValue) {
-      switch (binop.operator) {
-        case '&&':
-          return BooleanValue(left.value && right.value);
-        case '||':
-          return BooleanValue(left.value || right.value);
-        case '==':
-          return BooleanValue(left.value == right.value);
-        case '!=':
-          return BooleanValue(left.value != right.value);
-        default:
-          throw Exception('Invalid boolean operator: ${binop.operator}');
-      }
-    } else {
-      throw Exception('Invalid operands for operator: ${binop.operator}');
-    }
-  }
-
-  dynamic run(String name, Map<String, dynamic> args) {
-    final impl = _script.contract.implementations.firstWhere(
-      (impl) => impl.name == name,
-      orElse: () => throw Exception('Implementation $name not found'),
+    return interpreter.exec(
+      function,
+      args,
     );
+  }
 
+  /// Runs the implementation named [name] with the provided [args], returning the raw Dart value.
+  ///
+  /// Throws if the implementation is not found or if permission checks fail.
+  dynamic run(String name, Map<String, dynamic> args) {
+    final impl =
+        _script.contract.implementations.firstWhere((i) => i.name == name);
     return _invoke(impl, args).value;
   }
 
-  void invoke(String event, Map<String, dynamic> args) {
-    if (!_script.contract.hooks.any((hook) => hook.name == event)) {
-      return;
-    }
-
-    final hook = _script.contract.hooks.firstWhere(
-      (hook) => hook.name == event,
-    );
-
+  /// Emits an [event] with the given [args] to trigger a hook.
+  void emit(String event, Map<String, dynamic> args) {
+    if (!_script.contract.hooks.any((h) => h.name == event)) return;
+    final hook = _script.contract.hooks.firstWhere((h) => h.name == event);
     _invoke(hook, args);
   }
 }

@@ -2,13 +2,24 @@ import 'dart:convert';
 import 'package:dscript/dscript.dart';
 
 part 'nodes.dart';
-part 'expceptions.dart';
+part 'exceptions.dart';
 
+/// Performs syntax analysis on a token stream to produce an AST [Script].
+///
+/// Uses recursive descent parsing to handle implementations, hooks,
+/// control flow, expressions, and statements, throwing [ParseException]
+/// or [UnexpectedTokenException] upon encountering invalid syntax.
 class Parser {
-  List<Token> _tokens = [];
+  /// Internal list of tokens to consume during parsing.
+  late List<Token> _tokens;
 
+  /// Constructs a new [Parser] instance.
   Parser();
 
+  /// Parses an `impl` function implementation.
+  ///
+  /// Expects an [ImplToken], function name, parameter list, optional return type,
+  /// and a block body returning an [Implementation] AST node.
   Implementation _parseImplementation() {
     consume<ImplToken>();
     final functionName = consume<IdentifierToken>();
@@ -24,16 +35,13 @@ class Parser {
       if (peek() is CommaToken) {
         consume<CommaToken>();
         if (peek() is CloseParenthesisToken) {
-          throw UnexpectedTokenException(
-            found: peek(),
-          );
+          throw UnexpectedTokenException(found: peek());
         }
       }
     }
     consume<CloseParenthesisToken>();
 
     String returnType = 'void';
-
     if (peek() is ArrowToken) {
       consume<ArrowToken>();
       final returnTypeToken = consume<IdentifierToken>();
@@ -48,6 +56,10 @@ class Parser {
     );
   }
 
+  /// Parses a `hook` function declaration.
+  ///
+  /// Expects a [HookToken], function name, parameter list, optional return arrow,
+  /// and a block body, returning a [Hook] AST node.
   Hook _parseHook() {
     consume<HookToken>();
     final functionName = consume<IdentifierToken>();
@@ -63,9 +75,7 @@ class Parser {
       if (peek() is CommaToken) {
         consume<CommaToken>();
         if (peek() is CloseParenthesisToken) {
-          throw UnexpectedTokenException(
-            found: peek(),
-          );
+          throw UnexpectedTokenException(found: peek());
         }
       }
     }
@@ -83,36 +93,36 @@ class Parser {
     );
   }
 
+  /// Parses a block of statements delimited by `{` and `}`.
+  ///
+  /// Returns a list of [Statement] nodes parsed from the block.
   List<Statement> _parseBlock() {
     List<Statement> body = [];
     consume<OpenBraceToken>();
 
     while (peek() is! CloseBraceToken) {
       if (peek() is EndOfFileToken) {
-        throw Exception('Unexpected end of file');
+        throw ParseException('Unexpected end of file');
       }
 
       if (peek() is ReturnToken) {
         consume<ReturnToken>();
-
         final expression = _parseExpression();
         body.add(ReturnStatement(expression));
-
         consume<SemiColonToken>();
-
         continue;
       }
 
       if (peek() is IfToken) {
         body.add(_parseIfStatement());
-
         continue;
       }
 
       if (peek() is ElseToken) {
-        throw Exception('Missing if statement before else');
+        throw ParseException('Missing if statement before else');
       }
 
+      // Fallback: treat as expression statement
       body.add(_parseExpression());
     }
 
@@ -120,22 +130,21 @@ class Parser {
     return body;
   }
 
+  /// Parses an `if` statement, including optional `else if` and `else`.
+  ///
+  /// Returns an [IfStatement] AST node.
   IfStatement _parseIfStatement() {
     consume<IfToken>();
-
     consume<OpenParenthesisToken>();
     final condition = _parseBooleanExpression(const CloseParenthesisToken());
     final body = _parseBlock();
 
     ElseStatement? elseBody;
-
     if (peek() is ElseToken) {
       consume<ElseToken>();
-
       if (peek() is IfToken) {
-        final ifStatement = _parseIfStatement();
-
-        elseBody = ElseIfStatement(ifStatement.condition, ifStatement.body);
+        final ifStmt = _parseIfStatement();
+        elseBody = ElseIfStatement(ifStmt.condition, ifStmt.body);
       } else {
         elseBody = ElseStatement(_parseBlock());
       }
@@ -144,85 +153,81 @@ class Parser {
     return IfStatement(condition, body, elseBody);
   }
 
-  BooleanExpression _parseBooleanExpression([
-    Token terminator = const SemiColonToken(),
-  ]) {
+  /// Parses a boolean expression up to an optional terminator.
+  ///
+  /// Currently returns a placeholder [BooleanLiteral].
+  BooleanExpression _parseBooleanExpression(
+      [Token terminator = const SemiColonToken()]) {
     return BooleanLiteral(true);
   }
 
-  Expression _parseExpression() {
-    return _parseAdditiveExpr();
-  }
+  /// Parses a general expression (alias for additive parsing).
+  Expression _parseExpression() => _parseAdditiveExpr();
 
+  /// Parses primary expressions: identifiers, literals, parenthesized.
   Expression _parsePrimaryExpression() {
     final token = peek();
-
     switch (token) {
       case IdentifierToken():
-        final identifier = consume();
-        return Identifier(identifier.value);
+        final id = consume<IdentifierToken>();
+        return Identifier(id.value);
       case NumberToken():
         return _parseNumericLiteral();
       case OpenParenthesisToken():
         consume<OpenParenthesisToken>();
-        final expression = _parseExpression();
+        final expr = _parseExpression();
         consume<CloseParenthesisToken>();
-        return expression;
+        return expr;
       case BooleanToken():
-        final boolean = consume<BooleanToken>();
-        return BooleanLiteral(boolean.value == 'true');
+        final boolTok = consume<BooleanToken>();
+        return BooleanLiteral(boolTok.value == 'true');
       case NullToken():
         consume<NullToken>();
         return const NullLiteral();
       case StringToken():
         return StringLiteral(consume<StringToken>().value);
       default:
-        throw UnexpectedTokenException(
-          found: token,
-        );
+        throw UnexpectedTokenException(found: token);
     }
   }
 
+  /// Parses numeric literals, handling integer and double formats.
   NumericLiteral _parseNumericLiteral() {
     final number = consume<NumberToken>();
-
     if (peek() is DotToken) {
       consume<DotToken>();
       final decimal = consume<NumberToken>();
-      return DoubleLiteral(
-        double.parse('${number.value}.${decimal.value}'),
-      );
+      return DoubleLiteral(double.parse('${number.value}.${decimal.value}'));
     }
-
     return IntegerLiteral(num.parse(number.value));
   }
 
+  /// Parses addition and subtraction expressions.
   Expression _parseAdditiveExpr() {
     var left = _parseMultiplicativeExpr();
-
     while (peek().value == '+' || peek().value == '-') {
-      final operator = consume<BinaryOperatorToken>();
+      final op = consume<BinaryOperatorToken>();
       final right = _parseMultiplicativeExpr();
-
-      left = BinaryExpression(operator.value, left, right);
+      left = BinaryExpression(op.value, left, right);
     }
-
     return left;
   }
 
+  /// Parses multiplication, division, and modulo expressions.
   Expression _parseMultiplicativeExpr() {
     var left = _parsePrimaryExpression();
-
     while (peek().value == '*' || peek().value == '/' || peek().value == '%') {
-      final operator = consume<BinaryOperatorToken>();
+      final op = consume<BinaryOperatorToken>();
       final right = _parsePrimaryExpression();
-
-      left = BinaryExpression(operator.value, left, right);
+      left = BinaryExpression(op.value, left, right);
     }
-
     return left;
   }
 
+  /// Parses the top-level `contract` declaration and its contents.
+  ///
+  /// Expects a [ContractToken], contract name, and braces enclosing
+  /// implementations and hooks, returning a [Contract] AST node.
   Contract _parseContract() {
     List<Implementation> implementations = [];
     List<Hook> hooks = [];
@@ -239,34 +244,24 @@ class Parser {
           hooks.add(_parseHook());
           continue;
         case ContractToken():
-          throw Exception("Can't declare nested contracts.");
+          throw ParseException("Can't declare nested contracts.");
         case PermissionToken():
           throw ParseException(
-            'Permission declaration must be before contract declaration.',
-          );
+              'Permission declaration must be before contract declaration.');
         case CloseBraceToken():
           consume<CloseBraceToken>();
-          return Contract(
-            contractName.value,
-            implementations,
-            hooks,
-          );
+          return Contract(contractName.value, implementations, hooks);
         default:
-          throw UnexpectedTokenException(
-            found: peek(),
-          );
+          throw UnexpectedTokenException(found: peek());
       }
     }
 
     consume<CloseBraceToken>();
-
-    return Contract(
-      contractName.value,
-      implementations,
-      hooks,
-    );
+    return Contract(contractName.value, implementations, hooks);
   }
 
+  /// Parses the full [Script] from the given [SourceCode], consuming permissions
+  /// declarations and exactly one contract, then returns the AST root.
   Script parse(SourceCode code) {
     _tokens = tokenize(code);
 
@@ -282,17 +277,14 @@ class Parser {
           if (contract != null) {
             throw ParseException("Only one contract per script is allowed.");
           }
-
           contract = _parseContract();
+          continue;
         case PermissionToken():
           if (contract != null) {
             throw ParseException(
-              'Permission declaration must be before contract declaration.',
-            );
+                'Permission declaration must be before contract declaration.');
           }
-
           consume<PermissionToken>();
-
           while (peek() is! SemiColonToken) {
             if (peek() is CommaToken) {
               consume<CommaToken>();
@@ -303,38 +295,36 @@ class Parser {
             final permission = consume<IdentifierToken>();
             permissions.add(PermissionStmt(namespace.value, permission.value));
           }
-
           consume<SemiColonToken>();
           continue;
-
         case EndOfFileToken():
           break;
         default:
-          throw UnexpectedTokenException(
-            found: peek(),
-          );
+          throw UnexpectedTokenException(found: peek());
       }
     }
 
     if (contract == null) {
       throw ParseException(
-        'This script does not implement a contract. Thus parsing failed.',
-      );
+          'This script does not implement a contract. Thus parsing failed.');
     }
-
     return Script(permissions, contract);
   }
 
+  /// Returns the next token without consuming it.
+  /// Throws if no tokens remain.
   Token peek() {
     if (_tokens.isEmpty) {
-      throw Exception('No more tokens available');
+      throw ParseException('No more tokens available');
     }
     return _tokens.first;
   }
 
+  /// Removes and returns the next token, asserting it is of type [T].
+  /// Throws [UnexpectedTokenException] on mismatch or [ParseException] if empty.
   Token consume<T extends Token>() {
     if (_tokens.isEmpty) {
-      throw Exception('No more tokens available');
+      throw ParseException('No more tokens available');
     }
     final token = _tokens.first;
     if (token is T) {
