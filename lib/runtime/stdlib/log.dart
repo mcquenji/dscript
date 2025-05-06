@@ -12,7 +12,7 @@ class LogBindings extends LibraryBinding {
 
   /// Bindings for the logging standard library.
   LogBindings(this.script) : super(name: 'log') {
-    logger = logger = Logger(
+    logger = Logger(
       'Dscript.${script.contract.name}.${script.name} v${script.version} by ${script.author}',
     );
   }

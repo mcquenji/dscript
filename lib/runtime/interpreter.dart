@@ -187,7 +187,8 @@ class Interpreter {
       }
 
       // Check and perform implicit casts on return
-      if (result.type != function.returnType) {
+      if (result.type != function.returnType &&
+          !(result is NullValue && function.returnType == 'void')) {
         if (result.hasImplicitCast(function.returnType)) {
           return result.implictCast(function.returnType);
         }
