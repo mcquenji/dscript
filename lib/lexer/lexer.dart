@@ -1,5 +1,6 @@
 part 'keywords.dart';
 part 'tokens.dart';
+part 'metadata.dart';
 
 /// Represents the mutable source code buffer with tracking of line and column
 /// positions for error reporting and token metadata.
@@ -52,7 +53,7 @@ class SourceCode {
       _column += length;
     }
 
-    String consumed = _code.substring(0, length);
+    final String consumed = _code.substring(0, length);
     _code = _code.substring(length);
     return consumed;
   }
@@ -77,7 +78,7 @@ class SourceCode {
 /// - Numbers, identifiers, keywords, booleans, null, and string literals
 /// - End-of-file marker
 List<Token> tokenize(SourceCode src) {
-  List<Token> tokens = [];
+  final List<Token> tokens = [];
 
   while (src.isNotEmpty) {
     // Skip whitespace
@@ -166,7 +167,7 @@ List<Token> tokenize(SourceCode src) {
       while (src.isNotEmpty && src.peek().contains(RegExp(r'[a-zA-Z0-9_]'))) {
         identifier += src.consume();
       }
-      int column = src.column - identifier.length;
+      final int column = src.column - identifier.length;
 
       // Keyword dispatch
       switch (identifier) {
@@ -215,6 +216,27 @@ List<Token> tokenize(SourceCode src) {
           break;
         case 'hook':
           tokens.add(HookToken(line: src.line, column: column));
+          break;
+        case 'author':
+          tokens.add(AuthorToken(line: src.line, column: column));
+          break;
+        case 'version':
+          tokens.add(VersionToken(line: src.line, column: column));
+          break;
+        case 'name':
+          tokens.add(NameToken(line: src.line, column: column));
+          break;
+        case 'description':
+          tokens.add(DescriptionToken(line: src.line, column: column));
+          break;
+        case 'license':
+          tokens.add(LicenseToken(line: src.line, column: column));
+          break;
+        case 'website':
+          tokens.add(WebsiteToken(line: src.line, column: column));
+          break;
+        case 'repo':
+          tokens.add(RepoToken(line: src.line, column: column));
           break;
         default:
           tokens
@@ -330,7 +352,7 @@ List<Token> tokenize(SourceCode src) {
       default:
         // Arithmetic operators +, -, *, /, %
         if (['+', '-', '*', '/', '%'].contains(src.peek())) {
-          String op = src.consume();
+          final String op = src.consume();
           tokens.add(
               BinaryOperatorToken(op, line: src.line, column: src.column - 1));
           continue;

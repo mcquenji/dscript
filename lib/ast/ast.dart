@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dscript/dscript.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 part 'nodes.dart';
 part 'exceptions.dart';
@@ -24,7 +25,7 @@ class Parser {
     consume<ImplToken>();
     final functionName = consume<IdentifierToken>();
 
-    List<Parameter> parameters = [];
+    final List<Parameter> parameters = [];
     consume<OpenParenthesisToken>();
 
     while (peek() is! CloseParenthesisToken) {
@@ -64,7 +65,7 @@ class Parser {
     consume<HookToken>();
     final functionName = consume<IdentifierToken>();
 
-    List<Parameter> parameters = [];
+    final List<Parameter> parameters = [];
     consume<OpenParenthesisToken>();
 
     while (peek() is! CloseParenthesisToken) {
@@ -97,28 +98,36 @@ class Parser {
   ///
   /// Returns a list of [Statement] nodes parsed from the block.
   List<Statement> _parseBlock() {
-    List<Statement> body = [];
+    final List<Statement> body = [];
     consume<OpenBraceToken>();
 
     while (peek() is! CloseBraceToken) {
-      if (peek() is EndOfFileToken) {
+      final token = peek(true);
+
+      if (token is EndOfFileToken) {
         throw ParseException('Unexpected end of file');
       }
 
-      if (peek() is ReturnToken) {
+      if (token is ReturnToken) {
         consume<ReturnToken>();
+        if (peek() is SemiColonToken) {
+          consume<SemiColonToken>();
+          body.add(const ReturnStatement(null));
+          continue;
+        }
+
         final expression = _parseExpression();
         body.add(ReturnStatement(expression));
         consume<SemiColonToken>();
         continue;
       }
 
-      if (peek() is IfToken) {
+      if (token is IfToken) {
         body.add(_parseIfStatement());
         continue;
       }
 
-      if (peek() is ElseToken) {
+      if (token is ElseToken) {
         throw ParseException('Missing if statement before else');
       }
 
@@ -158,7 +167,7 @@ class Parser {
   /// Currently returns a placeholder [BooleanLiteral].
   BooleanExpression _parseBooleanExpression(
       [Token terminator = const SemiColonToken()]) {
-    return BooleanLiteral(true);
+    return const BooleanLiteral(true);
   }
 
   /// Parses a general expression (alias for additive parsing).
@@ -166,7 +175,12 @@ class Parser {
 
   /// Parses primary expressions: identifiers, literals, parenthesized.
   Expression _parsePrimaryExpression() {
-    final token = peek();
+    var token = peek();
+
+    if (token is MetadataToken) {
+      token = token.demote();
+    }
+
     switch (token) {
       case IdentifierToken():
         final id = consume<IdentifierToken>();
@@ -229,9 +243,10 @@ class Parser {
   /// Expects a [ContractToken], contract name, and braces enclosing
   /// implementations and hooks, returning a [Contract] AST node.
   Contract _parseContract() {
-    List<Implementation> implementations = [];
-    List<Hook> hooks = [];
+    final List<Implementation> implementations = [];
+    final List<Hook> hooks = [];
     consume<ContractToken>();
+
     final contractName = consume<IdentifierToken>();
     consume<OpenBraceToken>();
 
@@ -267,6 +282,13 @@ class Parser {
 
     final List<PermissionStmt> permissions = [];
     Contract? contract;
+    String? author;
+    Version? version;
+    String? description;
+    String? license;
+    String? name;
+    String? website;
+    String? repo;
 
     while (peek() is! EndOfFileToken) {
       switch (peek()) {
@@ -275,7 +297,7 @@ class Parser {
           continue;
         case ContractToken():
           if (contract != null) {
-            throw ParseException("Only one contract per script is allowed.");
+            throw ParseException('Only one contract per script is allowed.');
           }
           contract = _parseContract();
           continue;
@@ -297,6 +319,78 @@ class Parser {
           }
           consume<SemiColonToken>();
           continue;
+        case AuthorToken():
+          if (author != null) {
+            throw ParseException('Multiple author declarations found.');
+          }
+          consume<AuthorToken>();
+          author = consume<StringToken>().value;
+          consume<SemiColonToken>();
+          continue;
+        case VersionToken():
+          if (version != null) {
+            throw ParseException('Multiple version declarations found.');
+          }
+          consume<VersionToken>();
+          final versionToken = consume<StringToken>();
+          final versionString = versionToken.value;
+          try {
+            version = Version.parse(versionString);
+            consume<SemiColonToken>();
+          } on FormatException {
+            throw ParseException(
+                'Invalid version format: "$versionString". Version must follow semantic versioning (see https://semver.org/).',
+                line: versionToken.line,
+                column: versionToken.column);
+          }
+          continue;
+        case NameToken():
+          if (name != null) {
+            throw ParseException('Multiple name declarations found.');
+          }
+          consume<NameToken>();
+          name = consume<StringToken>().value;
+          consume<SemiColonToken>();
+          continue;
+        case DescriptionToken():
+          if (description != null) {
+            description += '\n';
+          } else {
+            description = '';
+          }
+
+          consume<DescriptionToken>();
+          description += consume<StringToken>().value;
+          consume<SemiColonToken>();
+          continue;
+        case LicenseToken():
+          if (license != null) {
+            throw ParseException('Multiple license declarations found.');
+          }
+
+          consume<LicenseToken>();
+          final licenseValue = consume<StringToken>().value;
+
+          license = licenseValue;
+          consume<SemiColonToken>();
+          continue;
+        case WebsiteToken():
+          if (website != null) {
+            throw ParseException('Multiple website declarations found.');
+          }
+          consume<WebsiteToken>();
+          website = consume<StringToken>().value;
+          consume<SemiColonToken>();
+          continue;
+        case RepoToken():
+          if (repo != null) {
+            throw ParseException('Multiple repo declarations found.');
+          }
+          consume<RepoToken>();
+          repo = consume<StringToken>().value;
+          consume<SemiColonToken>();
+          continue;
+
         case EndOfFileToken():
           break;
         default:
@@ -308,28 +402,65 @@ class Parser {
       throw ParseException(
           'This script does not implement a contract. Thus parsing failed.');
     }
-    return Script(permissions, contract);
+
+    if (author == null) {
+      throw ParseException('No author declaration found.');
+    }
+    if (version == null) {
+      throw ParseException('Script version is missing.');
+    }
+
+    if (name == null) {
+      throw ParseException('Script name is missing.');
+    }
+
+    return Script(
+      permissions,
+      contract,
+      author: author,
+      version: version,
+      name: name,
+      description: description,
+      license: license,
+      website: website,
+      repo: repo,
+    );
   }
 
   /// Returns the next token without consuming it.
   /// Throws if no tokens remain.
-  Token peek() {
-    if (_tokens.isEmpty) {
-      throw ParseException('No more tokens available');
-    }
-    return _tokens.first;
-  }
-
-  /// Removes and returns the next token, asserting it is of type [T].
-  /// Throws [UnexpectedTokenException] on mismatch or [ParseException] if empty.
-  Token consume<T extends Token>() {
+  Token peek([bool convertMetadata = false]) {
     if (_tokens.isEmpty) {
       throw ParseException('No more tokens available');
     }
     final token = _tokens.first;
+
+    if (token is MetadataToken && convertMetadata) {
+      return token.demote();
+    }
+
+    return token;
+  }
+
+  /// Removes and returns the next token, asserting it is of type [T].
+  /// Throws [UnexpectedTokenException] on mismatch or [ParseException] if empty.
+  Token consume<T extends Token>([bool convertMetadata = true]) {
+    if (_tokens.isEmpty) {
+      throw ParseException('No more tokens available');
+    }
+
+    if (T == IdentifierToken && peek() is MetadataToken && convertMetadata) {
+      final token = _tokens.removeAt(0);
+      if (token is MetadataToken) {
+        return token.demote();
+      }
+    }
+
+    final token = _tokens.first;
     if (token is T) {
       return _tokens.removeAt(0);
     }
+
     throw UnexpectedTokenException(expected: T, found: token);
   }
 }

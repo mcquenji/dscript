@@ -9,13 +9,13 @@ sealed class Token {
   final String value;
 
   /// Line number where the token was found (1-based), or null if not set.
-  final int? line;
+  final int line;
 
   /// Column number where the token starts (1-based), or null if not set.
-  final int? column;
+  final int column;
 
   /// Creates a [Token] with the given [value], and optional [line] and [column].
-  const Token(this.value, {this.line, this.column});
+  const Token(this.value, {this.line = -1, this.column = -1});
 
   /// Serializes this token to JSON for debugging or communication.
   ///

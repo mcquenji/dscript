@@ -43,14 +43,6 @@ class ContractToken extends KeywordToken {
   const ContractToken({super.line, super.column}) : super('contract');
 }
 
-/// Token representing the `permissions` keyword.
-///
-/// Begins a permissions block listing required capabilities for the plugin.
-class PermissionToken extends KeywordToken {
-  /// Creates a `permissions` keyword token with optional position metadata.
-  const PermissionToken({super.line, super.column}) : super('permissions');
-}
-
 /// Token representing the `return` keyword.
 ///
 /// Used to return a value from an implementation function.

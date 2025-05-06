@@ -51,7 +51,7 @@ class UnexpectedTokenException extends ParseException {
               (expected != null
                   ? 'Expected $expected but found $found'
                   : 'Unexpected token $found'),
-          line: found.line ?? -1,
-          column: found.column ?? -1,
+          line: found.line,
+          column: found.column,
         );
 }

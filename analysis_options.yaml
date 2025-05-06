@@ -19,6 +19,12 @@ linter:
   rules:
     - prefer_const_constructors
     - prefer_final_fields
+    - document_ignores
+    - prefer_single_quotes
+    - prefer_final_locals
+    - public_member_api_docs
+    - avoid_print
+    - sort_pub_dependencies
 # analyzer:
 #   exclude:
 #     - path/to/excluded/files/**

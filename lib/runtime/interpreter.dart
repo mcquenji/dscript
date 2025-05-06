@@ -36,11 +36,12 @@ class Scope {
       final variable = _variables[name]!;
 
       if (!variable.mutable) {
-        throw Exception('Cannot modify immutable variable $name');
+        throw RuntimeException('Cannot modify immutable variable $name');
       }
 
       if (!variable.nullable && value is NullValue) {
-        throw Exception('Cannot assign null to non-nullable variable $name');
+        throw RuntimeException(
+            'Cannot assign null to non-nullable variable $name');
       }
 
       variable.value = value;
@@ -57,7 +58,7 @@ class Scope {
     } else if (_parent != null) {
       return _parent.get(name);
     } else {
-      throw Exception('Variable $name not defined');
+      throw RuntimeException('Variable $name not defined');
     }
   }
 
@@ -66,13 +67,25 @@ class Scope {
   /// Useful for resetting the environment after a function call.
   Scope get root => _parent?.root ?? this;
 
+  /// Returns the parent scope of this scope, or itself if no parent exists.
   Scope pop() {
     return _parent ?? this;
   }
 }
 
+/// Evaluates DSL statements and expressions.
 class Interpreter {
+  /// The current scope for variable lookups and assignments.
   Scope scope = Scope();
+
+  /// A map of namespaces to their provided bindings.
+  final List<LibraryBinding> bindings;
+
+  /// Permissions granted to the script.
+  final List<ScriptPermission> permissions;
+
+  /// Evaluates DSL statements and expressions.
+  Interpreter({required this.bindings, required this.permissions});
 
   /// Evaluates a single [Statement] node and returns its [RuntimeValue].
   ///
@@ -101,13 +114,13 @@ class Interpreter {
         return value;
       // case ConstVariableDeclaration():
       //   if (stmt.initializer == null) {
-      //     throw Exception('Const variables must have an initializer');
+      //     throw RuntimeException('Const variables must have an initializer');
       //   }
       //   final value = _eval(stmt.initializer!);
       //   scope.set(stmt.variable, value, mutable: false);
       // case FinalVariableDeclaration():
       //   if (stmt.initializer == null) {
-      //     throw Exception('Final variables must have an initializer');
+      //     throw RuntimeException('Final variables must have an initializer');
       //   }
       //   final value = _eval(stmt.initializer!);
       //   scope.set(stmt.variable, value, mutable: false);
@@ -115,9 +128,10 @@ class Interpreter {
       // case VarVariableDeclaration():
 
       case ReturnStatement():
-        throw Exception('Return should be handled in function invocation');
+        throw const RuntimeException(
+            'Return should be handled in function invocation');
       default:
-        throw Exception('Unsupported statement: ${stmt.runtimeType}');
+        throw RuntimeException('Unsupported statement: ${stmt.runtimeType}');
     }
   }
 
@@ -129,54 +143,63 @@ class Interpreter {
 // Create a nested scope for this invocation
     scope = Scope(scope);
 
-    // Bind each parameter from provided args
-    for (final param in function.parameters) {
-      final argValue = args[param.name];
-      if (argValue == null) {
-        throw Exception('Missing argument: ${param.name}');
+    try {
+      // Bind each parameter from provided args
+      for (final param in function.parameters) {
+        final argValue = args[param.name];
+        if (argValue == null) {
+          throw RuntimeException('Missing argument: ${param.name}');
+        }
+        switch (param.type) {
+          case 'int':
+            scope.set(param.name, IntegerValue(argValue as int));
+            break;
+          case 'double':
+            scope.set(param.name, DoubleValue(argValue as double));
+            break;
+          case 'boolean':
+            scope.set(param.name, BooleanValue(argValue as bool));
+            break;
+          case 'string':
+            scope.set(param.name, StringValue(argValue as String));
+            break;
+          default:
+            throw RuntimeException('Invalid parameter type: ${param.type}');
+        }
       }
-      switch (param.type) {
-        case 'int':
-          scope.set(param.name, IntegerValue(argValue as int));
+
+      // Execute the function body
+      RuntimeValue result = const NullValue();
+      for (final stmt in function.body) {
+        if (stmt is ReturnStatement) {
+          if (stmt.expression == null && function.returnType != 'void') {
+            throw RuntimeException(
+              'Function ${function.name} must return a value',
+            );
+          }
+
+          if (stmt.expression != null) {
+            result = _eval(stmt.expression!);
+          }
           break;
-        case 'double':
-          scope.set(param.name, DoubleValue(argValue as double));
-          break;
-        case 'boolean':
-          scope.set(param.name, BooleanValue(argValue as bool));
-          break;
-        case 'string':
-          scope.set(param.name, StringValue(argValue as String));
-          break;
-        default:
-          throw Exception('Invalid parameter type: ${param.type}');
+        }
+        _eval(stmt);
       }
+
+      // Check and perform implicit casts on return
+      if (result.type != function.returnType) {
+        if (result.hasImplicitCast(function.returnType)) {
+          return result.implictCast(function.returnType);
+        }
+        throw RuntimeException(
+          'Cannot return ${result.type} from ${function.returnType} function',
+        );
+      }
+
+      return result;
+    } finally {
+      scope = scope.pop();
     }
-
-    // Execute the function body
-    RuntimeValue result = const NullValue();
-    for (final stmt in function.body) {
-      if (stmt is ReturnStatement) {
-        result = _eval(stmt.expression);
-        break;
-      }
-      _eval(stmt);
-    }
-
-    // Restore to root scope after invocation
-    scope = scope.pop();
-
-    // Check and perform implicit casts on return
-    if (result.type != function.returnType) {
-      if (result.hasImplicitCast(function.returnType)) {
-        return result.implictCast(function.returnType);
-      }
-      throw Exception(
-        'Cannot return ${result.type} from ${function.returnType} function',
-      );
-    }
-
-    return result;
   }
 
   /// Evaluates a binary expression [binop], handling numeric, string, and boolean ops.
@@ -199,7 +222,9 @@ class Interpreter {
           raw = left.value * right.value;
           break;
         case '/':
-          if (right.value == 0) throw Exception('Division by zero');
+          if (right.value == 0) {
+            throw const RuntimeException('Division by zero');
+          }
           raw = left.value / right.value;
           intResult = false;
           break;
@@ -220,7 +245,7 @@ class Interpreter {
         case '>=':
           return BooleanValue(left.value >= right.value);
         default:
-          throw Exception('Invalid operator: ${binop.operator}');
+          throw RuntimeException('Invalid operator: ${binop.operator}');
       }
       return intResult ? IntegerValue(raw) : DoubleValue(raw);
     }
@@ -237,7 +262,7 @@ class Interpreter {
         case '!=':
           return BooleanValue(l != r);
         default:
-          throw Exception('Invalid string operator: ${binop.operator}');
+          throw RuntimeException('Invalid string operator: ${binop.operator}');
       }
     }
 
@@ -253,10 +278,10 @@ class Interpreter {
         case '!=':
           return BooleanValue(left.value != right.value);
         default:
-          throw Exception('Invalid boolean operator: ${binop.operator}');
+          throw RuntimeException('Invalid boolean operator: ${binop.operator}');
       }
     }
 
-    throw Exception('Unsupported operands for ${binop.operator}');
+    throw RuntimeException('Unsupported operands for ${binop.operator}');
   }
 }

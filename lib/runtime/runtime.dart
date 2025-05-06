@@ -1,31 +1,34 @@
 import 'dart:math';
 
 import 'package:dscript/dscript.dart';
+import 'package:dscript/runtime/stdlib/stdlib.dart';
 
 part 'values.dart';
 part 'interpreter.dart';
+part 'bindings.dart';
+part 'exceptions.dart';
 
 /// Represents a permission required or granted to execute script operations.
 ///
-/// Permissions are identified by a [namespace] and a [method], matching the DSL's
+/// Permissions are identified by a [namespace] and a [name], matching the DSL's
 /// declared `permissions` statements. Custom host permissions use the `external` namespace.
 class ScriptPermission {
   /// The namespace associated with this permission (e.g., 'fs', 'ntwk', or 'external').
   final String namespace;
 
   /// The method or action within the namespace (e.g., 'read', 'write', 'client').
-  final String method;
+  final String name;
 
-  /// Creates a permission in a specific [namespace] for [method].
-  const ScriptPermission._(this.namespace, this.method);
+  /// Creates a permission in a specific [namespace] for [name].
+  const ScriptPermission._(this.namespace, this.name);
 
   /// Creates a custom host-defined permission with the `external` namespace.
-  const ScriptPermission.custom(this.method) : namespace = 'external';
+  const ScriptPermission.custom(this.name) : namespace = 'external';
 
   @override
 
   /// Returns the DSL-style string representation `namespace::method`.
-  String toString() => '$namespace::$method';
+  String toString() => '$namespace::$name';
 
   /// Permission to read from the filesystem (`fs::read`).
   static const readFiles = ScriptPermission._('fs', 'read');
@@ -34,24 +37,20 @@ class ScriptPermission {
   static const writeFiles = ScriptPermission._('fs', 'write');
 
   /// Permission to perform network client requests (`ntwk::client`).
-  static const networkClient = ScriptPermission._('ntwk', 'client');
+  static const networkClient = ScriptPermission._('http', 'client');
 
   /// Permission to start a network server (`ntwk::server`).
-  static const networkServer = ScriptPermission._('ntwk', 'server');
+  static const networkServer = ScriptPermission._('http', 'server');
 
   @override
-
-  /// Compares two permissions by namespace and method.
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! ScriptPermission) return false;
-    return namespace == other.namespace && method == other.method;
+    return namespace == other.namespace && name == other.name;
   }
 
   @override
-
-  /// Generates a combined hash code for namespace and method.
-  int get hashCode => Object.hash(namespace, method);
+  int get hashCode => Object.hash(namespace, name);
 }
 
 /// Executes a parsed DSL script by evaluating statements and expressions.
@@ -66,16 +65,45 @@ class Runtime {
   /// Permissions required by the script, derived from its top-level `permissions` statements.
   final List<ScriptPermission> _requiredPermissions = [];
 
+  final ExternalBindings _bindings = ExternalBindings();
+
   /// The AST [Script] to execute.
   final Script _script;
 
   /// Creates a [Runtime] for the given parsed DSL [_script].
   ///
   /// Populates [_requiredPermissions] from the script's declared permissions.
-  Runtime(this._script) {
+  Runtime(
+    this._script, {
+    List<Implementation> implementations = const [],
+    List<Hook> hooks = const [],
+  }) {
     _requiredPermissions.addAll(
       _script.permissions.map((p) => ScriptPermission._(p.namespace, p.method)),
     );
+
+    /// Check if all implementations are defined in the script.
+    for (final impl in implementations) {
+      if (!_script.contract.implementations.any((i) => i.sameAs(impl))) {
+        throw RuntimeException('Script is missing implementation ${impl.name}');
+      }
+    }
+
+    /// Check if any non-existent hooks are referenced.
+    for (final hook in _script.contract.hooks) {
+      if (!hooks.any((h) => h.sameAs(hook))) {
+        throw RuntimeException(
+            'Script is referencing undefined hook ${hook.name}');
+      }
+    }
+
+    /// Check if any non-existent implementations are referenced.
+    for (final impl in _script.contract.implementations) {
+      if (!implementations.any((h) => h.sameAs(impl))) {
+        throw RuntimeException(
+            'Script is referencing undefined implementation ${impl.name}');
+      }
+    }
   }
 
   /// The list of granted permissions (unmodifiable).
@@ -93,7 +121,7 @@ class Runtime {
       _permissions.add(permission);
     } else {
       _permissions.removeWhere((p) =>
-          p.namespace == permission.namespace && p.method == permission.method);
+          p.namespace == permission.namespace && p.name == permission.name);
     }
   }
 
@@ -103,10 +131,14 @@ class Runtime {
     Map<String, dynamic> args,
   ) {
     if (missingPermissions.isNotEmpty) {
-      throw Exception('Missing permissions: ${missingPermissions.join(', ')}');
+      throw RuntimeException(
+          'Missing permissions: ${missingPermissions.join(', ')}');
     }
 
-    final interpreter = Interpreter();
+    final interpreter = Interpreter(
+      bindings: [...LibraryBinding.stdLib(_script), _bindings],
+      permissions: _permissions,
+    );
 
     return interpreter.exec(
       function,
@@ -114,10 +146,31 @@ class Runtime {
     );
   }
 
+  /// Binds a Dart function to the runtime, allowing it to be called from the DSL.
+  void bind({
+    required String name,
+    required Function function,
+    Map<Symbol, Type> params = const {},
+    List<ScriptPermission> permissions = const [],
+  }) {
+    _bindings.addBinding(
+      RuntimeBinding(
+        name: name,
+        function: function,
+        namedParams: params,
+        permissions: permissions,
+      ),
+    );
+  }
+
   /// Runs the implementation named [name] with the provided [args], returning the raw Dart value.
   ///
   /// Throws if the implementation is not found or if permission checks fail.
   dynamic run(String name, Map<String, dynamic> args) {
+    if (!_script.contract.implementations.any((i) => i.name == name)) {
+      throw RuntimeException('$name is not implemented in the script');
+    }
+
     final impl =
         _script.contract.implementations.firstWhere((i) => i.name == name);
     return _invoke(impl, args).value;

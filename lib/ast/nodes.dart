@@ -37,8 +37,39 @@ class Script extends Statement {
   /// The main contract declared in the script.
   final Contract contract;
 
+  /// The author of the script.
+  final String author;
+
+  /// The version of the script.
+  final Version version;
+
+  /// Optional description of the script.
+  final String? description;
+
+  /// Optional license information for the script.
+  final String? license;
+
+  /// Optional repository URL for the script.
+  final String? repo;
+
+  /// The name of the script.
+  final String name;
+
+  /// Optional website URL for the script.
+  final String? website;
+
   /// Creates a [Script] with the given [permissions] and [contract].
-  const Script(this.permissions, this.contract);
+  const Script(
+    this.permissions,
+    this.contract, {
+    required this.author,
+    required this.version,
+    required this.name,
+    this.description,
+    this.license,
+    this.repo,
+    this.website,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -124,6 +155,18 @@ class FunctionDeclaration extends Statement {
       'body': body,
     };
   }
+
+  /// Checks if this function is equivalent to [other].
+  ///
+  /// Two functions are considered the same if they have the same name,
+  /// the same number of parameters, and the same return type.
+  ///
+  /// Function bodies and order of parameters are not considered in this equality check.
+  bool sameAs(FunctionDeclaration other) {
+    return name == other.name &&
+        parameters.length == other.parameters.length &&
+        returnType == other.returnType;
+  }
 }
 
 /// AST node for a contract implementation function.
@@ -137,6 +180,21 @@ class Implementation extends FunctionDeclaration {
     required super.returnType,
     required super.body,
   });
+
+  /// Creates a static [Implementation] with the given [name] and [parameters] and an empty body.
+  ///
+  /// Used to define required implementations for the contract.
+  factory Implementation.static({
+    required String name,
+    required List<Parameter> parameters,
+    required String returnType,
+  }) =>
+      Implementation(
+        name: name,
+        parameters: parameters,
+        body: [],
+        returnType: returnType,
+      );
 }
 
 /// AST node for a hook function, always returns void.
@@ -150,6 +208,19 @@ class Hook extends FunctionDeclaration {
   }) : super(
           returnType: 'void',
         );
+
+  /// Creates a static [Hook] with the given [name] and [parameters] and an empty body.
+  ///
+  /// Used to define available hooks for the contract.
+  factory Hook.static({
+    required String name,
+    required List<Parameter> parameters,
+  }) =>
+      Hook(
+        name: name,
+        parameters: parameters,
+        body: [],
+      );
 }
 
 /// AST node representing a function parameter: `name: type`.
@@ -314,7 +385,7 @@ class ComparisonExpression extends BooleanExpression {
 /// AST node for a return statement: `return expression;`.
 class ReturnStatement extends Statement {
   /// The expression to return.
-  final Expression expression;
+  final Expression? expression;
 
   /// Creates a [ReturnStatement] for the given [expression].
   const ReturnStatement(this.expression);
@@ -484,6 +555,30 @@ class WhileStatement extends FlowControlStatement {
     return {
       'condition': condition,
       'body': body,
+    };
+  }
+}
+
+/// AST node for an external call to a method in a namespace (e.g., `math::floor(3.5)`).
+class ExternalCall extends Statement {
+  /// The namespace of the external method.
+  final String namespace;
+
+  /// The method name being called.
+  final String method;
+
+  /// Arguments passed to the method, as a map of parameter names to expressions.
+  final Map<String, Expression> args;
+
+  /// AST node for an external call to a method in a namespace (e.g., `math::floor(3.5)`).
+  const ExternalCall(this.namespace, this.method, this.args);
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'namespace': namespace,
+      'method': method,
+      'args': args,
     };
   }
 }
