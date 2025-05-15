@@ -1,9 +1,15 @@
 import 'dart:convert';
+import 'package:dscript/analyzer/analyzer.dart';
 import 'package:dscript/dscript.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 part 'nodes.dart';
 part 'exceptions.dart';
+part 'parsers/functions.dart';
+part 'parsers/flow_control.dart';
+part 'parsers/expressions.dart';
+part 'parsers/contract.dart';
+part 'parsers/metadata.dart';
 
 /// Performs syntax analysis on a token stream to produce an AST [Script].
 ///
@@ -17,83 +23,6 @@ class Parser {
   /// Constructs a new [Parser] instance.
   Parser();
 
-  /// Parses an `impl` function implementation.
-  ///
-  /// Expects an [ImplToken], function name, parameter list, optional return type,
-  /// and a block body returning an [Implementation] AST node.
-  Implementation _parseImplementation() {
-    consume<ImplToken>();
-    final functionName = consume<IdentifierToken>();
-
-    final List<Parameter> parameters = [];
-    consume<OpenParenthesisToken>();
-
-    while (peek() is! CloseParenthesisToken) {
-      final parameterType = consume<IdentifierToken>();
-      final parameterName = consume<IdentifierToken>();
-      parameters.add(Parameter(parameterName.value, parameterType.value));
-
-      if (peek() is CommaToken) {
-        consume<CommaToken>();
-        if (peek() is CloseParenthesisToken) {
-          throw UnexpectedTokenException(found: peek());
-        }
-      }
-    }
-    consume<CloseParenthesisToken>();
-
-    String returnType = 'void';
-    if (peek() is ArrowToken) {
-      consume<ArrowToken>();
-      final returnTypeToken = consume<IdentifierToken>();
-      returnType = returnTypeToken.value;
-    }
-
-    return Implementation(
-      name: functionName.value,
-      parameters: parameters,
-      body: _parseBlock(),
-      returnType: returnType,
-    );
-  }
-
-  /// Parses a `hook` function declaration.
-  ///
-  /// Expects a [HookToken], function name, parameter list, optional return arrow,
-  /// and a block body, returning a [Hook] AST node.
-  Hook _parseHook() {
-    consume<HookToken>();
-    final functionName = consume<IdentifierToken>();
-
-    final List<Parameter> parameters = [];
-    consume<OpenParenthesisToken>();
-
-    while (peek() is! CloseParenthesisToken) {
-      final parameterType = consume<IdentifierToken>();
-      final parameterName = consume<IdentifierToken>();
-      parameters.add(Parameter(parameterName.value, parameterType.value));
-
-      if (peek() is CommaToken) {
-        consume<CommaToken>();
-        if (peek() is CloseParenthesisToken) {
-          throw UnexpectedTokenException(found: peek());
-        }
-      }
-    }
-    consume<CloseParenthesisToken>();
-
-    if (peek() is ArrowToken) {
-      consume<ArrowToken>();
-      consume<IdentifierToken>();
-    }
-
-    return Hook(
-      name: functionName.value,
-      parameters: parameters,
-      body: _parseBlock(),
-    );
-  }
-
   /// Parses a block of statements delimited by `{` and `}`.
   ///
   /// Returns a list of [Statement] nodes parsed from the block.
@@ -105,7 +34,11 @@ class Parser {
       final token = peek(true);
 
       if (token is EndOfFileToken) {
-        throw ParseException('Unexpected end of file');
+        throw ParseException(
+          'Unexpected end of file',
+          line: token.line,
+          column: token.column,
+        );
       }
 
       if (token is ReturnToken) {
@@ -128,7 +61,11 @@ class Parser {
       }
 
       if (token is ElseToken) {
-        throw ParseException('Missing if statement before else');
+        throw ParseException(
+          'Missing if statement before else',
+          line: token.line,
+          column: token.column,
+        );
       }
 
       // Fallback: treat as expression statement
@@ -137,29 +74,6 @@ class Parser {
 
     consume<CloseBraceToken>();
     return body;
-  }
-
-  /// Parses an `if` statement, including optional `else if` and `else`.
-  ///
-  /// Returns an [IfStatement] AST node.
-  IfStatement _parseIfStatement() {
-    consume<IfToken>();
-    consume<OpenParenthesisToken>();
-    final condition = _parseBooleanExpression(const CloseParenthesisToken());
-    final body = _parseBlock();
-
-    ElseStatement? elseBody;
-    if (peek() is ElseToken) {
-      consume<ElseToken>();
-      if (peek() is IfToken) {
-        final ifStmt = _parseIfStatement();
-        elseBody = ElseIfStatement(ifStmt.condition, ifStmt.body);
-      } else {
-        elseBody = ElseStatement(_parseBlock());
-      }
-    }
-
-    return IfStatement(condition, body, elseBody);
   }
 
   /// Parses a boolean expression up to an optional terminator.
@@ -205,6 +119,40 @@ class Parser {
     }
   }
 
+  ExternalCall _parseExternalCall() {
+    final namespace = consume<IdentifierToken>().value;
+    consume<DoubleColonToken>();
+    final functionName = consume<IdentifierToken>().value;
+
+    final List<Expression> args = [];
+    final Map<String, Expression> namedArgs = {};
+
+    _parseArgs(args, namedArgs);
+
+    return ExternalCall(namespace, functionName, namedArgs, args);
+  }
+
+  void _parseArgs(List<Expression> args, Map<String, Expression> namedArgs) {
+    consume<OpenParenthesisToken>();
+    while (peek() is! CloseParenthesisToken) {
+      if (peek() is CommaToken) {
+        consume<CommaToken>();
+        continue;
+      }
+
+      if (peek() is IdentifierToken && peek() is ColonToken) {
+        final name = consume<IdentifierToken>().value;
+        consume<EqualsToken>();
+        final value = _parseExpression();
+        namedArgs[name] = value;
+      } else {
+        final arg = _parseExpression();
+        args.add(arg);
+      }
+    }
+    consume<CloseParenthesisToken>();
+  }
+
   /// Parses numeric literals, handling integer and double formats.
   NumericLiteral _parseNumericLiteral() {
     final number = consume<NumberToken>();
@@ -238,43 +186,6 @@ class Parser {
     return left;
   }
 
-  /// Parses the top-level `contract` declaration and its contents.
-  ///
-  /// Expects a [ContractToken], contract name, and braces enclosing
-  /// implementations and hooks, returning a [Contract] AST node.
-  Contract _parseContract() {
-    final List<Implementation> implementations = [];
-    final List<Hook> hooks = [];
-    consume<ContractToken>();
-
-    final contractName = consume<IdentifierToken>();
-    consume<OpenBraceToken>();
-
-    while (peek() is! EndOfFileToken) {
-      switch (peek()) {
-        case ImplToken():
-          implementations.add(_parseImplementation());
-          continue;
-        case HookToken():
-          hooks.add(_parseHook());
-          continue;
-        case ContractToken():
-          throw ParseException("Can't declare nested contracts.");
-        case PermissionToken():
-          throw ParseException(
-              'Permission declaration must be before contract declaration.');
-        case CloseBraceToken():
-          consume<CloseBraceToken>();
-          return Contract(contractName.value, implementations, hooks);
-        default:
-          throw UnexpectedTokenException(found: peek());
-      }
-    }
-
-    consume<CloseBraceToken>();
-    return Contract(contractName.value, implementations, hooks);
-  }
-
   /// Parses the full [Script] from the given [SourceCode], consuming permissions
   /// declarations and exactly one contract, then returns the AST root.
   Script parse(SourceCode code) {
@@ -297,60 +208,53 @@ class Parser {
           continue;
         case ContractToken():
           if (contract != null) {
-            throw ParseException('Only one contract per script is allowed.');
+            throw ParseException(
+              'Only one contract per script is allowed.',
+              line: peek().line,
+              column: peek().column,
+            );
           }
           contract = _parseContract();
           continue;
         case PermissionToken():
           if (contract != null) {
             throw ParseException(
-                'Permission declaration must be before contract declaration.');
+              'Permission declaration must be before contract declaration.',
+              line: peek().line,
+              column: peek().column,
+            );
           }
-          consume<PermissionToken>();
-          while (peek() is! SemiColonToken) {
-            if (peek() is CommaToken) {
-              consume<CommaToken>();
-              continue;
-            }
-            final namespace = consume<IdentifierToken>();
-            consume<DoubleColonToken>();
-            final permission = consume<IdentifierToken>();
-            permissions.add(PermissionStmt(namespace.value, permission.value));
-          }
-          consume<SemiColonToken>();
+          permissions.addAll(_parsePermissions());
           continue;
         case AuthorToken():
           if (author != null) {
-            throw ParseException('Multiple author declarations found.');
+            throw ParseException(
+              'Multiple author declarations found.',
+              line: peek().line,
+              column: peek().column,
+            );
           }
-          consume<AuthorToken>();
-          author = consume<StringToken>().value;
-          consume<SemiColonToken>();
+          author = _parseAuthor();
           continue;
         case VersionToken():
           if (version != null) {
-            throw ParseException('Multiple version declarations found.');
-          }
-          consume<VersionToken>();
-          final versionToken = consume<StringToken>();
-          final versionString = versionToken.value;
-          try {
-            version = Version.parse(versionString);
-            consume<SemiColonToken>();
-          } on FormatException {
             throw ParseException(
-                'Invalid version format: "$versionString". Version must follow semantic versioning (see https://semver.org/).',
-                line: versionToken.line,
-                column: versionToken.column);
+              'Multiple version declarations found.',
+              line: peek().line,
+              column: peek().column,
+            );
           }
+          version = _parseVersion();
           continue;
         case NameToken():
           if (name != null) {
-            throw ParseException('Multiple name declarations found.');
+            throw ParseException(
+              'Multiple name declarations found.',
+              line: peek().line,
+              column: peek().column,
+            );
           }
-          consume<NameToken>();
-          name = consume<StringToken>().value;
-          consume<SemiColonToken>();
+          name = _parseName();
           continue;
         case DescriptionToken():
           if (description != null) {
@@ -359,36 +263,38 @@ class Parser {
             description = '';
           }
 
-          consume<DescriptionToken>();
-          description += consume<StringToken>().value;
-          consume<SemiColonToken>();
+          description += _parseDescription();
           continue;
         case LicenseToken():
           if (license != null) {
-            throw ParseException('Multiple license declarations found.');
+            throw ParseException(
+              'Multiple license declarations found.',
+              line: peek().line,
+              column: peek().column,
+            );
           }
 
-          consume<LicenseToken>();
-          final licenseValue = consume<StringToken>().value;
-
-          license = licenseValue;
-          consume<SemiColonToken>();
+          license = _parseLicense();
           continue;
         case WebsiteToken():
           if (website != null) {
-            throw ParseException('Multiple website declarations found.');
+            throw ParseException(
+              'Multiple website declarations found.',
+              line: peek().line,
+              column: peek().column,
+            );
           }
-          consume<WebsiteToken>();
-          website = consume<StringToken>().value;
-          consume<SemiColonToken>();
+          website = _parseWebsite();
           continue;
         case RepoToken():
           if (repo != null) {
-            throw ParseException('Multiple repo declarations found.');
+            throw ParseException(
+              'Multiple repo declarations found.',
+              line: peek().line,
+              column: peek().column,
+            );
           }
-          consume<RepoToken>();
-          repo = consume<StringToken>().value;
-          consume<SemiColonToken>();
+          repo = _parseRepo();
           continue;
 
         case EndOfFileToken():

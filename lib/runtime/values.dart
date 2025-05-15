@@ -29,6 +29,9 @@ sealed class RuntimeValue<T> {
   /// Dart runtime type in lowercase form.
   String get type => value.runtimeType.toString().toLowerCase();
 
+  /// Returns the DSL type of this runtime value.
+  $Type get dslType => $Type.from(type);
+
   /// List of types to which this value can be implicitly cast.
   ///
   /// Subclasses should override to declare allowed implicit conversions.

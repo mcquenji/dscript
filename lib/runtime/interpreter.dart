@@ -87,11 +87,33 @@ class Interpreter {
   /// Evaluates DSL statements and expressions.
   Interpreter({required this.bindings, required this.permissions});
 
+  RuntimeValue _external(ExternalCall call) {
+    if (!bindings.any((b) => b.name == call.namespace)) {
+      throw RuntimeException('No such namespace: ${call.namespace}');
+    }
+
+    final binding = bindings.firstWhere((b) => b.name == call.namespace);
+
+    if (!binding.bindings.any((b) => b.name == call.method)) {
+      throw RuntimeException(
+        'No such function defined in ${binding.name}: ${call.method}',
+      );
+    }
+
+    final function =
+        binding.bindings.firstWhere((b) => b.name == call.method).function;
+
+    return function(
+      call.positionalArgs,
+      namedArgs: call.namedArgs,
+    );
+  }
+
   /// Evaluates a single [Statement] node and returns its [RuntimeValue].
   ///
   /// Handles expressions, assignments, and binary operations; control flow
   /// and function declarations are not directly evaluated here.
-  RuntimeValue _eval(Statement stmt) {
+  RuntimeValue eval(Statement stmt) {
     switch (stmt) {
       case Identifier():
         return scope.get(stmt.name);
@@ -109,9 +131,11 @@ class Interpreter {
         return _evalBinop(stmt);
       case AssignmentStatement():
         final assign = stmt;
-        final value = _eval(assign.expression);
+        final value = eval(assign.expression);
         scope.set(assign.variable, value);
         return value;
+      case ExternalCall():
+        return _external(stmt);
       // case ConstVariableDeclaration():
       //   if (stmt.initializer == null) {
       //     throw RuntimeException('Const variables must have an initializer');
@@ -179,11 +203,11 @@ class Interpreter {
           }
 
           if (stmt.expression != null) {
-            result = _eval(stmt.expression!);
+            result = eval(stmt.expression!);
           }
           break;
         }
-        _eval(stmt);
+        eval(stmt);
       }
 
       // Check and perform implicit casts on return
@@ -205,8 +229,8 @@ class Interpreter {
 
   /// Evaluates a binary expression [binop], handling numeric, string, and boolean ops.
   RuntimeValue _evalBinop(BinaryExpression binop) {
-    final left = _eval(binop.left);
-    final right = _eval(binop.right);
+    final left = eval(binop.left);
+    final right = eval(binop.right);
 
     // Numeric operations
     if (left is NumberValue && right is NumberValue) {

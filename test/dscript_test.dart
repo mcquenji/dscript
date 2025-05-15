@@ -1,3 +1,4 @@
+import 'package:dscript/analyzer/analyzer.dart';
 import 'package:test/test.dart';
 import 'package:dscript/dscript.dart';
 
@@ -94,7 +95,13 @@ contract C {
     test('missingPermissions reflects required permissions', () {
       final runtime = Runtime(
         script,
-        implementations: script.contract.implementations,
+        implementations: [
+          ImplementationSignature(
+            name: 'foo',
+            namedParameters: [],
+            returnType: PrimitiveType.VOID,
+          ),
+        ],
       );
       expect(runtime.missingPermissions, contains(ScriptPermission.readFiles));
       expect(
@@ -104,7 +111,13 @@ contract C {
     test('allow grants permission and run succeeds', () {
       final runtime = Runtime(
         script,
-        implementations: script.contract.implementations,
+        implementations: [
+          ImplementationSignature(
+            name: 'foo',
+            namedParameters: [],
+            returnType: PrimitiveType.VOID,
+          ),
+        ],
       );
       runtime.allow(ScriptPermission.readFiles);
       runtime.allow(ScriptPermission.networkClient);
@@ -115,7 +128,13 @@ contract C {
     test('run without granting all permissions throws', () {
       final runtime = Runtime(
         script,
-        implementations: script.contract.implementations,
+        implementations: [
+          ImplementationSignature(
+            name: 'foo',
+            namedParameters: [],
+            returnType: PrimitiveType.VOID,
+          ),
+        ],
       );
       runtime.allow(ScriptPermission.readFiles);
       expect(
@@ -128,8 +147,8 @@ contract C {
     test('constructor throws if implementation missing', () {
       expect(
         () => Runtime(script, implementations: []),
-        throwsA(isA<RuntimeException>().having((e) => e.message, 'message',
-            contains('Script is referencing undefined implementation foo'))),
+        throwsA(isA<AnalyzerError>().having((e) => e.toString(), 'message',
+            contains('Unrecognized implementation: foo() -> void'))),
       );
     });
   });

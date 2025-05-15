@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dscript/analyzer/analyzer.dart';
 import 'package:dscript/dscript.dart';
 import 'package:dscript/runtime/stdlib/stdlib.dart';
 
@@ -75,35 +76,25 @@ class Runtime {
   /// Populates [_requiredPermissions] from the script's declared permissions.
   Runtime(
     this._script, {
-    List<Implementation> implementations = const [],
-    List<Hook> hooks = const [],
+    /// List of [ImplementationSignature]s the script is required to define.
+    List<ImplementationSignature> implementations = const [],
+
+    /// List of [HookSignature]s the script may listen to.
+    List<HookSignature> hooks = const [],
+
+    /// List of struct definitions passed to the contract or returned from it.
+    List<Struct> structs = const [],
   }) {
     _requiredPermissions.addAll(
       _script.permissions.map((p) => ScriptPermission._(p.namespace, p.method)),
     );
 
-    /// Check if all implementations are defined in the script.
-    for (final impl in implementations) {
-      if (!_script.contract.implementations.any((i) => i.sameAs(impl))) {
-        throw RuntimeException('Script is missing implementation ${impl.name}');
-      }
-    }
-
-    /// Check if any non-existent hooks are referenced.
-    for (final hook in _script.contract.hooks) {
-      if (!hooks.any((h) => h.sameAs(hook))) {
-        throw RuntimeException(
-            'Script is referencing undefined hook ${hook.name}');
-      }
-    }
-
-    /// Check if any non-existent implementations are referenced.
-    for (final impl in _script.contract.implementations) {
-      if (!implementations.any((h) => h.sameAs(impl))) {
-        throw RuntimeException(
-            'Script is referencing undefined implementation ${impl.name}');
-      }
-    }
+    Analyzer(
+      script: _script,
+      implementations: implementations,
+      hooks: hooks,
+      structs: structs,
+    ).analyze();
   }
 
   /// The list of granted permissions (unmodifiable).

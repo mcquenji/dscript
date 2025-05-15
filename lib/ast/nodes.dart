@@ -180,21 +180,6 @@ class Implementation extends FunctionDeclaration {
     required super.returnType,
     required super.body,
   });
-
-  /// Creates a static [Implementation] with the given [name] and [parameters] and an empty body.
-  ///
-  /// Used to define required implementations for the contract.
-  factory Implementation.static({
-    required String name,
-    required List<Parameter> parameters,
-    required String returnType,
-  }) =>
-      Implementation(
-        name: name,
-        parameters: parameters,
-        body: [],
-        returnType: returnType,
-      );
 }
 
 /// AST node for a hook function, always returns void.
@@ -208,22 +193,9 @@ class Hook extends FunctionDeclaration {
   }) : super(
           returnType: 'void',
         );
-
-  /// Creates a static [Hook] with the given [name] and [parameters] and an empty body.
-  ///
-  /// Used to define available hooks for the contract.
-  factory Hook.static({
-    required String name,
-    required List<Parameter> parameters,
-  }) =>
-      Hook(
-        name: name,
-        parameters: parameters,
-        body: [],
-      );
 }
 
-/// AST node representing a function parameter: `name: type`.
+/// AST node representing a function parameter: `type name`.
 class Parameter extends Statement {
   /// The parameter's identifier.
   final String name;
@@ -231,8 +203,11 @@ class Parameter extends Statement {
   /// The declared type of the parameter.
   final String type;
 
-  /// Creates a [Parameter] with [name] and [type].
-  const Parameter(this.name, this.type);
+  /// Indicating if the parameter is nullable.
+  final bool nullable;
+
+  /// AST node representing a function parameter: `type name`.
+  const Parameter(this.name, this.type, this.nullable);
 
   @override
   Map<String, dynamic> toMap() {
@@ -424,14 +399,18 @@ sealed class VariableDeclaration extends Statement {
   /// The expression assigned to the variable.
   final Expression? initializer;
 
+  /// The declared type of the variable, if any.
+  final $Type? type;
+
   /// Creates a [VariableDeclaration] with [type], [variable], and [initializer].
-  const VariableDeclaration(this.variable, this.initializer);
+  const VariableDeclaration(this.variable, this.initializer, {this.type});
 
   @override
   Map<String, dynamic> toMap() {
     return {
       'variable': variable,
       'expression': initializer,
+      'type': type?.toMap(),
     };
   }
 }
@@ -439,43 +418,21 @@ sealed class VariableDeclaration extends Statement {
 /// AST node for final variable declaration: `final variable = expression;`.
 class FinalVariableDeclaration extends VariableDeclaration {
   /// Creates a [FinalVariableDeclaration] with [variable] and [expression].
-  const FinalVariableDeclaration(super.variable, super.expression);
-
-  @override
-  Map<String, dynamic> toMap() {
-    return {
-      'variable': variable,
-      'expression': initializer,
-    };
-  }
+  const FinalVariableDeclaration(super.variable, super.expression,
+      {super.type});
 }
 
 /// AST node for const variable declaration: `const variable = expression;`.
 class ConstVariableDeclaration extends VariableDeclaration {
   /// Creates a [ConstVariableDeclaration] with [variable] and [expression].
-  const ConstVariableDeclaration(super.variable, super.expression);
-
-  @override
-  Map<String, dynamic> toMap() {
-    return {
-      'variable': variable,
-      'expression': initializer,
-    };
-  }
+  const ConstVariableDeclaration(super.variable, super.expression,
+      {super.type});
 }
 
 /// AST node for var variable declaration: `var variable = expression;`.
 class VarVariableDeclaration extends VariableDeclaration {
   /// Creates a [VarVariableDeclaration] with [variable] and [expression].
-  const VarVariableDeclaration(super.variable, super.expression);
-
-  @override
-  Map<String, dynamic> toMap() {
-    return {
-      'variable': variable,
-      'expression': initializer,
-    };
-  }
+  const VarVariableDeclaration(super.variable, super.expression, {super.type});
 }
 
 /// Base class for loop and conditional control flow statements.
@@ -567,18 +524,26 @@ class ExternalCall extends Statement {
   /// The method name being called.
   final String method;
 
-  /// Arguments passed to the method, as a map of parameter names to expressions.
-  final Map<String, Expression> args;
+  /// Named arguments passed to the method, as a map of parameter names to expressions.
+  final Map<String, Expression> namedArgs;
+
+  /// Positional arguments passed to the method, as a list of expressions in order.
+  final List<Expression> positionalArgs;
 
   /// AST node for an external call to a method in a namespace (e.g., `math::floor(3.5)`).
-  const ExternalCall(this.namespace, this.method, this.args);
+  const ExternalCall(
+    this.namespace,
+    this.method,
+    this.namedArgs,
+    this.positionalArgs,
+  );
 
   @override
   Map<String, dynamic> toMap() {
     return {
       'namespace': namespace,
       'method': method,
-      'args': args,
+      'args': namedArgs,
     };
   }
 }

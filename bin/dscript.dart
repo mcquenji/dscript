@@ -1,6 +1,7 @@
 // Printing for testing purposes
 // ignore_for_file: avoid_print
 
+import 'package:dscript/analyzer/analyzer.dart';
 import 'package:dscript/dscript.dart';
 import 'package:logging/logging.dart';
 
@@ -38,7 +39,8 @@ void main(List<String> arguments) {
 author "McQuenji";
 version "0.0.1";
 name "TestScript";
-description "Random number generator";
+description "Random number generator.";
+description "For testing purposes.";
 license "MIT";
 website "https://example.com";
 repo "https://github.com/mcquenji/dscript";
@@ -62,6 +64,11 @@ contract Random {
     // Test implementation
   }
 
+  hook onLogout() -> void {
+    // Hook implementation
+    // return "Logout successful!";
+  }
+
   hook onLogin(string username) {
     // Hook implementation
   }
@@ -78,26 +85,34 @@ contract Random {
   final runtime = Runtime(
     script,
     implementations: [
-      Implementation.static(
+      ImplementationSignature(
         name: 'randomNumber',
-        parameters: [const Parameter('foo', 'int')],
-        returnType: 'double',
+        namedParameters: [
+          const ParameterSignature(name: 'foo', type: PrimitiveType.INT)
+        ],
+        returnType: PrimitiveType.DOUBLE,
       ),
-      Implementation.static(
+      ImplementationSignature(
         name: 'randomString',
-        parameters: [],
-        returnType: 'string',
+        namedParameters: [],
+        returnType: PrimitiveType.STRING,
       ),
-      Implementation.static(name: 'test', parameters: [], returnType: 'void'),
+      ImplementationSignature(
+        name: 'test',
+        namedParameters: [],
+        returnType: PrimitiveType.VOID,
+      ),
     ],
     hooks: [
-      Hook.static(
+      HookSignature(
         name: 'onLogin',
-        parameters: [const Parameter('username', 'string')],
+        namedParameters: [
+          const ParameterSignature(name: 'username', type: PrimitiveType.STRING)
+        ],
       ),
-      Hook.static(
+      HookSignature(
         name: 'onLogout',
-        parameters: [],
+        namedParameters: [],
       ),
     ],
   );
