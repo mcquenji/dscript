@@ -71,30 +71,25 @@ class Runtime {
   /// The AST [Script] to execute.
   final Script _script;
 
+  late final Analyzer _analyzer;
+
   /// Creates a [Runtime] for the given parsed DSL [_script].
   ///
   /// Populates [_requiredPermissions] from the script's declared permissions.
   Runtime(
     this._script, {
-    /// List of [ImplementationSignature]s the script is required to define.
-    List<ImplementationSignature> implementations = const [],
-
-    /// List of [HookSignature]s the script may listen to.
-    List<HookSignature> hooks = const [],
-
-    /// List of struct definitions passed to the contract or returned from it.
-    List<Struct> structs = const [],
+    /// List of contracts defined by the host.
+    List<ContractSignature> contracts = const [],
   }) {
     _requiredPermissions.addAll(
       _script.permissions.map((p) => ScriptPermission._(p.namespace, p.method)),
     );
 
-    Analyzer(
-      script: _script,
-      implementations: implementations,
-      hooks: hooks,
-      structs: structs,
-    ).analyze();
+    _analyzer = Analyzer(
+      contracts: contracts,
+    );
+
+    _analyzer.analyze(_script);
   }
 
   /// The list of granted permissions (unmodifiable).

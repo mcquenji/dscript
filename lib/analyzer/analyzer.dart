@@ -19,10 +19,13 @@ class TypeScope {
     'sqrt1_2': PrimitiveType.DOUBLE,
   };
 
+  /// List of mutable variables in this scope.
+  final List<String> _mutables = [];
+
   /// Sets the type of a variable in this scope.
   ///
   /// Throws an [AnalyzerError] if the variable is already defined in this scope.
-  void set(String name, $Type type) {
+  void set(String name, $Type type, bool mutable) {
     if (type == PrimitiveType.VOID) {
       throw AnalyzerError('Variable cannot be void: $name');
     }
@@ -30,7 +33,23 @@ class TypeScope {
     if (_types.containsKey(name)) {
       throw AnalyzerError('Variable $name already defined');
     }
+
     _types[name] = type;
+
+    if (mutable) {
+      _mutables.add(name);
+    }
+  }
+
+  /// Checks if a variable is mutable in this scope.
+  bool mutable(String name) {
+    if (_types.containsKey(name)) {
+      return _mutables.contains(name);
+    } else if (_parent != null) {
+      return _parent.mutable(name);
+    }
+
+    throw AnalyzerError('Variable $name not defined');
   }
 
   /// Gets the type of a variable in this scope.
@@ -57,17 +76,8 @@ class TypeScope {
 
 /// Static analyzer for DScript scripts.
 class Analyzer {
-  /// The [Script] being analyzed.
-  final Script script;
-
-  /// List of [ImplementationSignature]s the script is required to define.
-  final List<ImplementationSignature> implementations;
-
-  /// List of [HookSignature]s the script may listen to.
-  final List<HookSignature> hooks;
-
-  /// List of struct definitions passed to the contract or returned from it.
-  final List<Struct> structs;
+  /// List of contracts defined by the host.
+  final List<ContractSignature> contracts;
 
   /// List of implementations defined in the script.
   late final List<ImplementationSignature> scriptImplementations;
@@ -75,28 +85,31 @@ class Analyzer {
   /// List of hooks defined in the script.
   late final List<HookSignature> scriptHooks;
 
-  /// The scope of the script.
-  TypeScope scope = TypeScope(null);
-
   /// Creates an [Analyzer] for the given [script].
   Analyzer({
-    required this.script,
-    this.implementations = const [],
-    this.hooks = const [],
-    this.structs = const [],
-  }) {
-    scriptImplementations = script.contract.implementations
-        .map((e) => ImplementationSignature.from(e))
-        .toList();
-    scriptHooks =
-        script.contract.hooks.map((e) => HookSignature.from(e)).toList();
-  }
+    required this.contracts,
+  });
 
   /// Analyzes the script for errors and checks for missing permissions.
   ///
   /// Throws an [AnalysisReport] if any issues are found.
-  void analyze() {
+  void analyze(Script script) {
     final report = AnalysisReport();
+
+    final contract = contracts.firstWhere(
+      (c) => c.name == script.contract.name,
+      orElse: () =>
+          throw AnalyzerError('Contract not found: ${script.contract.name}'),
+    );
+
+    final scriptImplementations = script.contract.implementations
+        .map((e) => ImplementationSignature.from(e))
+        .toList();
+    final scriptHooks =
+        script.contract.hooks.map((e) => HookSignature.from(e)).toList();
+
+    final implementations = contract.implementations;
+    final hooks = contract.hooks;
 
     for (final implementation in implementations) {
       if (!scriptImplementations.contains(implementation)) {
@@ -136,47 +149,57 @@ class Analyzer {
     report.throwIfErrors();
   }
 
-  AnalysisReport _analyzeFunction(FunctionDeclaration function) {
+  AnalysisReport _analyzeFunction(FunctionDeclaration function,
+      [TypeScope? parentScope]) {
     final report = AnalysisReport();
 
-    scope = TypeScope(scope);
+    final scope = TypeScope(parentScope);
 
     for (final parameter in function.parameters) {
-      infer(parameter);
+      try {
+        infer(parameter, scope);
+      } on AnalyzerError catch (e) {
+        report.report(e);
+      }
     }
 
     final returnType = $Type.from(function.returnType);
 
     for (final stmt in function.body) {
-      switch (stmt) {
-        case ReturnStatement():
-          if (stmt.expression != null && returnType == PrimitiveType.VOID) {
-            report.report(
-              AnalyzerError('Void function cannot return a value: $function'),
-            );
-          }
-
-          if (stmt.expression != null) {
-            final type = infer(stmt.expression!);
-            if (type != returnType) {
+      try {
+        switch (stmt) {
+          case ReturnStatement():
+            if (stmt.expression != null && returnType == PrimitiveType.VOID) {
               report.report(
-                TypeError(
-                  returnType,
-                  type,
-                ),
+                AnalyzerError('Void function cannot return a value: $function'),
               );
             }
-          } else if (returnType != PrimitiveType.VOID) {
-            report.report(
-              AnalyzerError('Missing return value: $function'),
-            );
-          }
-          break;
-        case VariableDeclaration():
-          infer(stmt);
-          break;
-        default:
-          infer(stmt);
+
+            if (stmt.expression != null) {
+              final type = infer(stmt.expression!, scope);
+
+              if (type != returnType) {
+                report.report(
+                  TypeError(
+                    returnType,
+                    type,
+                  ),
+                );
+              }
+            } else if (returnType != PrimitiveType.VOID) {
+              report.report(
+                AnalyzerError('Missing return value: $function'),
+              );
+            }
+            break;
+          case VariableDeclaration():
+            infer(stmt, scope);
+            break;
+          default:
+            infer(stmt, scope);
+        }
+      } on AnalyzerError catch (e) {
+        report.report(e);
       }
     }
 
@@ -184,7 +207,7 @@ class Analyzer {
   }
 
   /// Infers the type of a statement.
-  $Type infer(Statement statement) {
+  $Type infer(Statement statement, TypeScope scope) {
     switch (statement) {
       case IntegerLiteral():
         return PrimitiveType.INT;
@@ -201,11 +224,11 @@ class Analyzer {
         if (type == PrimitiveType.VOID) {
           throw AnalyzerError('Parameter cannot be void: $statement');
         }
-        scope.set(statement.name, type);
+        scope.set(statement.name, type, true);
         return type;
       case BinaryExpression():
-        final leftType = infer(statement.left);
-        final rightType = infer(statement.right);
+        final leftType = infer(statement.left, scope);
+        final rightType = infer(statement.right, scope);
 
         if (leftType == rightType) {
           return leftType;
@@ -230,9 +253,12 @@ class Analyzer {
             statement,
           );
         }
+
+        final mutable = statement is VarDeclaration;
+
         if (statement.initializer == null && statement.type != null) {
           if (statement.type!.nullable) {
-            scope.set(statement.variable, statement.type!);
+            scope.set(statement.variable, statement.type!, mutable);
             return statement.type!;
           }
 
@@ -242,25 +268,26 @@ class Analyzer {
         }
 
         if (statement.initializer != null && statement.type == null) {
-          final type = infer(statement.initializer!);
-          scope.set(statement.variable, type);
+          final type = infer(statement.initializer!, scope);
+          scope.set(statement.variable, type, mutable);
           return type;
         }
 
         if (statement.initializer != null && statement.type != null) {
-          final type = infer(statement.initializer!);
+          final type = infer(statement.initializer!, scope);
           if (type == statement.type) {
-            scope.set(statement.variable, type);
+            scope.set(statement.variable, type, mutable);
             return type;
           }
 
           if (type == PrimitiveType.INT &&
               statement.type == PrimitiveType.DOUBLE) {
-            scope.set(statement.variable, PrimitiveType.DOUBLE);
+            scope.set(statement.variable, PrimitiveType.DOUBLE, mutable);
             return PrimitiveType.DOUBLE;
           }
 
-          throw TypeError(
+          throw AssignmentError(
+            statement.variable,
             statement.type!,
             type,
           );
@@ -269,15 +296,30 @@ class Analyzer {
         throw InferenceError(
           statement,
         );
+      case AssignmentStatement():
+        final type = infer(statement.expression, scope);
+
+        if (scope.mutable(statement.variable)) {
+          final declaedType = scope.get(statement.variable);
+          if (declaedType == type) {
+            return type;
+          }
+
+          throw AssignmentError(
+            statement.variable,
+            declaedType,
+            type,
+          );
+        }
+
+        throw AnalyzerError(
+          'Cannot assign to immutable variable: ${statement.variable}',
+        );
+
       default:
         throw InferenceError(
           statement,
         );
     }
-  }
-
-  /// Looks up an undefined type in the list of structs.
-  $Type lookup($Type type) {
-    return type.lookup(structs);
   }
 }

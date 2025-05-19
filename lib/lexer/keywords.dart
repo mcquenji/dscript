@@ -14,17 +14,31 @@ sealed class KeywordToken extends Token {
 /// Token representing the `final` keyword.
 ///
 /// Used to mark declarations that cannot be reassigned.
-class FinalToken extends KeywordToken {
+class FinalToken extends VariableKeywordToken {
   /// Creates a `final` keyword token with optional position metadata.
   const FinalToken({super.line, super.column}) : super('final');
+}
+
+/// Token representing any keywords that have to do with variable declarations.
+sealed class VariableKeywordToken extends KeywordToken {
+  /// Creates a `variable` keyword token with optional position metadata.
+  const VariableKeywordToken(super.value, {super.line, super.column});
 }
 
 /// Token representing the `var` keyword.
 ///
 /// Used to declare mutable local variables without an explicit type.
-class VarToken extends KeywordToken {
+class VarToken extends VariableKeywordToken {
   /// Creates a `var` keyword token with optional position metadata.
   const VarToken({super.line, super.column}) : super('var');
+}
+
+/// Token representing the `const` keyword.
+///
+/// Used to declare compile-time constants that may not be reassigned and may only have literal values or other constants.
+class ConstToken extends VariableKeywordToken {
+  /// Creates a `const` keyword token with optional position metadata.
+  const ConstToken({super.line, super.column}) : super('const');
 }
 
 /// Token representing the `impl` keyword.

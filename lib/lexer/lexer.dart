@@ -88,7 +88,7 @@ List<Token> tokenize(SourceCode src) {
     }
 
     // Skip line comments `// ...`
-    if (src.peek(2) == '//') {
+    if (src.length >= 2 && src.peek(2) == '//') {
       while (src.isNotEmpty && src.peek() != '\n' && src.peek() != '\r') {
         src.consume();
       }
@@ -133,7 +133,7 @@ List<Token> tokenize(SourceCode src) {
     }
 
     // Double colon namespace separator
-    if (src.peek(2) == '::') {
+    if (src.length >= 2 && src.peek(2) == '::') {
       tokens.add(DoubleColonToken(line: src.line, column: src.column));
       src.consume(2);
       continue;
@@ -176,6 +176,9 @@ List<Token> tokenize(SourceCode src) {
           break;
         case 'var':
           tokens.add(VarToken(line: src.line, column: column));
+          break;
+        case 'const':
+          tokens.add(ConstToken(line: src.line, column: column));
           break;
         case 'true':
         case 'false':
@@ -316,7 +319,7 @@ List<Token> tokenize(SourceCode src) {
         }
         if (src.isEmpty) {
           throw Exception(
-            'Unterminated string literal at line \${src.line}, column \${src.column}',
+            'Unterminated string literal at line ${src.line}, column ${src.column}',
           );
         }
         src.consume(); // closing quote
@@ -335,7 +338,7 @@ List<Token> tokenize(SourceCode src) {
         }
         if (src.isEmpty) {
           throw Exception(
-            'Unterminated string literal at line \${src.line}, column \${src.column}',
+            'Unterminated string literal at line ${src.line}, column ${src.column}',
           );
         }
         src.consume();
@@ -361,7 +364,7 @@ List<Token> tokenize(SourceCode src) {
 
     // Unknown character => error
     throw Exception(
-      'Unknown token: \${src.peek()} at line \${src.line}, column \${src.column}',
+      'Unknown token: ${src.peek()} at line ${src.line}, column ${src.column}',
     );
   }
 

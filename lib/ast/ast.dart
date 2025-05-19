@@ -68,6 +68,20 @@ class Parser {
         );
       }
 
+      if (token is VariableKeywordToken) {
+        body.add(_parseVariableDeclaration());
+        continue;
+      }
+
+      if (token is IdentifierToken && peek(false, 2) is EqualsToken) {
+        final id = consume<IdentifierToken>();
+        consume<EqualsToken>();
+        final value = _parseExpression();
+        body.add(AssignmentStatement(id.value, value));
+        consume<SemiColonToken>();
+        continue;
+      }
+
       // Fallback: treat as expression statement
       body.add(_parseExpression());
     }
@@ -116,6 +130,69 @@ class Parser {
         return StringLiteral(consume<StringToken>().value);
       default:
         throw UnexpectedTokenException(found: token);
+    }
+  }
+
+  VariableDeclaration _parseVariableDeclaration() {
+    final keyword = consume<VariableKeywordToken>() as VariableKeywordToken;
+    var typeOrName = consume<IdentifierToken>().value;
+
+    IdentifierToken? nameToken;
+    Expression? value;
+
+    switch (peek()) {
+      case EqualsToken():
+        consume<EqualsToken>();
+        value = _parseExpression();
+        consume<SemiColonToken>();
+        break;
+      case SemiColonToken():
+        consume<SemiColonToken>();
+        break;
+      case QuestionToken():
+        final q = consume<QuestionToken>();
+        typeOrName += q.value;
+        continue parseName;
+      parseName:
+      case IdentifierToken():
+        nameToken = consume<IdentifierToken>() as IdentifierToken;
+        if (peek() is EqualsToken) {
+          consume<EqualsToken>();
+          value = _parseExpression();
+          consume<SemiColonToken>();
+        } else {
+          consume<SemiColonToken>();
+        }
+        break;
+      default:
+        throw UnexpectedTokenException(
+          expected: SemiColonToken,
+          found: peek(),
+        );
+    }
+
+    final type = nameToken != null ? $Type.from(typeOrName) : null;
+    final name = nameToken?.value ?? typeOrName;
+
+    switch (keyword) {
+      case ConstToken():
+        return ConstDeclaration(
+          name,
+          value,
+          type: type,
+        );
+      case FinalToken():
+        return FinalDeclaration(
+          name,
+          value,
+          type: type,
+        );
+      case VarToken():
+        return VarDeclaration(
+          name,
+          value,
+          type: type,
+        );
     }
   }
 
@@ -306,7 +383,8 @@ class Parser {
 
     if (contract == null) {
       throw ParseException(
-          'This script does not implement a contract. Thus parsing failed.');
+        'This script does not implement a contract. Thus parsing failed.',
+      );
     }
 
     if (author == null) {
@@ -335,11 +413,16 @@ class Parser {
 
   /// Returns the next token without consuming it.
   /// Throws if no tokens remain.
-  Token peek([bool convertMetadata = false]) {
+  Token peek([bool convertMetadata = false, int length = 1]) {
     if (_tokens.isEmpty) {
       throw ParseException('No more tokens available');
     }
-    final token = _tokens.first;
+
+    if (length > _tokens.length) {
+      throw ParseException('Requested length exceeds available tokens');
+    }
+
+    final token = _tokens[length - 1];
 
     if (token is MetadataToken && convertMetadata) {
       return token.demote();

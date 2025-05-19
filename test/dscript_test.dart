@@ -95,11 +95,17 @@ contract C {
     test('missingPermissions reflects required permissions', () {
       final runtime = Runtime(
         script,
-        implementations: [
-          ImplementationSignature(
-            name: 'foo',
-            namedParameters: [],
-            returnType: PrimitiveType.VOID,
+        contracts: [
+          ContractSignature(
+            name: 'C',
+            hooks: [],
+            implementations: [
+              ImplementationSignature(
+                name: 'foo',
+                namedParameters: [],
+                returnType: PrimitiveType.VOID,
+              ),
+            ],
           ),
         ],
       );
@@ -111,11 +117,17 @@ contract C {
     test('allow grants permission and run succeeds', () {
       final runtime = Runtime(
         script,
-        implementations: [
-          ImplementationSignature(
-            name: 'foo',
-            namedParameters: [],
-            returnType: PrimitiveType.VOID,
+        contracts: [
+          ContractSignature(
+            name: 'C',
+            hooks: [],
+            implementations: [
+              ImplementationSignature(
+                name: 'foo',
+                namedParameters: [],
+                returnType: PrimitiveType.VOID,
+              ),
+            ],
           ),
         ],
       );
@@ -128,11 +140,17 @@ contract C {
     test('run without granting all permissions throws', () {
       final runtime = Runtime(
         script,
-        implementations: [
-          ImplementationSignature(
-            name: 'foo',
-            namedParameters: [],
-            returnType: PrimitiveType.VOID,
+        contracts: [
+          ContractSignature(
+            name: 'C',
+            hooks: [],
+            implementations: [
+              ImplementationSignature(
+                name: 'foo',
+                namedParameters: [],
+                returnType: PrimitiveType.VOID,
+              ),
+            ],
           ),
         ],
       );
@@ -146,9 +164,29 @@ contract C {
 
     test('constructor throws if implementation missing', () {
       expect(
-        () => Runtime(script, implementations: []),
+        () => Runtime(
+          script,
+          contracts: [
+            const ContractSignature(
+              name: 'C',
+              hooks: [],
+              implementations: [],
+            ),
+          ],
+        ),
         throwsA(isA<AnalyzerError>().having((e) => e.toString(), 'message',
             contains('Unrecognized implementation: foo() -> void'))),
+      );
+    });
+
+    test('constructor throws if contract not found', () {
+      expect(
+        () => Runtime(
+          script,
+          contracts: [],
+        ),
+        throwsA(isA<AnalyzerError>().having(
+            (e) => e.toString(), 'message', contains('Contract not found: C'))),
       );
     });
   });

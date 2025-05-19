@@ -5,8 +5,25 @@ part of 'ast.dart';
 /// Each [Statement] can be converted to a JSON-compatible map via [toMap],
 /// and serialized to a JSON string via [toJson] or [toString].
 sealed class Statement {
+  /// The starting line number of the statement in the source code.
+  final int lineStart;
+
+  /// The starting column number of the statement in the source code.
+  final int columnStart;
+
+  /// The ending line number of the statement in the source code.
+  final int lineEnd;
+
+  /// The ending column number of the statement in the source code.
+  final int columnEnd;
+
   /// Creates an instance of a [Statement].
-  const Statement();
+  const Statement({
+    this.lineStart = -1,
+    this.columnStart = -1,
+    this.lineEnd = -1,
+    this.columnEnd = -1,
+  });
 
   /// Converts this AST node into a map representation.
   ///
@@ -69,6 +86,10 @@ class Script extends Statement {
     this.license,
     this.repo,
     this.website,
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
   });
 
   @override
@@ -89,7 +110,14 @@ class PermissionStmt extends Statement {
   final String method;
 
   /// Creates a [PermissionStmt] for [namespace] and [method].
-  const PermissionStmt(this.namespace, this.method);
+  const PermissionStmt(
+    this.namespace,
+    this.method, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -112,7 +140,15 @@ class Contract extends Statement {
   final List<Hook> hooks;
 
   /// Creates a [Contract] named [name] with [implementations] and [hooks].
-  const Contract(this.name, this.implementations, this.hooks);
+  const Contract(
+    this.name,
+    this.implementations,
+    this.hooks, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -144,6 +180,10 @@ class FunctionDeclaration extends Statement {
     required this.parameters,
     required this.returnType,
     required this.body,
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
   });
 
   @override
@@ -179,6 +219,10 @@ class Implementation extends FunctionDeclaration {
     required super.parameters,
     required super.returnType,
     required super.body,
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
   });
 }
 
@@ -190,6 +234,10 @@ class Hook extends FunctionDeclaration {
     required super.name,
     required super.parameters,
     required super.body,
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
   }) : super(
           returnType: 'void',
         );
@@ -207,7 +255,15 @@ class Parameter extends Statement {
   final bool nullable;
 
   /// AST node representing a function parameter: `type name`.
-  const Parameter(this.name, this.type, this.nullable);
+  const Parameter(
+    this.name,
+    this.type,
+    this.nullable, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -221,7 +277,12 @@ class Parameter extends Statement {
 /// Base class for all expression nodes.
 sealed class Expression extends Statement {
   /// Creates an [Expression].
-  const Expression();
+  const Expression({
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 }
 
 /// AST node for a binary expression with an operator.
@@ -236,7 +297,15 @@ class BinaryExpression extends Expression {
   final Expression right;
 
   /// Creates a [BinaryExpression] with [operator], [left], and [right].
-  const BinaryExpression(this.operator, this.left, this.right);
+  const BinaryExpression(
+    this.operator,
+    this.left,
+    this.right, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -254,7 +323,13 @@ class Identifier extends Expression {
   final String name;
 
   /// Creates an [Identifier] with the given [name].
-  const Identifier(this.name);
+  const Identifier(
+    this.name, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -268,7 +343,13 @@ sealed class NumericLiteral extends Expression {
   final num value;
 
   /// Creates a [NumericLiteral] with the given [value].
-  const NumericLiteral(this.value);
+  const NumericLiteral(
+    this.value, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -279,13 +360,25 @@ sealed class NumericLiteral extends Expression {
 /// AST node for integer literals.
 class IntegerLiteral extends NumericLiteral {
   /// Creates an [IntegerLiteral] with the given numeric [value].
-  const IntegerLiteral(super.value);
+  const IntegerLiteral(
+    super.value, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 }
 
 /// AST node for double (floating-point) literals.
 class DoubleLiteral extends NumericLiteral {
   /// Creates a [DoubleLiteral] with the given numeric [value].
-  const DoubleLiteral(super.value);
+  const DoubleLiteral(
+    super.value, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 }
 
 /// AST node for string literals.
@@ -294,7 +387,13 @@ class StringLiteral extends Expression {
   final String value;
 
   /// Creates a [StringLiteral] with the given [value].
-  const StringLiteral(this.value);
+  const StringLiteral(
+    this.value, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -316,7 +415,12 @@ class NullLiteral extends Expression {
 /// Base class for boolean expressions (e.g., comparisons).
 sealed class BooleanExpression extends Expression {
   /// Creates a [BooleanExpression].
-  const BooleanExpression();
+  const BooleanExpression({
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 }
 
 /// AST node for boolean literals.
@@ -325,7 +429,13 @@ class BooleanLiteral extends BooleanExpression {
   final bool value;
 
   /// Creates a [BooleanLiteral] with the given [value].
-  const BooleanLiteral(this.value);
+  const BooleanLiteral(
+    this.value, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -345,7 +455,15 @@ class ComparisonExpression extends BooleanExpression {
   final Expression right;
 
   /// Creates a [ComparisonExpression] with [operator], [left], and [right].
-  const ComparisonExpression(this.operator, this.left, this.right);
+  const ComparisonExpression(
+    this.operator,
+    this.left,
+    this.right, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -363,7 +481,13 @@ class ReturnStatement extends Statement {
   final Expression? expression;
 
   /// Creates a [ReturnStatement] for the given [expression].
-  const ReturnStatement(this.expression);
+  const ReturnStatement(
+    this.expression, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -380,7 +504,14 @@ class AssignmentStatement extends Statement {
   final Expression expression;
 
   /// Creates an [AssignmentStatement] with [variable] and [expression].
-  const AssignmentStatement(this.variable, this.expression);
+  const AssignmentStatement(
+    this.variable,
+    this.expression, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -403,7 +534,15 @@ sealed class VariableDeclaration extends Statement {
   final $Type? type;
 
   /// Creates a [VariableDeclaration] with [type], [variable], and [initializer].
-  const VariableDeclaration(this.variable, this.initializer, {this.type});
+  const VariableDeclaration(
+    this.variable,
+    this.initializer, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+    this.type,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -416,29 +555,56 @@ sealed class VariableDeclaration extends Statement {
 }
 
 /// AST node for final variable declaration: `final variable = expression;`.
-class FinalVariableDeclaration extends VariableDeclaration {
-  /// Creates a [FinalVariableDeclaration] with [variable] and [expression].
-  const FinalVariableDeclaration(super.variable, super.expression,
-      {super.type});
+class FinalDeclaration extends VariableDeclaration {
+  /// Creates a [FinalDeclaration] with [variable] and [expression].
+  const FinalDeclaration(
+    super.variable,
+    super.expression, {
+    super.type,
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 }
 
 /// AST node for const variable declaration: `const variable = expression;`.
-class ConstVariableDeclaration extends VariableDeclaration {
-  /// Creates a [ConstVariableDeclaration] with [variable] and [expression].
-  const ConstVariableDeclaration(super.variable, super.expression,
-      {super.type});
+class ConstDeclaration extends VariableDeclaration {
+  /// Creates a [ConstDeclaration] with [variable] and [expression].
+  const ConstDeclaration(
+    super.variable,
+    super.expression, {
+    super.type,
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 }
 
 /// AST node for var variable declaration: `var variable = expression;`.
-class VarVariableDeclaration extends VariableDeclaration {
-  /// Creates a [VarVariableDeclaration] with [variable] and [expression].
-  const VarVariableDeclaration(super.variable, super.expression, {super.type});
+class VarDeclaration extends VariableDeclaration {
+  /// Creates a [VarDeclaration] with [variable] and [expression].
+  const VarDeclaration(
+    super.variable,
+    super.expression, {
+    super.type,
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 }
 
 /// Base class for loop and conditional control flow statements.
 sealed class FlowControlStatement extends Statement {
   /// Creates a [FlowControlStatement].
-  const FlowControlStatement();
+  const FlowControlStatement({
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 }
 
 /// AST node for an `if` statement with optional else or elseif.
@@ -453,7 +619,15 @@ class IfStatement extends FlowControlStatement {
   final ElseStatement? elseBody;
 
   /// Creates an [IfStatement] with [condition], [body], and optional [elseBody].
-  const IfStatement(this.condition, this.body, this.elseBody);
+  const IfStatement(
+    this.condition,
+    this.body,
+    this.elseBody, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -471,7 +645,13 @@ class ElseStatement extends FlowControlStatement {
   final List<Statement> body;
 
   /// Creates an [ElseStatement] with the given [body].
-  const ElseStatement(this.body);
+  const ElseStatement(
+    this.body, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -485,7 +665,14 @@ class ElseIfStatement extends ElseStatement {
   final BooleanExpression condition;
 
   /// Creates an [ElseIfStatement] with [condition] and [body].
-  const ElseIfStatement(this.condition, super.body);
+  const ElseIfStatement(
+    this.condition,
+    super.body, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -505,7 +692,14 @@ class WhileStatement extends FlowControlStatement {
   final List<Statement> body;
 
   /// Creates a [WhileStatement] with [condition] and [body].
-  const WhileStatement(this.condition, this.body);
+  const WhileStatement(
+    this.condition,
+    this.body, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -517,7 +711,7 @@ class WhileStatement extends FlowControlStatement {
 }
 
 /// AST node for an external call to a method in a namespace (e.g., `math::floor(3.5)`).
-class ExternalCall extends Statement {
+class ExternalCall extends Expression {
   /// The namespace of the external method.
   final String namespace;
 
@@ -535,8 +729,12 @@ class ExternalCall extends Statement {
     this.namespace,
     this.method,
     this.namedArgs,
-    this.positionalArgs,
-  );
+    this.positionalArgs, {
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {

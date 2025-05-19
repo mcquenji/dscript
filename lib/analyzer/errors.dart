@@ -49,9 +49,28 @@ class TypeError extends AnalyzerError {
   String toString() => 'TypeError: $message';
 }
 
+/// An error thrown when a type mismatch occurs during assignment.
+class AssignmentError extends AnalyzerError {
+  /// The variable that was assigned to.
+  final String variable;
+
+  /// The type that was expected.
+  final $Type expected;
+
+  /// The type that was found.
+  final $Type found;
+
+  /// An error thrown when a type mismatch occurs during assignment.
+  AssignmentError(this.variable, this.expected, this.found)
+      : super('Cannot assign $found to $variable of type $expected');
+}
+
+/// An error thrown when a statement's runtime type cannot be inferred.
 class InferenceError extends AnalyzerError {
+  /// The statement that caused the error.
   final Statement statement;
 
+  /// An error thrown when a statement's runtime type cannot be inferred.
   InferenceError(this.statement, {String? message})
       : super(
           message ??
