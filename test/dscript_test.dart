@@ -106,6 +106,7 @@ contract C {
                 returnType: PrimitiveType.VOID,
               ),
             ],
+            bindings: ExternalBindings(),
           ),
         ],
       );
@@ -128,6 +129,7 @@ contract C {
                 returnType: PrimitiveType.VOID,
               ),
             ],
+            bindings: ExternalBindings(),
           ),
         ],
       );
@@ -151,6 +153,7 @@ contract C {
                 returnType: PrimitiveType.VOID,
               ),
             ],
+            bindings: ExternalBindings(),
           ),
         ],
       );
@@ -167,10 +170,11 @@ contract C {
         () => Runtime(
           script,
           contracts: [
-            const ContractSignature(
+            ContractSignature(
               name: 'C',
               hooks: [],
               implementations: [],
+              bindings: ExternalBindings(),
             ),
           ],
         ),

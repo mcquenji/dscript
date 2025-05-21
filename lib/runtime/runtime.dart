@@ -89,7 +89,7 @@ class Runtime {
       contracts: contracts,
     );
 
-    _analyzer.analyze(_script);
+    _analyzer.analyze(_script).throwIfErrors();
   }
 
   /// The list of granted permissions (unmodifiable).

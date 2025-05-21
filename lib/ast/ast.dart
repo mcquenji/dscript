@@ -10,6 +10,8 @@ part 'parsers/flow_control.dart';
 part 'parsers/expressions.dart';
 part 'parsers/contract.dart';
 part 'parsers/metadata.dart';
+part 'parsers/variables.dart';
+part 'parsers/binop.dart';
 
 /// Performs syntax analysis on a token stream to produce an AST [Script].
 ///
@@ -42,15 +44,31 @@ class Parser {
       }
 
       if (token is ReturnToken) {
-        consume<ReturnToken>();
+        final start = consume<ReturnToken>();
         if (peek() is SemiColonToken) {
-          consume<SemiColonToken>();
-          body.add(const ReturnStatement(null));
+          final end = consume<SemiColonToken>();
+          body.add(
+            ReturnStatement(
+              null,
+              lineStart: start.line,
+              columnStart: start.column,
+              lineEnd: end.line,
+              columnEnd: end.endColumn,
+            ),
+          );
           continue;
         }
 
         final expression = _parseExpression();
-        body.add(ReturnStatement(expression));
+        body.add(
+          ReturnStatement(
+            expression,
+            lineStart: start.line,
+            columnStart: start.column,
+            lineEnd: expression.lineEnd,
+            columnEnd: expression.columnEnd,
+          ),
+        );
         consume<SemiColonToken>();
         continue;
       }
@@ -74,16 +92,13 @@ class Parser {
       }
 
       if (token is IdentifierToken && peek(false, 2) is EqualsToken) {
-        final id = consume<IdentifierToken>();
-        consume<EqualsToken>();
-        final value = _parseExpression();
-        body.add(AssignmentStatement(id.value, value));
-        consume<SemiColonToken>();
+        body.add(_parseAssignmentStatement());
         continue;
       }
 
       // Fallback: treat as expression statement
       body.add(_parseExpression());
+      consume<SemiColonToken>();
     }
 
     consume<CloseBraceToken>();
@@ -111,8 +126,23 @@ class Parser {
 
     switch (token) {
       case IdentifierToken():
-        final id = consume<IdentifierToken>();
-        return Identifier(id.value);
+        final id = consume<IdentifierToken>() as IdentifierToken;
+
+        if (peek() is OpenParenthesisToken) {
+          return _parseFunctionCall(id);
+        }
+
+        if (peek() is DoubleColonToken) {
+          return _parseExternalCall(id);
+        }
+
+        return Identifier(
+          id.value,
+          lineStart: id.line,
+          columnStart: id.column,
+          lineEnd: id.line,
+          columnEnd: id.endColumn,
+        );
       case NumberToken():
         return _parseNumericLiteral();
       case OpenParenthesisToken():
@@ -122,94 +152,36 @@ class Parser {
         return expr;
       case BooleanToken():
         final boolTok = consume<BooleanToken>();
-        return BooleanLiteral(boolTok.value == 'true');
+        return BooleanLiteral(
+          boolTok.value == 'true',
+          lineStart: boolTok.line,
+          columnStart: boolTok.column,
+          lineEnd: boolTok.line,
+          columnEnd: boolTok.endColumn,
+        );
       case NullToken():
-        consume<NullToken>();
-        return const NullLiteral();
+        final tk = consume<NullToken>();
+        return NullLiteral(
+          lineStart: tk.line,
+          columnStart: tk.column,
+          lineEnd: tk.line,
+          columnEnd: tk.endColumn,
+        );
       case StringToken():
-        return StringLiteral(consume<StringToken>().value);
+        final stringTok = consume<StringToken>();
+        return StringLiteral(
+          stringTok.value,
+          lineStart: stringTok.line,
+          columnStart: stringTok.column,
+          lineEnd: stringTok.line,
+          columnEnd: stringTok.endColumn,
+        );
       default:
         throw UnexpectedTokenException(found: token);
     }
   }
 
-  VariableDeclaration _parseVariableDeclaration() {
-    final keyword = consume<VariableKeywordToken>() as VariableKeywordToken;
-    var typeOrName = consume<IdentifierToken>().value;
-
-    IdentifierToken? nameToken;
-    Expression? value;
-
-    switch (peek()) {
-      case EqualsToken():
-        consume<EqualsToken>();
-        value = _parseExpression();
-        consume<SemiColonToken>();
-        break;
-      case SemiColonToken():
-        consume<SemiColonToken>();
-        break;
-      case QuestionToken():
-        final q = consume<QuestionToken>();
-        typeOrName += q.value;
-        continue parseName;
-      parseName:
-      case IdentifierToken():
-        nameToken = consume<IdentifierToken>() as IdentifierToken;
-        if (peek() is EqualsToken) {
-          consume<EqualsToken>();
-          value = _parseExpression();
-          consume<SemiColonToken>();
-        } else {
-          consume<SemiColonToken>();
-        }
-        break;
-      default:
-        throw UnexpectedTokenException(
-          expected: SemiColonToken,
-          found: peek(),
-        );
-    }
-
-    final type = nameToken != null ? $Type.from(typeOrName) : null;
-    final name = nameToken?.value ?? typeOrName;
-
-    switch (keyword) {
-      case ConstToken():
-        return ConstDeclaration(
-          name,
-          value,
-          type: type,
-        );
-      case FinalToken():
-        return FinalDeclaration(
-          name,
-          value,
-          type: type,
-        );
-      case VarToken():
-        return VarDeclaration(
-          name,
-          value,
-          type: type,
-        );
-    }
-  }
-
-  ExternalCall _parseExternalCall() {
-    final namespace = consume<IdentifierToken>().value;
-    consume<DoubleColonToken>();
-    final functionName = consume<IdentifierToken>().value;
-
-    final List<Expression> args = [];
-    final Map<String, Expression> namedArgs = {};
-
-    _parseArgs(args, namedArgs);
-
-    return ExternalCall(namespace, functionName, namedArgs, args);
-  }
-
-  void _parseArgs(List<Expression> args, Map<String, Expression> namedArgs) {
+  Token _parseArgs(List<Expression> args, Map<String, Expression> namedArgs) {
     consume<OpenParenthesisToken>();
     while (peek() is! CloseParenthesisToken) {
       if (peek() is CommaToken) {
@@ -219,7 +191,7 @@ class Parser {
 
       if (peek() is IdentifierToken && peek() is ColonToken) {
         final name = consume<IdentifierToken>().value;
-        consume<EqualsToken>();
+        consume<ColonToken>();
         final value = _parseExpression();
         namedArgs[name] = value;
       } else {
@@ -227,7 +199,8 @@ class Parser {
         args.add(arg);
       }
     }
-    consume<CloseParenthesisToken>();
+
+    return consume<CloseParenthesisToken>();
   }
 
   /// Parses numeric literals, handling integer and double formats.
@@ -236,31 +209,21 @@ class Parser {
     if (peek() is DotToken) {
       consume<DotToken>();
       final decimal = consume<NumberToken>();
-      return DoubleLiteral(double.parse('${number.value}.${decimal.value}'));
+      return DoubleLiteral(
+        double.parse('${number.value}.${decimal.value}'),
+        lineStart: number.line,
+        columnStart: number.column,
+        lineEnd: decimal.line,
+        columnEnd: decimal.endColumn,
+      );
     }
-    return IntegerLiteral(num.parse(number.value));
-  }
-
-  /// Parses addition and subtraction expressions.
-  Expression _parseAdditiveExpr() {
-    var left = _parseMultiplicativeExpr();
-    while (peek().value == '+' || peek().value == '-') {
-      final op = consume<BinaryOperatorToken>();
-      final right = _parseMultiplicativeExpr();
-      left = BinaryExpression(op.value, left, right);
-    }
-    return left;
-  }
-
-  /// Parses multiplication, division, and modulo expressions.
-  Expression _parseMultiplicativeExpr() {
-    var left = _parsePrimaryExpression();
-    while (peek().value == '*' || peek().value == '/' || peek().value == '%') {
-      final op = consume<BinaryOperatorToken>();
-      final right = _parsePrimaryExpression();
-      left = BinaryExpression(op.value, left, right);
-    }
-    return left;
+    return IntegerLiteral(
+      num.parse(number.value),
+      lineStart: number.line,
+      columnStart: number.column,
+      lineEnd: number.line,
+      columnEnd: number.endColumn,
+    );
   }
 
   /// Parses the full [Script] from the given [SourceCode], consuming permissions

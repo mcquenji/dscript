@@ -5,32 +5,19 @@ class AnalyzerError implements Exception {
   /// The error message.
   final String message;
 
+  /// The statement that caused the error.
+  final Statement? statement;
+
+  /// The severity of the error according to LSP specification.
+  final int severity;
+
   /// Creates an [AnalyzerError] with the given [message].
-  const AnalyzerError(this.message);
+  const AnalyzerError(this.message,
+      {required this.statement, this.severity = 0});
 
   @override
-  String toString() => '$runtimeType: $message';
-}
-
-/// An [AnalyzerError] with additional line and column information.
-class DetailedAnalyzerError extends AnalyzerError {
-  /// The line number where the error occurred.
-  final int line;
-
-  /// The column number where the error occurred.
-  final int column;
-
-  /// The original error.
-  final AnalyzerError error;
-
-  /// Creates a [DetailedAnalyzerError] with the given [message], [line], and [column].
-  DetailedAnalyzerError(this.error, {this.line = -1, this.column = -1})
-      : super(error.message);
-
-  @override
-  String toString() {
-    return 'DetailedAnalyzerError: $message at line $line, column $column';
-  }
+  String toString() =>
+      '$runtimeType: $message${statement != null ? ' at ${statement!.lineStart}:${statement!.columnStart} to ${statement!.lineEnd}:${statement!.columnEnd}' : ''}';
 }
 
 /// An error thrown when a type mismatch occurs during analysis.
@@ -42,7 +29,7 @@ class TypeError extends AnalyzerError {
   final $Type found;
 
   /// An error thrown when a type mismatch occurs during analysis.
-  TypeError(this.expected, this.found)
+  TypeError(this.expected, this.found, {required super.statement})
       : super('Expected type $expected but found $found');
 
   @override
@@ -61,17 +48,28 @@ class AssignmentError extends AnalyzerError {
   final $Type found;
 
   /// An error thrown when a type mismatch occurs during assignment.
-  AssignmentError(this.variable, this.expected, this.found)
+  AssignmentError(this.variable, this.expected, this.found,
+      {required super.statement})
       : super('Cannot assign $found to $variable of type $expected');
+}
+
+/// An error thrown when an invalid type is returned from a function.
+class ReturnError extends AnalyzerError {
+  /// The type that was expected.
+  final $Type expected;
+
+  /// The type that was found.
+  final $Type found;
+
+  /// An error thrown when an invalid type is returned from a function.
+  ReturnError(this.expected, this.found, {required super.statement})
+      : super('Cannot return $found from function of type $expected');
 }
 
 /// An error thrown when a statement's runtime type cannot be inferred.
 class InferenceError extends AnalyzerError {
-  /// The statement that caused the error.
-  final Statement statement;
-
   /// An error thrown when a statement's runtime type cannot be inferred.
-  InferenceError(this.statement, {String? message})
+  InferenceError({String? message, required super.statement})
       : super(
           message ??
               'Cannot infer type for statement: ${statement.runtimeType}',
@@ -84,7 +82,11 @@ class AnalysisReport extends AnalyzerError {
   final List<AnalyzerError> errors = [];
 
   /// Creates an [AnalysisReport] with the given [errors].
-  AnalysisReport() : super('');
+  AnalysisReport()
+      : super(
+          '',
+          statement: null,
+        );
 
   @override
   String toString() {
@@ -92,14 +94,13 @@ class AnalysisReport extends AnalyzerError {
   }
 
   /// Reports an [AnalyzerError].
-  void report(AnalyzerError error, {int line = -1, int column = -1}) {
-    if (error is DetailedAnalyzerError || line == -1 || column == -1) {
-      // If the error is already detailed or no line/column is provided,
-      // just add it to the list.
-      errors.add(error);
-    } else {
-      errors.add(DetailedAnalyzerError(error, line: line, column: column));
+  void report(AnalyzerError error) {
+    if (error is AnalysisReport) {
+      merge(error);
+      return;
     }
+
+    errors.add(error);
   }
 
   /// Throws this report if it contains any errors.

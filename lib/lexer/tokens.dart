@@ -17,6 +17,11 @@ sealed class Token {
   /// Creates a [Token] with the given [value], and optional [line] and [column].
   const Token(this.value, {this.line = -1, this.column = -1});
 
+  /// The column number where the token ends.
+  int get endColumn {
+    return column + value.length;
+  }
+
   /// Serializes this token to JSON for debugging or communication.
   ///
   /// Returns a map containing:

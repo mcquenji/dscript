@@ -18,8 +18,7 @@ extension FunctionParser on Parser {
       parameters.add(
         Parameter(
           parameterName.value,
-          parameterType.value,
-          nullable,
+          $Type.from(parameterType.value + (nullable ? '?' : '')),
         ),
       );
 
@@ -34,7 +33,7 @@ extension FunctionParser on Parser {
     return parameters;
   }
 
-  String _parseReturnType([String? expected, String? errorMessage]) {
+  $Type _parseReturnType([String? expected, String? errorMessage]) {
     String returnType = 'void';
     if (peek() is ArrowToken) {
       consume<ArrowToken>();
@@ -56,7 +55,7 @@ extension FunctionParser on Parser {
       );
     }
 
-    return returnType;
+    return $Type.from(returnType);
   }
 
   /// Parses an `impl` function implementation.
@@ -93,6 +92,47 @@ extension FunctionParser on Parser {
       name: functionName.value,
       parameters: parameters,
       body: _parseBlock(),
+    );
+  }
+
+  /// Parses a call to an external function.
+  ExternalCall _parseExternalCall(IdentifierToken namespace) {
+    consume<DoubleColonToken>();
+    final functionName = consume<IdentifierToken>() as IdentifierToken;
+
+    final func = _parseFunctionCall(functionName);
+
+    return ExternalCall(
+      namespace: namespace.value,
+      method: functionName.value,
+      positionalArgs: func.positionalArgs,
+      namedArgs: func.namedArgs,
+      lineStart: namespace.line,
+      columnStart: namespace.column,
+      lineEnd: func.lineEnd,
+      columnEnd: func.columnEnd,
+    );
+  }
+
+  /// Parses a function call.
+  CallExpression _parseFunctionCall(IdentifierToken id) {
+    final List<Expression> args = [];
+    final Map<String, Expression> namedArgs = {};
+
+    final end = _parseArgs(args, namedArgs);
+
+    if (peek() is DoubleColonToken) {
+      return _parseExternalCall(id);
+    }
+
+    return CallExpression(
+      method: id.value,
+      positionalArgs: args,
+      namedArgs: namedArgs,
+      lineStart: id.line,
+      columnStart: id.column,
+      lineEnd: end.line,
+      columnEnd: end.endColumn,
     );
   }
 }

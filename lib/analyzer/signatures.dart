@@ -25,22 +25,17 @@ class ParameterSignature extends Signature {
   /// The type of the parameter.
   final $Type type;
 
-  /// Whether the parameter is nullable.
-  final bool nullable;
-
   /// Signature of a function parameter.
   const ParameterSignature({
     required this.name,
     required this.type,
-    this.nullable = false,
   });
 
   /// Creates a parameter signature from a [Parameter] object.
   factory ParameterSignature.from(Parameter parameter) {
     return ParameterSignature(
       name: parameter.name,
-      type: $Type.from(parameter.type),
-      nullable: parameter.nullable,
+      type: parameter.type,
     );
   }
 
@@ -72,12 +67,16 @@ class FunctionSignature extends Signature {
   /// The return type of the function.
   final $Type returnType;
 
+  /// The underlying AST node of the function signature, if available.
+  final FunctionDeclaration? node;
+
   /// Signature of a function.
   const FunctionSignature({
     required this.name,
     required this.namedParameters,
     required this.positionalParameters,
     required this.returnType,
+    this.node,
   });
 
   @override
@@ -106,14 +105,19 @@ class HookSignature extends FunctionSignature {
   }) : super(
           returnType: PrimitiveType.VOID,
           positionalParameters: [],
+          node: null,
         );
 
   /// Creates a hook signature from a [Hook] object.
-  factory HookSignature.from(Hook hook) => HookSignature(
-        name: hook.name,
-        namedParameters:
-            hook.parameters.map((e) => ParameterSignature.from(e)).toList(),
-      );
+  HookSignature.from(Hook hook)
+      : super(
+          name: hook.name,
+          namedParameters:
+              hook.parameters.map((e) => ParameterSignature.from(e)).toList(),
+          returnType: PrimitiveType.VOID,
+          positionalParameters: [],
+          node: hook,
+        );
 }
 
 /// Signature of an implementation.
@@ -128,17 +132,17 @@ class ImplementationSignature extends FunctionSignature {
         );
 
   /// Creates an implementation signature from an [Implementation] object.
-  factory ImplementationSignature.from(
+  ImplementationSignature.from(
     Implementation implementation,
-  ) {
-    return ImplementationSignature(
-      name: implementation.name,
-      namedParameters: implementation.parameters
-          .map((e) => ParameterSignature.from(e))
-          .toList(),
-      returnType: $Type.from(implementation.returnType),
-    );
-  }
+  ) : super(
+          name: implementation.name,
+          namedParameters: implementation.parameters
+              .map((e) => ParameterSignature.from(e))
+              .toList(),
+          returnType: implementation.returnType,
+          positionalParameters: [],
+          node: implementation,
+        );
 }
 
 /// Represents a type in the DScript language.
@@ -153,9 +157,9 @@ sealed class $Type extends Signature {
   const $Type({required this.name, this.nullable = false});
 
   /// Parse a type from a string.
-  static $Type from(String type) {
+  factory $Type.from(String type) {
     if (type.isEmpty) {
-      throw const AnalyzerError('Type cannot be empty');
+      throw const AnalyzerError('Type cannot be empty', statement: null);
     }
 
     bool nullable = false;
@@ -166,12 +170,19 @@ sealed class $Type extends Signature {
     }
 
     switch (type) {
-      case 'null':
+      case 'null' || 'Null':
         return PrimitiveType.NULL;
       case 'int':
         return PrimitiveType.INT.asNullable(nullable);
-      case 'string':
+      case 'string' || 'String':
         return PrimitiveType.STRING.asNullable(nullable);
+      // num is is a superset of int and double and
+      // as int to double conversion is implicit
+      // and double to int conversion is explicit
+      // same would apply to num as it could be int or double the implicit conversion is the same
+      // thus we can treat it as a double
+      case 'num':
+        return PrimitiveType.DOUBLE.asNullable(nullable);
       case 'double':
         return PrimitiveType.DOUBLE.asNullable(nullable);
       case 'bool':
@@ -206,7 +217,7 @@ sealed class $Type extends Signature {
       }
     }
 
-    throw AnalyzerError('Undefined type: $name');
+    throw AnalyzerError('Undefined type: $name', statement: null);
   }
 
   /// Returns a nullable version of this type.
@@ -216,6 +227,62 @@ sealed class $Type extends Signature {
   String toString() {
     return '$name${nullable ? '?' : ''}';
   }
+
+  /// Returns true if this type can be implicitly cast to the [other] type.
+  bool canCast($Type other) {
+    if (this == other) {
+      return true;
+    }
+
+    if (this == PrimitiveType.NULL) {
+      return other.nullable;
+    }
+
+    if (this == PrimitiveType.INT) {
+      return other == PrimitiveType.DOUBLE;
+    }
+
+    return false;
+  }
+
+  dynamic cast($Type type, dynamic value) {
+    /// Casts a [value] of this type to the specified [type].
+    if (!canCast(type)) {
+      throw Exception(
+        'Cannot cast $name to ${type.name}',
+      );
+    }
+
+    if (type == this) {
+      return value;
+    }
+
+    if (type.nullable && this == PrimitiveType.NULL) {
+      return null;
+    }
+
+    if (type == PrimitiveType.DOUBLE && this == PrimitiveType.INT) {
+      return (value as int).toDouble();
+    }
+
+    if (type == PrimitiveType.VOID && this == PrimitiveType.NULL) {
+      return null;
+    }
+
+    throw Exception(
+      'Cannot cast $name to ${type.name}',
+    );
+  }
+
+  @override
+  operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is $Type && other.name == name && other.nullable == nullable;
+  }
+
+  @override
+  int get hashCode => Object.hash(name, nullable);
 }
 
 /// Represents a primitive type (e.g., int, string, etc.).
@@ -267,6 +334,15 @@ class PrimitiveType extends $Type {
 
     return PrimitiveType._(name: name, nullable: true);
   }
+
+  @override
+  String toString() {
+    if (this == NULL) {
+      return NULL.name;
+    }
+
+    return super.toString();
+  }
 }
 
 /// Represents a Map type (e.g., Map<String, int>).
@@ -283,7 +359,7 @@ class MapType extends $Type {
     required this.keyType,
     required this.valueType,
     super.nullable = false,
-  }) : super(name: 'Map');
+  }) : super(name: 'Map<$keyType, $valueType>');
 
   @override
   Map<String, dynamic> toMap() {
@@ -306,6 +382,34 @@ class MapType extends $Type {
       nullable: nullable,
     );
   }
+
+  @override
+  bool canCast($Type other) {
+    if (other is MapType) {
+      return keyType.canCast(other.keyType) &&
+          valueType.canCast(other.valueType);
+    }
+
+    return false;
+  }
+
+  @override
+  cast($Type type, dynamic value) {
+    if (type is MapType && value is Map) {
+      final Map newMap = {};
+
+      for (final entry in value.entries) {
+        final key = keyType.cast(type.keyType, entry.key);
+        final val = valueType.cast(type.valueType, entry.value);
+
+        newMap[key] = val;
+      }
+
+      return newMap;
+    }
+
+    super.cast(type, value);
+  }
 }
 
 /// Represents a List type (e.g., List<int>).
@@ -317,7 +421,7 @@ class ListType extends $Type {
   const ListType({
     required this.elementType,
     super.nullable = false,
-  }) : super(name: 'List');
+  }) : super(name: 'List<$elementType>');
 
   @override
   Map<String, dynamic> toMap() {
@@ -337,6 +441,24 @@ class ListType extends $Type {
       elementType: elementType,
       nullable: nullable,
     );
+  }
+
+  @override
+  bool canCast($Type other) {
+    if (other is ListType) {
+      return elementType.canCast(other.elementType);
+    }
+
+    return false;
+  }
+
+  @override
+  cast($Type type, dynamic value) {
+    if (type is ListType && value is List) {
+      return value.map((e) => elementType.cast(type.elementType, e)).toList();
+    }
+
+    return super.cast(type, value);
   }
 }
 
@@ -372,6 +494,9 @@ class Struct extends $Type {
       nullable: nullable,
     );
   }
+
+  @override
+  bool canCast($Type other) => false;
 }
 
 /// Signature of a contract.
@@ -388,22 +513,28 @@ class ContractSignature extends Signature {
   /// Signatures of objects passed to the contract or returned from it.
   final List<Struct> objects;
 
+  /// Host provided functions the contract can call.
+  final ExternalBindings bindings;
+
   /// Signature of a contract.
   const ContractSignature({
     required this.name,
     required this.implementations,
     required this.hooks,
     this.objects = const [],
+    required this.bindings,
   });
 
   /// Creates a contract signature from a [Contract] object.
-  factory ContractSignature.from(Contract contract) {
+  factory ContractSignature.from(Contract contract,
+      {required ExternalBindings bindings}) {
     return ContractSignature(
       name: contract.name,
       implementations: contract.implementations
           .map((e) => ImplementationSignature.from(e))
           .toList(),
       hooks: contract.hooks.map((e) => HookSignature.from(e)).toList(),
+      bindings: bindings,
     );
   }
 

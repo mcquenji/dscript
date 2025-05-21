@@ -14,10 +14,10 @@ class _RuntimeVariable {
 class Scope {
   /// Map storing variable names to their corresponding runtime values.
   final Map<String, _RuntimeVariable> _variables = {
-    'pi': _RuntimeVariable(const DoubleValue(pi), mutable: false),
-    'e': _RuntimeVariable(const DoubleValue(e), mutable: false),
-    'sqrt2': _RuntimeVariable(const DoubleValue(sqrt2), mutable: false),
-    'sqrt1_2': _RuntimeVariable(const DoubleValue(sqrt1_2), mutable: false),
+    'pi': _RuntimeVariable(const RuntimeValue(pi), mutable: false),
+    'e': _RuntimeVariable(const RuntimeValue(e), mutable: false),
+    'sqrt2': _RuntimeVariable(const RuntimeValue(sqrt2), mutable: false),
+    'sqrt1_2': _RuntimeVariable(const RuntimeValue(sqrt1_2), mutable: false),
   };
 
   /// Optional parent scope for resolving names not found in this scope.
@@ -100,12 +100,24 @@ class Interpreter {
       );
     }
 
-    final function =
-        binding.bindings.firstWhere((b) => b.name == call.method).function;
+    final function = binding.bindings.firstWhere((b) => b.name == call.method);
 
-    return function(
-      call.positionalArgs,
-      namedArgs: call.namedArgs,
+    return RuntimeValue(
+      function(
+        call.positionalArgs
+            .map(
+              (arg) => eval(arg),
+            )
+            .toList(),
+        namedArgs: call.namedArgs.map(
+          (name, expr) => MapEntry(
+            Symbol(name),
+            eval(
+              expr,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -118,15 +130,15 @@ class Interpreter {
       case Identifier():
         return scope.get(stmt.name);
       case StringLiteral():
-        return StringValue(stmt.value);
+        return RuntimeValue(stmt.value);
       case NullLiteral():
         return const NullValue();
       case IntegerLiteral():
-        return IntegerValue(stmt.value);
+        return RuntimeValue(stmt.value);
       case DoubleLiteral():
-        return DoubleValue(stmt.value);
+        return RuntimeValue(stmt.value);
       case BooleanLiteral():
-        return BooleanValue(stmt.value);
+        return RuntimeValue(stmt.value);
       case BinaryExpression():
         return _evalBinop(stmt);
       case AssignmentStatement():
@@ -136,24 +148,71 @@ class Interpreter {
         return value;
       case ExternalCall():
         return _external(stmt);
-      // case ConstVariableDeclaration():
-      //   if (stmt.initializer == null) {
-      //     throw RuntimeException('Const variables must have an initializer');
-      //   }
-      //   final value = _eval(stmt.initializer!);
-      //   scope.set(stmt.variable, value, mutable: false);
-      // case FinalVariableDeclaration():
-      //   if (stmt.initializer == null) {
-      //     throw RuntimeException('Final variables must have an initializer');
-      //   }
-      //   final value = _eval(stmt.initializer!);
-      //   scope.set(stmt.variable, value, mutable: false);
-      //   return value;
-      // case VarVariableDeclaration():
+      case ConstDeclaration():
+        if (stmt.initializer == null) {
+          throw const RuntimeException(
+            'Const variables must have an initializer',
+          );
+        }
+        final value = eval(stmt.initializer!);
+        scope.set(
+          stmt.variable,
+          value,
+          mutable: false,
+          nullable: stmt.type?.nullable ?? value.type.nullable,
+        );
+        return value;
+      case FinalDeclaration():
+        if (stmt.initializer == null) {
+          throw const RuntimeException(
+            'Final variables must have an initializer',
+          );
+        }
+        final value = eval(stmt.initializer!);
+        scope.set(
+          stmt.variable,
+          value,
+          mutable: false,
+          nullable: stmt.type?.nullable ?? value.type.nullable,
+        );
+        return value;
+      case VarDeclaration():
+        if (stmt.initializer != null) {
+          final value = eval(stmt.initializer!);
+          scope.set(
+            stmt.variable,
+            value,
+            mutable: true,
+            nullable: stmt.type?.nullable ?? value.type.nullable,
+          );
+
+          return value;
+        } else if (stmt.type != null) {
+          final type = stmt.type!;
+          if (type.nullable) {
+            scope.set(
+              stmt.variable,
+              const NullValue(),
+              mutable: true,
+              nullable: true,
+            );
+
+            return const NullValue();
+          } else {
+            throw RuntimeException(
+              'Non-nullable variable ${stmt.variable} must be initialized',
+            );
+          }
+        } else {
+          throw RuntimeException(
+            'Variable ${stmt.variable} must have a type or initializer',
+          );
+        }
 
       case ReturnStatement():
         throw const RuntimeException(
-            'Return should be handled in function invocation');
+          'Return should be handled in function invocation',
+        );
       default:
         throw RuntimeException('Unsupported statement: ${stmt.runtimeType}');
     }
@@ -171,37 +230,29 @@ class Interpreter {
       // Bind each parameter from provided args
       for (final param in function.parameters) {
         final argValue = args[param.name];
-        if (argValue == null) {
-          throw RuntimeException('Missing argument: ${param.name}');
+        final actualType = $Type.from(
+          argValue.runtimeType.toString(),
+        );
+
+        if (!actualType.canCast(param.type)) {
+          throw RuntimeException(
+            'Cannot assign $actualType to ${param.name} of type ${param.type}',
+          );
         }
-        switch (param.type) {
-          case 'int':
-            scope.set(param.name, IntegerValue(argValue as int));
-            break;
-          case 'double':
-            scope.set(param.name, DoubleValue(argValue as double));
-            break;
-          case 'boolean':
-            scope.set(param.name, BooleanValue(argValue as bool));
-            break;
-          case 'string':
-            scope.set(param.name, StringValue(argValue as String));
-            break;
-          default:
-            throw RuntimeException('Invalid parameter type: ${param.type}');
-        }
+
+        scope.set(
+          param.name,
+          RuntimeValue(actualType.cast(param.type, argValue)),
+          mutable: true,
+          nullable: param.type.nullable,
+        );
       }
 
       // Execute the function body
       RuntimeValue result = const NullValue();
+
       for (final stmt in function.body) {
         if (stmt is ReturnStatement) {
-          if (stmt.expression == null && function.returnType != 'void') {
-            throw RuntimeException(
-              'Function ${function.name} must return a value',
-            );
-          }
-
           if (stmt.expression != null) {
             result = eval(stmt.expression!);
           }
@@ -210,18 +261,7 @@ class Interpreter {
         eval(stmt);
       }
 
-      // Check and perform implicit casts on return
-      if (result.type != function.returnType &&
-          !(result is NullValue && function.returnType == 'void')) {
-        if (result.hasImplicitCast(function.returnType)) {
-          return result.implictCast(function.returnType);
-        }
-        throw RuntimeException(
-          'Cannot return ${result.type} from ${function.returnType} function',
-        );
-      }
-
-      return result;
+      return result.cast(function.returnType);
     } finally {
       scope = scope.pop();
     }
@@ -233,80 +273,80 @@ class Interpreter {
     final right = eval(binop.right);
 
     // Numeric operations
-    if (left is NumberValue && right is NumberValue) {
-      bool intResult = left is IntegerValue && right is IntegerValue;
-      num raw;
+    if ((left.type == PrimitiveType.DOUBLE || left.type == PrimitiveType.INT) &&
+        (right.type == PrimitiveType.DOUBLE ||
+            right.type == PrimitiveType.INT)) {
       switch (binop.operator) {
         case '+':
-          raw = left.value + right.value;
-          break;
+          return RuntimeValue(left.value + right.value);
         case '-':
-          raw = left.value - right.value;
-          break;
+          return RuntimeValue(left.value - right.value);
         case '*':
-          raw = left.value * right.value;
-          break;
+          return RuntimeValue(left.value * right.value);
         case '/':
           if (right.value == 0) {
             throw const RuntimeException('Division by zero');
           }
-          raw = left.value / right.value;
-          intResult = false;
-          break;
+          return RuntimeValue(left.value / right.value);
         case '%':
-          raw = left.value % right.value;
-          intResult = true;
-          break;
+          return RuntimeValue(left.value % right.value);
         case '==':
-          return BooleanValue(left.value == right.value);
+          return RuntimeValue(left.value == right.value);
         case '!=':
-          return BooleanValue(left.value != right.value);
+          return RuntimeValue(left.value != right.value);
         case '<':
-          return BooleanValue(left.value < right.value);
+          return RuntimeValue(left.value < right.value);
         case '<=':
-          return BooleanValue(left.value <= right.value);
+          return RuntimeValue(left.value <= right.value);
         case '>':
-          return BooleanValue(left.value > right.value);
+          return RuntimeValue(left.value > right.value);
         case '>=':
-          return BooleanValue(left.value >= right.value);
+          return RuntimeValue(left.value >= right.value);
         default:
           throw RuntimeException('Invalid operator: ${binop.operator}');
       }
-      return intResult ? IntegerValue(raw) : DoubleValue(raw);
     }
 
     // String concatenation and comparison
-    if (left is StringValue || right is StringValue) {
-      final l = left is StringValue ? left.value : '';
-      final r = right is StringValue ? right.value : '';
+    if (left.type == PrimitiveType.STRING ||
+        right.type == PrimitiveType.STRING) {
+      final l = left.type == PrimitiveType.STRING ? left.value : '';
+      final r = right.type == PrimitiveType.STRING ? right.value : '';
       switch (binop.operator) {
         case '+':
-          return StringValue(l + r);
+          return RuntimeValue(l + r);
         case '==':
-          return BooleanValue(l == r);
+          return RuntimeValue(l == r);
         case '!=':
-          return BooleanValue(l != r);
+          return RuntimeValue(l != r);
         default:
           throw RuntimeException('Invalid string operator: ${binop.operator}');
       }
     }
 
     // Boolean logical ops
-    if (left is BooleanValue && right is BooleanValue) {
+    if (left.type == PrimitiveType.BOOL && right.type == PrimitiveType.BOOL) {
       switch (binop.operator) {
         case '&&':
-          return BooleanValue(left.value && right.value);
+          return RuntimeValue(left.value && right.value);
         case '||':
-          return BooleanValue(left.value || right.value);
+          return RuntimeValue(left.value || right.value);
         case '==':
-          return BooleanValue(left.value == right.value);
+          return RuntimeValue(left.value == right.value);
         case '!=':
-          return BooleanValue(left.value != right.value);
+          return RuntimeValue(left.value != right.value);
         default:
           throw RuntimeException('Invalid boolean operator: ${binop.operator}');
       }
     }
 
-    throw RuntimeException('Unsupported operands for ${binop.operator}');
+    switch (binop.operator) {
+      case '==':
+        return RuntimeValue(left.value == right.value);
+      case '!=':
+        return RuntimeValue(left.value != right.value);
+      default:
+        throw RuntimeException('Unsupported operands for ${binop.operator}');
+    }
   }
 }

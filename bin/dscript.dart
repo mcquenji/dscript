@@ -50,7 +50,9 @@ void main(List<String> arguments) {
             name: 'onLogin',
             namedParameters: [
               const ParameterSignature(
-                  name: 'username', type: PrimitiveType.STRING)
+                name: 'username',
+                type: PrimitiveType.STRING,
+              )
             ],
           ),
           HookSignature(
@@ -58,6 +60,7 @@ void main(List<String> arguments) {
             namedParameters: [],
           ),
         ],
+        bindings: ExternalBindings(),
       ),
     ],
   );

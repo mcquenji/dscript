@@ -35,7 +35,14 @@ sealed class Statement {
   /// The output map will include a `node` key with the runtime type name,
   /// merged with the result of [toMap].
   Map<String, dynamic> toJson() {
-    return {'node': runtimeType.toString(), ...toMap()};
+    return {
+      'node': runtimeType.toString(),
+      ...toMap(),
+      'span': {
+        'start': {'line': lineStart, 'column': columnStart},
+        'end': {'line': lineEnd, 'column': columnEnd},
+      }
+    };
   }
 
   @override
@@ -172,7 +179,7 @@ class FunctionDeclaration extends Statement {
   final List<Parameter> parameters;
 
   /// Return type of the function as a string.
-  final String returnType;
+  final $Type returnType;
 
   /// Creates a [FunctionDeclaration] with named fields.
   const FunctionDeclaration({
@@ -239,7 +246,7 @@ class Hook extends FunctionDeclaration {
     super.lineEnd,
     super.columnEnd,
   }) : super(
-          returnType: 'void',
+          returnType: PrimitiveType.VOID,
         );
 }
 
@@ -249,16 +256,12 @@ class Parameter extends Statement {
   final String name;
 
   /// The declared type of the parameter.
-  final String type;
-
-  /// Indicating if the parameter is nullable.
-  final bool nullable;
+  final $Type type;
 
   /// AST node representing a function parameter: `type name`.
   const Parameter(
     this.name,
-    this.type,
-    this.nullable, {
+    this.type, {
     super.lineStart,
     super.columnStart,
     super.lineEnd,
@@ -404,7 +407,12 @@ class StringLiteral extends Expression {
 /// AST node representing a null literal.
 class NullLiteral extends Expression {
   /// Creates a [NullLiteral].
-  const NullLiteral();
+  const NullLiteral({
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -710,26 +718,24 @@ class WhileStatement extends FlowControlStatement {
   }
 }
 
-/// AST node for an external call to a method in a namespace (e.g., `math::floor(3.5)`).
-class ExternalCall extends Expression {
-  /// The namespace of the external method.
-  final String namespace;
-
-  /// The method name being called.
+/// AST node for calls to functions defined in this script:
+/// e.g. foo(1, bar: 2)
+class CallExpression extends Expression {
+  /// The function name being called.
   final String method;
 
-  /// Named arguments passed to the method, as a map of parameter names to expressions.
-  final Map<String, Expression> namedArgs;
-
-  /// Positional arguments passed to the method, as a list of expressions in order.
+  /// Positional arguments.
   final List<Expression> positionalArgs;
 
-  /// AST node for an external call to a method in a namespace (e.g., `math::floor(3.5)`).
-  const ExternalCall(
-    this.namespace,
-    this.method,
-    this.namedArgs,
-    this.positionalArgs, {
+  /// Named arguments.
+  final Map<String, Expression> namedArgs;
+
+  /// AST node for calls to functions defined in this script:
+  /// e.g. foo(1, bar: 2)
+  const CallExpression({
+    required this.method,
+    required this.namedArgs,
+    required this.positionalArgs,
     super.lineStart,
     super.columnStart,
     super.lineEnd,
@@ -739,9 +745,35 @@ class ExternalCall extends Expression {
   @override
   Map<String, dynamic> toMap() {
     return {
-      'namespace': namespace,
-      'method': method,
-      'args': namedArgs,
+      'name': method,
+      'namedArgs': namedArgs,
+      'positionalArgs': positionalArgs,
     };
+  }
+}
+
+/// AST node for an external call to a method in a namespace (e.g., `math::floor(3.5)`).
+class ExternalCall extends CallExpression {
+  /// The namespace of the external method.
+  final String namespace;
+
+  /// AST node for an external call to a method in a namespace (e.g., `math::floor(3.5)`).
+  const ExternalCall({
+    required this.namespace,
+    required super.method,
+    required super.namedArgs,
+    required super.positionalArgs,
+    super.lineStart,
+    super.columnStart,
+    super.lineEnd,
+    super.columnEnd,
+  });
+
+  @override
+  Map<String, dynamic> toMap() {
+    return super.toMap()
+      ..addEntries(
+        {'namespace': namespace}.entries,
+      );
   }
 }

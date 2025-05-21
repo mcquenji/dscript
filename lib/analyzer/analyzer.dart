@@ -1,4 +1,5 @@
 import 'package:dscript/dscript.dart';
+import 'package:dscript/runtime/stdlib/stdlib.dart';
 import 'package:equatable/equatable.dart';
 
 part 'errors.dart';
@@ -27,11 +28,11 @@ class TypeScope {
   /// Throws an [AnalyzerError] if the variable is already defined in this scope.
   void set(String name, $Type type, bool mutable) {
     if (type == PrimitiveType.VOID) {
-      throw AnalyzerError('Variable cannot be void: $name');
+      throw AnalyzerError('Variable cannot be void: $name', statement: null);
     }
 
     if (_types.containsKey(name)) {
-      throw AnalyzerError('Variable $name already defined');
+      throw AnalyzerError('Variable $name already defined', statement: null);
     }
 
     _types[name] = type;
@@ -49,7 +50,7 @@ class TypeScope {
       return _parent.mutable(name);
     }
 
-    throw AnalyzerError('Variable $name not defined');
+    throw AnalyzerError('Variable $name not defined', statement: null);
   }
 
   /// Gets the type of a variable in this scope.
@@ -59,7 +60,7 @@ class TypeScope {
     } else if (_parent != null) {
       return _parent.get(name);
     } else {
-      throw AnalyzerError('Variable $name not defined');
+      throw AnalyzerError('Variable $name not defined', statement: null);
     }
   }
 
@@ -93,13 +94,15 @@ class Analyzer {
   /// Analyzes the script for errors and checks for missing permissions.
   ///
   /// Throws an [AnalysisReport] if any issues are found.
-  void analyze(Script script) {
+  AnalysisReport analyze(Script script) {
     final report = AnalysisReport();
 
     final contract = contracts.firstWhere(
       (c) => c.name == script.contract.name,
-      orElse: () =>
-          throw AnalyzerError('Contract not found: ${script.contract.name}'),
+      orElse: () => throw AnalyzerError(
+        'Contract not found: ${script.contract.name}',
+        statement: script.contract,
+      ),
     );
 
     final scriptImplementations = script.contract.implementations
@@ -113,19 +116,35 @@ class Analyzer {
 
     for (final implementation in implementations) {
       if (!scriptImplementations.contains(implementation)) {
-        report.report(AnalyzerError('Missing implementation: $implementation'));
+        report.report(
+          AnalyzerError(
+            'Missing implementation: $implementation',
+            statement: implementation.node,
+          ),
+        );
       }
     }
 
+    final bindings = [contract.bindings, ...LibraryBinding.stdLib(script)];
+
     for (final hook in scriptHooks) {
       if (!hooks.contains(hook)) {
-        report.report(AnalyzerError('Unrecognized hook: $hook'));
+        report.report(
+          AnalyzerError(
+            'Unrecognized hook: $hook',
+            statement: hook.node,
+          ),
+        );
         continue;
       }
 
-      final result = _analyzeFunction(script.contract.hooks.firstWhere(
-        (e) => e.name == hook.name,
-      ));
+      final result = _analyzeFunction(
+        script.contract.hooks.firstWhere(
+          (e) => e.name == hook.name,
+        ),
+        bindings: bindings,
+        script: script,
+      );
 
       report.merge(result);
     }
@@ -133,70 +152,83 @@ class Analyzer {
     for (final implementation in scriptImplementations) {
       if (!implementations.contains(implementation)) {
         report.report(
-          AnalyzerError('Unrecognized implementation: $implementation'),
+          AnalyzerError(
+            'Unrecognized implementation: $implementation',
+            statement: implementation.node,
+          ),
         );
         continue;
       }
 
-      final result =
-          _analyzeFunction(script.contract.implementations.firstWhere(
-        (e) => e.name == implementation.name,
-      ));
+      final result = _analyzeFunction(
+        script.contract.implementations.firstWhere(
+          (e) => e.name == implementation.name,
+        ),
+        bindings: bindings,
+        script: script,
+      );
 
       report.merge(result);
     }
 
-    report.throwIfErrors();
+    return report;
   }
 
-  AnalysisReport _analyzeFunction(FunctionDeclaration function,
-      [TypeScope? parentScope]) {
+  AnalysisReport _analyzeFunction(
+    FunctionDeclaration function, {
+    TypeScope? parentScope,
+    required Script script,
+    required List<LibraryBinding> bindings,
+  }) {
     final report = AnalysisReport();
 
     final scope = TypeScope(parentScope);
 
     for (final parameter in function.parameters) {
       try {
-        infer(parameter, scope);
+        infer(parameter, scope, bindings);
       } on AnalyzerError catch (e) {
         report.report(e);
       }
     }
 
-    final returnType = $Type.from(function.returnType);
+    final returnType = function.returnType;
 
     for (final stmt in function.body) {
       try {
         switch (stmt) {
           case ReturnStatement():
-            if (stmt.expression != null && returnType == PrimitiveType.VOID) {
-              report.report(
-                AnalyzerError('Void function cannot return a value: $function'),
-              );
-            }
-
             if (stmt.expression != null) {
-              final type = infer(stmt.expression!, scope);
+              final type = infer(stmt.expression!, scope, bindings);
 
-              if (type != returnType) {
+              if (!type.canCast(returnType)) {
                 report.report(
-                  TypeError(
+                  ReturnError(
                     returnType,
                     type,
+                    statement: stmt,
                   ),
                 );
               }
-            } else if (returnType != PrimitiveType.VOID) {
+            } else if (returnType != PrimitiveType.VOID &&
+                !returnType.nullable) {
               report.report(
-                AnalyzerError('Missing return value: $function'),
+                ReturnError(
+                  returnType,
+                  PrimitiveType.NULL,
+                  statement: stmt,
+                ),
               );
             }
             break;
           case VariableDeclaration():
-            infer(stmt, scope);
+            infer(stmt, scope, bindings);
+            break;
+          case ExternalCall():
+            infer(stmt, scope, bindings);
             break;
           default:
-            infer(stmt, scope);
+            infer(stmt, scope, bindings);
         }
       } on AnalyzerError catch (e) {
         report.report(e);
@@ -207,8 +239,12 @@ class Analyzer {
   }
 
   /// Infers the type of a statement.
-  $Type infer(Statement statement, TypeScope scope) {
-    switch (statement) {
+  $Type infer(
+    Statement stmt,
+    TypeScope scope,
+    List<LibraryBinding> bindings,
+  ) {
+    switch (stmt) {
       case IntegerLiteral():
         return PrimitiveType.INT;
       case StringLiteral():
@@ -218,17 +254,101 @@ class Analyzer {
       case DoubleLiteral():
         return PrimitiveType.DOUBLE;
       case Identifier():
-        return scope.get(statement.name);
-      case Parameter():
-        final type = $Type.from(statement.type);
-        if (type == PrimitiveType.VOID) {
-          throw AnalyzerError('Parameter cannot be void: $statement');
+        return scope.get(stmt.name);
+      case ExternalCall():
+        final binding = bindings.firstWhere(
+          (b) => b.name == stmt.namespace,
+          orElse: () => throw AnalyzerError(
+            'Undefined namespace: ${stmt.namespace}',
+            statement: stmt,
+          ),
+        );
+
+        final functionBinding = binding.bindings.firstWhere(
+          (b) => b.name == stmt.method,
+          orElse: () => throw AnalyzerError(
+            'No such function in namespace ${stmt.namespace}: ${stmt.method}',
+            statement: stmt,
+          ),
+        );
+
+        final report = AnalysisReport();
+
+        for (var i = 0; i < stmt.positionalArgs.length; i++) {
+          final arg = stmt.positionalArgs[i];
+          final type = infer(arg, scope, bindings);
+
+          if (i >= functionBinding.positionalParams.length) {
+            report.report(
+              AnalyzerError(
+                'Too many positional arguments for ${stmt.method}: ${stmt.positionalArgs.length}; expected ${functionBinding.positionalParams.length}',
+                statement: arg,
+              ),
+            );
+
+            break;
+          }
+
+          final paramType = functionBinding.positionalParamsTypes[i];
+
+          if (type != paramType) {
+            report.report(
+              TypeError(
+                paramType,
+                type,
+                statement: arg,
+              ),
+            );
+          }
         }
-        scope.set(statement.name, type, true);
+
+        for (final arg in stmt.namedArgs.entries) {
+          final name = arg.key;
+          final value = arg.value;
+
+          final type = infer(value, scope, bindings);
+
+          if (!functionBinding.namedParams.containsKey(Symbol(name))) {
+            report.report(
+              AnalyzerError(
+                'No such named parameter for ${stmt.method}: $name',
+                statement: value,
+              ),
+            );
+
+            continue;
+          }
+
+          final paramType = functionBinding.namedParamsTypes[Symbol(name)]!;
+
+          if (type != paramType) {
+            report.report(
+              TypeError(
+                paramType,
+                type,
+                statement: value,
+              ),
+            );
+          }
+        }
+
+        report.throwIfErrors();
+
+        return functionBinding.returnType;
+
+      case Parameter():
+        final type = stmt.type;
+        if (type == PrimitiveType.VOID) {
+          throw AnalyzerError(
+            'Parameter cannot be void: $stmt',
+            statement: stmt,
+          );
+        }
+        scope.set(stmt.name, type, true);
         return type;
       case BinaryExpression():
-        final leftType = infer(statement.left, scope);
-        final rightType = infer(statement.right, scope);
+        final leftType = infer(stmt.left, scope, bindings);
+        final rightType = infer(stmt.right, scope, bindings);
 
         if (leftType == rightType) {
           return leftType;
@@ -245,80 +365,87 @@ class Analyzer {
         }
 
         throw InferenceError(
-          statement,
+          statement: stmt,
         );
       case VariableDeclaration():
-        if (statement.initializer == null && statement.type == null) {
+        if (stmt.initializer == null && stmt.type == null) {
           throw InferenceError(
-            statement,
+            statement: stmt,
           );
         }
 
-        final mutable = statement is VarDeclaration;
+        final mutable = stmt is VarDeclaration;
 
-        if (statement.initializer == null && statement.type != null) {
-          if (statement.type!.nullable) {
-            scope.set(statement.variable, statement.type!, mutable);
-            return statement.type!;
+        if (stmt.initializer == null && stmt.type != null) {
+          if (stmt.type!.nullable) {
+            scope.set(stmt.variable, stmt.type!, mutable);
+            return stmt.type!;
           }
 
           throw AnalyzerError(
-            'Non-nullable type without initializer: $statement',
+            'Non-nullable type without initializer: $stmt',
+            statement: stmt,
           );
         }
 
-        if (statement.initializer != null && statement.type == null) {
-          final type = infer(statement.initializer!, scope);
-          scope.set(statement.variable, type, mutable);
+        if (stmt.initializer != null && stmt.type == null) {
+          final type = infer(stmt.initializer!, scope, bindings);
+          scope.set(stmt.variable, type, mutable);
           return type;
         }
 
-        if (statement.initializer != null && statement.type != null) {
-          final type = infer(statement.initializer!, scope);
-          if (type == statement.type) {
-            scope.set(statement.variable, type, mutable);
+        if (stmt.initializer != null && stmt.type != null) {
+          final type = infer(stmt.initializer!, scope, bindings);
+          if (type == stmt.type) {
+            scope.set(stmt.variable, type, mutable);
             return type;
           }
 
-          if (type == PrimitiveType.INT &&
-              statement.type == PrimitiveType.DOUBLE) {
-            scope.set(statement.variable, PrimitiveType.DOUBLE, mutable);
-            return PrimitiveType.DOUBLE;
+          // if the type can be implicitly casted to the type of the variable
+          // then we can assign it
+          if (type.canCast(stmt.type ?? PrimitiveType.VOID)) {
+            scope.set(stmt.variable, type, mutable);
+            return type;
           }
 
           throw AssignmentError(
-            statement.variable,
-            statement.type!,
+            stmt.variable,
+            stmt.type!,
             type,
+            statement: stmt,
           );
         }
 
         throw InferenceError(
-          statement,
+          statement: stmt,
+          message:
+              'Failed to infer type for variable, try adding explicit typing',
         );
       case AssignmentStatement():
-        final type = infer(statement.expression, scope);
+        final type = infer(stmt.expression, scope, bindings);
 
-        if (scope.mutable(statement.variable)) {
-          final declaedType = scope.get(statement.variable);
-          if (declaedType == type) {
+        if (scope.mutable(stmt.variable)) {
+          final declaedType = scope.get(stmt.variable);
+          if (type.canCast(declaedType)) {
             return type;
           }
 
           throw AssignmentError(
-            statement.variable,
+            stmt.variable,
             declaedType,
             type,
+            statement: stmt,
           );
         }
 
         throw AnalyzerError(
-          'Cannot assign to immutable variable: ${statement.variable}',
+          'Cannot assign to immutable variable: ${stmt.variable}',
+          statement: stmt,
         );
 
       default:
         throw InferenceError(
-          statement,
+          statement: stmt,
         );
     }
   }

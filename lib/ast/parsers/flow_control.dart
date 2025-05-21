@@ -6,22 +6,44 @@ extension FlowControlParser on Parser {
   ///
   /// Returns an [IfStatement] AST node.
   IfStatement _parseIfStatement() {
-    consume<IfToken>();
+    final start = consume<IfToken>();
     consume<OpenParenthesisToken>();
     final condition = _parseBooleanExpression(const CloseParenthesisToken());
     final body = _parseBlock();
 
     ElseStatement? elseBody;
     if (peek() is ElseToken) {
-      consume<ElseToken>();
+      final start = consume<ElseToken>();
       if (peek() is IfToken) {
         final ifStmt = _parseIfStatement();
-        elseBody = ElseIfStatement(ifStmt.condition, ifStmt.body);
+        elseBody = ElseIfStatement(
+          ifStmt.condition,
+          ifStmt.body,
+          lineStart: start.line,
+          columnStart: start.column,
+          lineEnd: ifStmt.lineEnd,
+          columnEnd: ifStmt.columnEnd,
+        );
       } else {
-        elseBody = ElseStatement(_parseBlock());
+        final body = _parseBlock();
+        elseBody = ElseStatement(
+          body,
+          lineStart: start.line,
+          columnStart: start.column,
+          lineEnd: body.last.lineEnd,
+          columnEnd: body.last.columnEnd,
+        );
       }
     }
 
-    return IfStatement(condition, body, elseBody);
+    return IfStatement(
+      condition,
+      body,
+      elseBody,
+      lineStart: start.line,
+      columnStart: start.column,
+      lineEnd: body.last.lineEnd,
+      columnEnd: body.last.columnEnd,
+    );
   }
 }

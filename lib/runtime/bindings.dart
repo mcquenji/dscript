@@ -17,18 +17,41 @@ class RuntimeBinding<T> {
   /// A list of positional parameters in the order they are expected.
   final List<Type> positionalParams;
 
+  /// The return type of the function as a dsl type.
+  $Type get returnType => $Type.from(T.toString());
+
+  /// Mapped named parameters to their dsl types.
+  final Map<Symbol, $Type> namedParamsTypes;
+
+  /// Mapped positional parameters to their dsl types.
+  final List<$Type> positionalParamsTypes;
+
   /// A binding from the DSL to a Dart function.
-  const RuntimeBinding({
+  RuntimeBinding({
     required this.name,
     required this.function,
     this.namedParams = const {},
     this.permissions = const [],
     this.positionalParams = const [],
-  });
+  })  : positionalParamsTypes = positionalParams
+            .map(
+              (value) => $Type.from(
+                value.toString(),
+              ),
+            )
+            .toList(),
+        namedParamsTypes = namedParams.map(
+          (key, value) => MapEntry(
+            key,
+            $Type.from(
+              value.toString(),
+            ),
+          ),
+        );
 
   /// Calls the bound function with the provided arguments.
-  T call(List<dynamic> positionalArgs,
-      {Map<Symbol, dynamic> namedArgs = const {}}) {
+  T call(List<RuntimeValue> positionalArgs,
+      {Map<Symbol, RuntimeValue> namedArgs = const {}}) {
     // Check if all named parameters are provided
     for (final param in namedParams.keys) {
       if (!namedArgs.containsKey(param)) {
@@ -36,14 +59,17 @@ class RuntimeBinding<T> {
       }
 
       // Check if the argument type matches the expected type
-      final expectedType = namedParams[param];
-      final argValue = namedArgs[param];
+      final expectedType = namedParamsTypes[param]!;
+      final argValue = namedArgs[param]!.type;
 
-      if (expectedType != null && argValue.runtimeType != expectedType) {
+      if (!argValue.canCast(expectedType)) {
         throw RuntimeException(
-          'Invalid argument type for $param: expected $expectedType, got ${argValue.runtimeType}',
+          'Invalid argument type for $param: expected $expectedType, got $argValue',
         );
       }
+
+      // Cast the argument to the expected type
+      namedArgs[param] = namedArgs[param]!.cast(expectedType);
     }
 
     // Check if the number of positional arguments matches
@@ -54,14 +80,34 @@ class RuntimeBinding<T> {
     }
     // Check if the types of positional arguments match
     for (int i = 0; i < positionalParams.length; i++) {
-      if (positionalArgs[i].runtimeType != positionalParams[i]) {
+      if (i >= positionalArgs.length) {
         throw RuntimeException(
-          'Invalid argument type for positional argument $i: expected ${positionalParams[i]}, got ${positionalArgs[i].runtimeType}',
+          '${positionalParams.length} positional arguments expected, but only ${positionalArgs.length} provided',
         );
       }
+
+      if (!positionalArgs[i].type.canCast(positionalParamsTypes[i])) {
+        throw RuntimeException(
+          'Invalid argument type for positional argument $i: expected ${positionalParamsTypes[i]}, got ${positionalArgs[i].type}',
+        );
+      }
+
+      // Cast the argument to the expected type
+      positionalArgs[i] = positionalArgs[i].cast(positionalParamsTypes[i]);
     }
 
-    final result = Function.apply(function, positionalArgs, namedArgs);
+    print(positionalArgs);
+    print(namedArgs);
+
+    final result = Function.apply(
+        function,
+        positionalArgs.map((arg) => arg.value).toList(),
+        namedArgs.map(
+          (key, value) => MapEntry(
+            key,
+            value.value,
+          ),
+        ));
 
     if (result is T) {
       return result;
@@ -111,6 +157,14 @@ class ExternalBindings extends LibraryBinding {
       : super(
           name: 'external',
         );
+
+  /// Creates an [ExternalBindings] instance with the provided list of bindings.
+  ExternalBindings.from(List<RuntimeBinding> bindings)
+      : super(
+          name: 'external',
+        ) {
+    _bindings.addAll(bindings);
+  }
 
   /// Adds a new binding to the list of external bindings.
   void addBinding(RuntimeBinding binding) {

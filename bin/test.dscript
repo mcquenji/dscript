@@ -14,29 +14,29 @@ permissions http::client, http::server;
 
 contract Random {
   impl randomNumber(int foo) -> double {
-    return foo * pi;
+    return math::floor(foo * pi);
   }
 
 
   impl randomString() -> string {
-    return 47;
+    return "Random String";
   }
 
   impl test() -> void {
-    final test = "Test";
+    // final test = "Test";
 
-    return;
+    // return;
 
-    final string? nonNullable;
+    // final string? nonNullable;
 
-    final bool test2 = 1;
+    // final bool test2 = 1;
 
-    test = "Test2";
+    // test = "Test2";
 
-    var p = 1.0;
-    p = 2.0;
+    // var p = 1.0;
+    // p = 2.0;
 
-    return;
+    // return;
   }
 
   hook onLogout() -> void {
@@ -46,6 +46,8 @@ contract Random {
 
   hook onLogin(string username) {
     // Hook implementation
+
+    // return math::floor(1.5);
   }
 
 }
