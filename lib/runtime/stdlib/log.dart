@@ -13,7 +13,7 @@ class LogBindings extends LibraryBinding {
   /// Bindings for the logging standard library.
   LogBindings(this.script) : super(name: 'log') {
     logger = Logger(
-      'Dscript.${script.contract.name}.${script.name} v${script.version} by ${script.author}',
+      'Dscript.${script.contract.name}.${script.name}@${script.author}',
     );
   }
 
@@ -32,9 +32,11 @@ class LogBindings extends LibraryBinding {
   late final infoBinding = RuntimeBinding<void>(
     name: 'info',
     function: (String message, {String? error}) => logger.info(message, error),
-    positionalParams: [String],
+    positionalParams: [
+      PrimitiveType.STRING,
+    ],
     namedParams: {
-      #error: String,
+      #error: PrimitiveType.STRING.asNullable(),
     },
   );
 
@@ -43,20 +45,25 @@ class LogBindings extends LibraryBinding {
     name: 'warning',
     function: (String message, {String? error}) =>
         logger.warning(message, error),
-    positionalParams: [String],
+    positionalParams: [
+      PrimitiveType.STRING,
+    ],
     namedParams: {
-      #error: String,
+      #error: PrimitiveType.STRING.asNullable(),
     },
   );
 
   /// Binding for error logging.
   late final errorBinding = RuntimeBinding<void>(
     name: 'error',
-    function: (String message, {String? error}) =>
-        logger.severe(message, error),
-    positionalParams: [String],
+    function: (String message, {String? error}) {
+      logger.severe(message, error);
+    },
+    positionalParams: [
+      PrimitiveType.STRING,
+    ],
     namedParams: {
-      #error: String,
+      #error: PrimitiveType.STRING.asNullable(),
     },
   );
 
@@ -64,9 +71,11 @@ class LogBindings extends LibraryBinding {
   late final debugBinding = RuntimeBinding<void>(
     name: 'debug',
     function: (String message, {String? error}) => logger.fine(message, error),
-    positionalParams: [String],
+    positionalParams: [
+      PrimitiveType.STRING,
+    ],
     namedParams: {
-      #error: String,
+      #error: PrimitiveType.STRING.asNullable(),
     },
   );
 
@@ -74,9 +83,11 @@ class LogBindings extends LibraryBinding {
   late final verboseBinding = RuntimeBinding<void>(
     name: 'verbose',
     function: (String message, {String? error}) => logger.finer(message, error),
-    positionalParams: [String],
+    positionalParams: [
+      PrimitiveType.STRING,
+    ],
     namedParams: {
-      #error: String,
+      #error: PrimitiveType.STRING.asNullable(),
     },
   );
 
@@ -84,9 +95,11 @@ class LogBindings extends LibraryBinding {
   late final fatalBinding = RuntimeBinding<void>(
     name: 'fatal',
     function: (String message, {String? error}) => logger.shout(message, error),
-    positionalParams: [String],
+    positionalParams: [
+      PrimitiveType.STRING,
+    ],
     namedParams: {
-      #error: String,
+      #error: PrimitiveType.STRING.asNullable(),
     },
   );
 
@@ -94,9 +107,11 @@ class LogBindings extends LibraryBinding {
   late final criticalBinding = RuntimeBinding<void>(
     name: 'critical',
     function: (String message, {String? error}) => logger.shout(message, error),
-    positionalParams: [String],
+    positionalParams: [
+      PrimitiveType.STRING,
+    ],
     namedParams: {
-      #error: String,
+      #error: PrimitiveType.STRING.asNullable(),
     },
   );
 }

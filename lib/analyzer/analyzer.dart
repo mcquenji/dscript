@@ -80,12 +80,6 @@ class Analyzer {
   /// List of contracts defined by the host.
   final List<ContractSignature> contracts;
 
-  /// List of implementations defined in the script.
-  late final List<ImplementationSignature> scriptImplementations;
-
-  /// List of hooks defined in the script.
-  late final List<HookSignature> scriptHooks;
-
   /// Creates an [Analyzer] for the given [script].
   Analyzer({
     required this.contracts,
@@ -97,13 +91,7 @@ class Analyzer {
   AnalysisReport analyze(Script script) {
     final report = AnalysisReport();
 
-    final contract = contracts.firstWhere(
-      (c) => c.name == script.contract.name,
-      orElse: () => throw AnalyzerError(
-        'Contract not found: ${script.contract.name}',
-        statement: script.contract,
-      ),
-    );
+    final contract = getContract(script);
 
     final scriptImplementations = script.contract.implementations
         .map((e) => ImplementationSignature.from(e))
@@ -172,6 +160,17 @@ class Analyzer {
     }
 
     return report;
+  }
+
+  /// Returns the matching contract from [contracts] for the given [script].
+  ContractSignature getContract(Script script) {
+    return contracts.firstWhere(
+      (c) => c.name == script.contract.name,
+      orElse: () => throw AnalyzerError(
+        'Contract not found: ${script.contract.name}',
+        statement: script.contract,
+      ),
+    );
   }
 
   AnalysisReport _analyzeFunction(
@@ -289,9 +288,9 @@ class Analyzer {
             break;
           }
 
-          final paramType = functionBinding.positionalParamsTypes[i];
+          final paramType = functionBinding.positionalParams[i];
 
-          if (type != paramType) {
+          if (!type.canCast(paramType)) {
             report.report(
               TypeError(
                 paramType,
@@ -319,9 +318,9 @@ class Analyzer {
             continue;
           }
 
-          final paramType = functionBinding.namedParamsTypes[Symbol(name)]!;
+          final paramType = functionBinding.namedParams[Symbol(name)]!;
 
-          if (type != paramType) {
+          if (!type.canCast(paramType)) {
             report.report(
               TypeError(
                 paramType,

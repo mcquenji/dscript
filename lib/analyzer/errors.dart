@@ -31,9 +31,6 @@ class TypeError extends AnalyzerError {
   /// An error thrown when a type mismatch occurs during analysis.
   TypeError(this.expected, this.found, {required super.statement})
       : super('Expected type $expected but found $found');
-
-  @override
-  String toString() => 'TypeError: $message';
 }
 
 /// An error thrown when a type mismatch occurs during assignment.

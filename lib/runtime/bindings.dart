@@ -9,67 +9,53 @@ class RuntimeBinding<T> {
   final Function function;
 
   /// A map of parameter names to their expected types.
-  final Map<Symbol, Type> namedParams;
+  final Map<Symbol, $Type> namedParams;
 
   /// A list of permissions required by this binding.
   final List<ScriptPermission> permissions;
 
   /// A list of positional parameters in the order they are expected.
-  final List<Type> positionalParams;
+  final List<$Type> positionalParams;
 
   /// The return type of the function as a dsl type.
   $Type get returnType => $Type.from(T.toString());
 
-  /// Mapped named parameters to their dsl types.
-  final Map<Symbol, $Type> namedParamsTypes;
-
-  /// Mapped positional parameters to their dsl types.
-  final List<$Type> positionalParamsTypes;
-
   /// A binding from the DSL to a Dart function.
-  RuntimeBinding({
+  const RuntimeBinding({
     required this.name,
     required this.function,
     this.namedParams = const {},
     this.permissions = const [],
     this.positionalParams = const [],
-  })  : positionalParamsTypes = positionalParams
-            .map(
-              (value) => $Type.from(
-                value.toString(),
-              ),
-            )
-            .toList(),
-        namedParamsTypes = namedParams.map(
-          (key, value) => MapEntry(
-            key,
-            $Type.from(
-              value.toString(),
-            ),
-          ),
-        );
+  });
 
   /// Calls the bound function with the provided arguments.
   T call(List<RuntimeValue> positionalArgs,
       {Map<Symbol, RuntimeValue> namedArgs = const {}}) {
     // Check if all named parameters are provided
-    for (final param in namedParams.keys) {
+    for (final entry in namedParams.entries) {
+      final param = entry.key;
+      final expectedType = entry.value;
+
+      if (!namedArgs.containsKey(param) && !expectedType.nullable) {
+        throw RuntimeException('Missing non-nullable argument: $param');
+      }
+
       if (!namedArgs.containsKey(param)) {
-        throw RuntimeException('Missing argument: $param');
+        namedArgs[param] = const NullValue();
       }
 
       // Check if the argument type matches the expected type
-      final expectedType = namedParamsTypes[param]!;
-      final argValue = namedArgs[param]!.type;
+      final arg = namedArgs[param]!;
 
-      if (!argValue.canCast(expectedType)) {
+      if (!arg.type.canCast(expectedType)) {
         throw RuntimeException(
-          'Invalid argument type for $param: expected $expectedType, got $argValue',
+          'Invalid argument type for $param: expected $expectedType, got ${arg.type}',
         );
       }
 
       // Cast the argument to the expected type
-      namedArgs[param] = namedArgs[param]!.cast(expectedType);
+      namedArgs[param] = arg.cast(expectedType);
     }
 
     // Check if the number of positional arguments matches
@@ -86,18 +72,15 @@ class RuntimeBinding<T> {
         );
       }
 
-      if (!positionalArgs[i].type.canCast(positionalParamsTypes[i])) {
+      if (!positionalArgs[i].type.canCast(positionalParams[i])) {
         throw RuntimeException(
-          'Invalid argument type for positional argument $i: expected ${positionalParamsTypes[i]}, got ${positionalArgs[i].type}',
+          'Invalid argument type for positional argument $i: expected ${positionalParams[i]}, got ${positionalArgs[i].type}',
         );
       }
 
       // Cast the argument to the expected type
-      positionalArgs[i] = positionalArgs[i].cast(positionalParamsTypes[i]);
+      positionalArgs[i] = positionalArgs[i].cast(positionalParams[i]);
     }
-
-    print(positionalArgs);
-    print(namedArgs);
 
     final result = Function.apply(
         function,

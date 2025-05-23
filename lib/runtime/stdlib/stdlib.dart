@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dscript/analyzer/analyzer.dart';
 import 'package:dscript/ast/ast.dart';
 import 'package:dscript/runtime/runtime.dart';
 import 'package:logging/logging.dart';

@@ -2,6 +2,7 @@ part of '../ast.dart';
 
 /// Parser extension for parsing hooks and implementations.
 extension FunctionParser on Parser {
+  /// Parses the parameter list of a function declaration.
   List<Parameter> _parseParameters() {
     final List<Parameter> parameters = [];
     consume<OpenParenthesisToken>();
@@ -33,6 +34,7 @@ extension FunctionParser on Parser {
     return parameters;
   }
 
+  /// Parses the return type of a function declaration.
   $Type _parseReturnType([String? expected, String? errorMessage]) {
     String returnType = 'void';
     if (peek() is ArrowToken) {
@@ -112,6 +114,29 @@ extension FunctionParser on Parser {
       lineEnd: func.lineEnd,
       columnEnd: func.columnEnd,
     );
+  }
+
+  /// Parses the arguments passed to a function call.
+  Token _parseArgs(List<Expression> args, Map<String, Expression> namedArgs) {
+    consume<OpenParenthesisToken>();
+    while (peek() is! CloseParenthesisToken) {
+      if (peek() is CommaToken) {
+        consume<CommaToken>();
+        continue;
+      }
+
+      if (peek(true) is IdentifierToken && peek(false, 2) is ColonToken) {
+        final name = consume<IdentifierToken>().value;
+        consume<ColonToken>();
+        final value = _parseExpression();
+        namedArgs[name] = value;
+      } else {
+        final arg = _parseExpression();
+        args.add(arg);
+      }
+    }
+
+    return consume<CloseParenthesisToken>();
   }
 
   /// Parses a function call.

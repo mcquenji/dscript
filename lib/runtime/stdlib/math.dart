@@ -35,7 +35,7 @@ class MathBindings extends LibraryBinding {
     name: 'sqrt',
     function: (num x) => sqrt(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -44,8 +44,8 @@ class MathBindings extends LibraryBinding {
     name: 'pow',
     function: (num x, num y) => pow(x, y),
     positionalParams: [
-      num,
-      num,
+      PrimitiveType.NUM,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -54,7 +54,7 @@ class MathBindings extends LibraryBinding {
     name: 'log',
     function: (num x) => log(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -63,7 +63,7 @@ class MathBindings extends LibraryBinding {
     name: 'exp',
     function: (num x) => exp(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -72,7 +72,7 @@ class MathBindings extends LibraryBinding {
     name: 'sin',
     function: (num x) => sin(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -81,7 +81,7 @@ class MathBindings extends LibraryBinding {
     name: 'cos',
     function: (num x) => cos(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -90,7 +90,7 @@ class MathBindings extends LibraryBinding {
     name: 'tan',
     function: (num x) => tan(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -99,7 +99,7 @@ class MathBindings extends LibraryBinding {
     name: 'asin',
     function: (num x) => asin(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -108,7 +108,7 @@ class MathBindings extends LibraryBinding {
     name: 'acos',
     function: (num x) => acos(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -117,7 +117,7 @@ class MathBindings extends LibraryBinding {
     name: 'atan',
     function: (num x) => atan(x),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -126,8 +126,8 @@ class MathBindings extends LibraryBinding {
     name: 'atan2',
     function: (num y, num x) => atan2(y, x),
     positionalParams: [
-      num,
-      num,
+      PrimitiveType.NUM,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -136,7 +136,7 @@ class MathBindings extends LibraryBinding {
     name: 'abs',
     function: (num x) => x.abs(),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -145,7 +145,7 @@ class MathBindings extends LibraryBinding {
     name: 'floor',
     function: (num x) => x.floor(),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -154,7 +154,7 @@ class MathBindings extends LibraryBinding {
     name: 'ceil',
     function: (num x) => x.ceil(),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -163,7 +163,7 @@ class MathBindings extends LibraryBinding {
     name: 'round',
     function: (num x) => x.round(),
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -173,11 +173,11 @@ class MathBindings extends LibraryBinding {
     function: (num x, {required num min, required num max}) =>
         x.clamp(min, max),
     namedParams: {
-      #min: num,
-      #max: num,
+      #min: PrimitiveType.NUM,
+      #max: PrimitiveType.NUM,
     },
     positionalParams: [
-      num,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -186,8 +186,8 @@ class MathBindings extends LibraryBinding {
     name: 'min',
     function: (num a, num b) => min(a, b),
     positionalParams: [
-      num,
-      num,
+      PrimitiveType.NUM,
+      PrimitiveType.NUM,
     ],
   );
 
@@ -196,8 +196,8 @@ class MathBindings extends LibraryBinding {
     name: 'max',
     function: (num a, num b) => max(a, b),
     positionalParams: [
-      num,
-      num,
+      PrimitiveType.NUM,
+      PrimitiveType.NUM,
     ],
   );
 }

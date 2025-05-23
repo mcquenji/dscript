@@ -10,7 +10,16 @@ import 'package:logging/logging.dart';
 void main(List<String> arguments) {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
-    print(record);
+    final errorstr = record.error != null ? record.error.toString() : '';
+    final stackTracestr = record.stackTrace != null
+        ? record.stackTrace.toString().replaceAll('\n', '\n\t')
+        : '';
+
+    final msg = record.toString();
+
+    print(
+      '${record.time.toIso8601String()}: $msg${errorstr.isEmpty ? '' : ' '}$errorstr${stackTracestr.isEmpty ? '' : '\n\t'}$stackTracestr',
+    );
   });
 
   final code = File('./bin/test.dscript').readAsStringSync();

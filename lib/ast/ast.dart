@@ -181,28 +181,6 @@ class Parser {
     }
   }
 
-  Token _parseArgs(List<Expression> args, Map<String, Expression> namedArgs) {
-    consume<OpenParenthesisToken>();
-    while (peek() is! CloseParenthesisToken) {
-      if (peek() is CommaToken) {
-        consume<CommaToken>();
-        continue;
-      }
-
-      if (peek() is IdentifierToken && peek() is ColonToken) {
-        final name = consume<IdentifierToken>().value;
-        consume<ColonToken>();
-        final value = _parseExpression();
-        namedArgs[name] = value;
-      } else {
-        final arg = _parseExpression();
-        args.add(arg);
-      }
-    }
-
-    return consume<CloseParenthesisToken>();
-  }
-
   /// Parses numeric literals, handling integer and double formats.
   NumericLiteral _parseNumericLiteral() {
     final number = consume<NumberToken>();

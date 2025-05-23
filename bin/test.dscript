@@ -14,6 +14,8 @@ permissions http::client, http::server;
 
 contract Random {
   impl randomNumber(int foo) -> double {
+    log::info("Hello, world!");
+
     return math::floor(foo * pi);
   }
 

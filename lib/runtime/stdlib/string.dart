@@ -31,7 +31,7 @@ class StringBindings extends LibraryBinding {
     name: 'length',
     function: (String str) => str.length,
     namedParams: {
-      #str: String,
+      #str: PrimitiveType.STRING,
     },
   );
 
@@ -40,9 +40,9 @@ class StringBindings extends LibraryBinding {
     name: 'substring',
     function: (String str, int start, [int? end]) => str.substring(start, end),
     namedParams: {
-      #str: String,
-      #start: int,
-      #end: int,
+      #str: PrimitiveType.STRING,
+      #start: PrimitiveType.INT,
+      #end: PrimitiveType.INT,
     },
   );
 
@@ -51,7 +51,7 @@ class StringBindings extends LibraryBinding {
     name: 'toUpperCase',
     function: (String str) => str.toUpperCase(),
     namedParams: {
-      #str: String,
+      #str: PrimitiveType.STRING,
     },
   );
 
@@ -60,7 +60,7 @@ class StringBindings extends LibraryBinding {
     name: 'toLowerCase',
     function: (String str) => str.toLowerCase(),
     namedParams: {
-      #str: String,
+      #str: PrimitiveType.STRING,
     },
   );
 
@@ -69,7 +69,7 @@ class StringBindings extends LibraryBinding {
     name: 'trim',
     function: (String str) => str.trim(),
     namedParams: {
-      #str: String,
+      #str: PrimitiveType.STRING,
     },
   );
 
@@ -78,8 +78,8 @@ class StringBindings extends LibraryBinding {
     name: 'split',
     function: (String str, String pattern) => str.split(pattern),
     namedParams: {
-      #str: String,
-      #pattern: String,
+      #str: PrimitiveType.STRING,
+      #pattern: PrimitiveType.STRING,
     },
   );
 
@@ -88,9 +88,9 @@ class StringBindings extends LibraryBinding {
     name: 'replaceAll',
     function: (String str, String from, String to) => str.replaceAll(from, to),
     namedParams: {
-      #str: String,
-      #from: String,
-      #to: String,
+      #str: PrimitiveType.STRING,
+      #from: PrimitiveType.STRING,
+      #to: PrimitiveType.STRING,
     },
   );
 
@@ -99,8 +99,8 @@ class StringBindings extends LibraryBinding {
     name: 'contains',
     function: (String str, String pattern) => str.contains(pattern),
     namedParams: {
-      #str: String,
-      #pattern: String,
+      #str: PrimitiveType.STRING,
+      #pattern: PrimitiveType.STRING,
     },
   );
 
@@ -109,8 +109,8 @@ class StringBindings extends LibraryBinding {
     name: 'startsWith',
     function: (String str, String pattern) => str.startsWith(pattern),
     namedParams: {
-      #str: String,
-      #pattern: String,
+      #str: PrimitiveType.STRING,
+      #pattern: PrimitiveType.STRING,
     },
   );
 
@@ -119,8 +119,8 @@ class StringBindings extends LibraryBinding {
     name: 'endsWith',
     function: (String str, String pattern) => str.endsWith(pattern),
     namedParams: {
-      #str: String,
-      #pattern: String,
+      #str: PrimitiveType.STRING,
+      #pattern: PrimitiveType.STRING,
     },
   );
 
@@ -129,8 +129,8 @@ class StringBindings extends LibraryBinding {
     name: 'indexOf',
     function: (String str, String pattern) => str.indexOf(pattern),
     namedParams: {
-      #str: String,
-      #pattern: String,
+      #str: PrimitiveType.STRING,
+      #pattern: PrimitiveType.STRING,
     },
   );
 
@@ -139,8 +139,8 @@ class StringBindings extends LibraryBinding {
     name: 'lastIndexOf',
     function: (String str, String pattern) => str.lastIndexOf(pattern),
     namedParams: {
-      #str: String,
-      #pattern: String,
+      #str: PrimitiveType.STRING,
+      #pattern: PrimitiveType.STRING,
     },
   );
 
@@ -150,9 +150,9 @@ class StringBindings extends LibraryBinding {
     function: (String str, String from, String to) =>
         str.replaceFirst(from, to),
     namedParams: {
-      #str: String,
-      #from: String,
-      #to: String,
+      #str: PrimitiveType.STRING,
+      #from: PrimitiveType.STRING,
+      #to: PrimitiveType.STRING,
     },
   );
 
@@ -161,8 +161,8 @@ class StringBindings extends LibraryBinding {
     name: 'substringFrom',
     function: (String str, int start) => str.substring(start),
     namedParams: {
-      #str: String,
-      #start: int,
+      #str: PrimitiveType.STRING,
+      #start: PrimitiveType.INT,
     },
   );
 }

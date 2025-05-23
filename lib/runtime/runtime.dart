@@ -66,12 +66,12 @@ class Runtime {
   /// Permissions required by the script, derived from its top-level `permissions` statements.
   final List<ScriptPermission> _requiredPermissions = [];
 
-  final ExternalBindings _bindings = ExternalBindings();
-
   /// The AST [Script] to execute.
   final Script _script;
 
   late final Analyzer _analyzer;
+
+  late final ExternalBindings _bindings;
 
   /// Creates a [Runtime] for the given parsed DSL [_script].
   ///
@@ -90,6 +90,8 @@ class Runtime {
     );
 
     _analyzer.analyze(_script).throwIfErrors();
+
+    _bindings = _analyzer.getContract(_script).bindings;
   }
 
   /// The list of granted permissions (unmodifiable).
@@ -129,23 +131,6 @@ class Runtime {
     return interpreter.exec(
       function,
       args,
-    );
-  }
-
-  /// Binds a Dart function to the runtime, allowing it to be called from the DSL.
-  void bind({
-    required String name,
-    required Function function,
-    Map<Symbol, Type> params = const {},
-    List<ScriptPermission> permissions = const [],
-  }) {
-    _bindings.addBinding(
-      RuntimeBinding(
-        name: name,
-        function: function,
-        namedParams: params,
-        permissions: permissions,
-      ),
     );
   }
 

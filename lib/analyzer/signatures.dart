@@ -238,6 +238,10 @@ sealed class $Type extends Signature {
       return other.nullable;
     }
 
+    if (name == other.name) {
+      return other.nullable;
+    }
+
     if (this == PrimitiveType.INT) {
       return other == PrimitiveType.DOUBLE;
     }
@@ -245,8 +249,8 @@ sealed class $Type extends Signature {
     return false;
   }
 
+  /// Casts a [value] of this type to the specified [type].
   dynamic cast($Type type, dynamic value) {
-    /// Casts a [value] of this type to the specified [type].
     if (!canCast(type)) {
       throw Exception(
         'Cannot cast $name to ${type.name}',
@@ -267,6 +271,10 @@ sealed class $Type extends Signature {
 
     if (type == PrimitiveType.VOID && this == PrimitiveType.NULL) {
       return null;
+    }
+
+    if (name == type.name && type.nullable) {
+      return value;
     }
 
     throw Exception(
@@ -310,6 +318,10 @@ class PrimitiveType extends $Type {
   /// Void type.
   // ignore: constant_identifier_names
   static const PrimitiveType VOID = PrimitiveType._(name: 'void');
+
+  /// Number type (int or double).
+  // ignore: constant_identifier_names
+  static const PrimitiveType NUM = DOUBLE;
 
   /// Null type.
   // ignore: constant_identifier_names
