@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:dscript/analyzer/analyzer.dart';
 import 'package:dscript/dscript.dart';
 import 'package:pub_semver/pub_semver.dart';
 

@@ -235,7 +235,7 @@ sealed class $Type extends Signature {
     }
 
     if (this == PrimitiveType.NULL) {
-      return other.nullable;
+      return other.nullable || other == PrimitiveType.VOID;
     }
 
     if (name == other.name) {

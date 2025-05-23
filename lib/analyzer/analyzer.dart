@@ -13,12 +13,8 @@ class TypeScope {
   /// Same as [Scope] but only stores the types of variables and not their values.
   TypeScope(this._parent);
 
-  final Map<String, $Type> _types = {
-    'pi': PrimitiveType.DOUBLE,
-    'e': PrimitiveType.DOUBLE,
-    'sqrt2': PrimitiveType.DOUBLE,
-    'sqrt1_2': PrimitiveType.DOUBLE,
-  };
+  final Map<String, $Type> _types =
+      Scope().variables.map((name, v) => MapEntry(name, v.value.type));
 
   /// List of mutable variables in this scope.
   final List<String> _mutables = [];

@@ -17,6 +17,11 @@ class RuntimeBinding<T> {
   /// A list of positional parameters in the order they are expected.
   final List<$Type> positionalParams;
 
+  /// Optional description of the binding.
+  ///
+  /// Used for hover text in the editor in the future.
+  final String? description;
+
   /// The return type of the function as a dsl type.
   $Type get returnType => $Type.from(T.toString());
 
@@ -27,6 +32,7 @@ class RuntimeBinding<T> {
     this.namedParams = const {},
     this.permissions = const [],
     this.positionalParams = const [],
+    required this.description,
   });
 
   /// Calls the bound function with the provided arguments.

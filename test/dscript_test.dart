@@ -1,4 +1,3 @@
-import 'package:dscript/analyzer/analyzer.dart';
 import 'package:test/test.dart';
 import 'package:dscript/dscript.dart';
 

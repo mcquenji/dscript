@@ -3,7 +3,6 @@
 
 import 'dart:io';
 
-import 'package:dscript/analyzer/analyzer.dart';
 import 'package:dscript/dscript.dart';
 import 'package:logging/logging.dart';
 

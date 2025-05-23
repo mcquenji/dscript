@@ -38,6 +38,7 @@ class LogBindings extends LibraryBinding {
     namedParams: {
       #error: PrimitiveType.STRING.asNullable(),
     },
+    description: 'Logs an info message.',
   );
 
   /// Binding for warning logging.
@@ -51,6 +52,7 @@ class LogBindings extends LibraryBinding {
     namedParams: {
       #error: PrimitiveType.STRING.asNullable(),
     },
+    description: 'Logs a warning message.',
   );
 
   /// Binding for error logging.
@@ -65,6 +67,7 @@ class LogBindings extends LibraryBinding {
     namedParams: {
       #error: PrimitiveType.STRING.asNullable(),
     },
+    description: 'Logs an error message.',
   );
 
   /// Binding for debug logging.
@@ -77,6 +80,7 @@ class LogBindings extends LibraryBinding {
     namedParams: {
       #error: PrimitiveType.STRING.asNullable(),
     },
+    description: 'Logs a debug message.',
   );
 
   /// Binding for verbose logging.
@@ -89,6 +93,7 @@ class LogBindings extends LibraryBinding {
     namedParams: {
       #error: PrimitiveType.STRING.asNullable(),
     },
+    description: 'Logs a verbose message.',
   );
 
   /// Binding for fatal logging.
@@ -101,6 +106,7 @@ class LogBindings extends LibraryBinding {
     namedParams: {
       #error: PrimitiveType.STRING.asNullable(),
     },
+    description: 'Logs a fatal message.',
   );
 
   /// Binding for critical logging.
@@ -113,5 +119,6 @@ class LogBindings extends LibraryBinding {
     namedParams: {
       #error: PrimitiveType.STRING.asNullable(),
     },
+    description: 'Logs a critical message.',
   );
 }

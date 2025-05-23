@@ -1,10 +1,25 @@
 part of 'runtime.dart';
 
-class _RuntimeVariable {
+/// Represents a variable in the runtime environment.
+///
+/// Holds a [value] of type [RuntimeValue], and indicates whether the variable
+/// is [mutable] (can be changed) or [nullable] (can hold null values).
+class RuntimeVariable {
+  /// The runtime value of the variable.
   RuntimeValue value;
+
+  /// Indicates if the variable can be modified.
   final bool mutable;
+
+  /// Indicates if the variable can hold null values.
   final bool nullable;
-  _RuntimeVariable(this.value, {this.mutable = true, this.nullable = false});
+
+  /// Represents a variable in the runtime environment.
+  ///
+  /// Holds a [value] of type [RuntimeValue], and indicates whether the variable
+  /// is [mutable] (can be changed) or [nullable] (can hold null values).
+  @internal
+  RuntimeVariable(this.value, {this.mutable = true, this.nullable = false});
 }
 
 /// Represents an execution environment with scoped variables and built-in constants.
@@ -13,11 +28,16 @@ class _RuntimeVariable {
 /// falling back to parent scopes when a name is not found.
 class Scope {
   /// Map storing variable names to their corresponding runtime values.
-  final Map<String, _RuntimeVariable> _variables = {
-    'pi': _RuntimeVariable(const RuntimeValue(pi), mutable: false),
-    'e': _RuntimeVariable(const RuntimeValue(e), mutable: false),
-    'sqrt2': _RuntimeVariable(const RuntimeValue(sqrt2), mutable: false),
-    'sqrt1_2': _RuntimeVariable(const RuntimeValue(sqrt1_2), mutable: false),
+  @internal
+  final Map<String, RuntimeVariable> variables = {
+    'pi': RuntimeVariable(const RuntimeValue(pi), mutable: false),
+    'e': RuntimeVariable(const RuntimeValue(e), mutable: false),
+    'sqrt2': RuntimeVariable(const RuntimeValue(sqrt2), mutable: false),
+    'sqrt1_2': RuntimeVariable(const RuntimeValue(sqrt1_2), mutable: false),
+    'log2e': RuntimeVariable(const RuntimeValue(log2e), mutable: false),
+    'log10e': RuntimeVariable(const RuntimeValue(log10e), mutable: false),
+    'ln2': RuntimeVariable(const RuntimeValue(ln2), mutable: false),
+    'ln10': RuntimeVariable(const RuntimeValue(ln10), mutable: false),
   };
 
   /// Optional parent scope for resolving names not found in this scope.
@@ -29,11 +49,11 @@ class Scope {
   /// Defines or updates the variable [name] with the given [value] in this scope.
   void set(String name, RuntimeValue value,
       {bool mutable = true, bool nullable = false}) {
-    if (!_variables.containsKey(name)) {
-      _variables[name] =
-          _RuntimeVariable(value, mutable: mutable, nullable: nullable);
+    if (!variables.containsKey(name)) {
+      variables[name] =
+          RuntimeVariable(value, mutable: mutable, nullable: nullable);
     } else {
-      final variable = _variables[name]!;
+      final variable = variables[name]!;
 
       if (!variable.mutable) {
         throw RuntimeException('Cannot modify immutable variable $name');
@@ -53,8 +73,8 @@ class Scope {
   ///
   /// Throws an [Exception] if the variable is not defined in any enclosing scope.
   RuntimeValue get(String name) {
-    if (_variables.containsKey(name)) {
-      return _variables[name]!.value;
+    if (variables.containsKey(name)) {
+      return variables[name]!.value;
     } else if (_parent != null) {
       return _parent.get(name);
     } else {

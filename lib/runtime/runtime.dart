@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:dscript/analyzer/analyzer.dart';
 import 'package:dscript/dscript.dart';
 import 'package:dscript/runtime/stdlib/stdlib.dart';
+import 'package:meta/meta.dart';
 
 part 'values.dart';
 part 'interpreter.dart';
