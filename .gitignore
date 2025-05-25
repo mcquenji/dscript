@@ -5,3 +5,4 @@
 # FVM Version Cache
 .fvm/
 .gpt/
+.antlr/
