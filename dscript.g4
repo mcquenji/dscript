@@ -156,8 +156,7 @@ positionalArg: expr;
 
 // Literals
 literal:
-	identifier
-	| INT
+	INT
 	| DOUBLE
 	| BOOL
 	| STRING
