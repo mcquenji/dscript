@@ -5,16 +5,19 @@ class LogBindings extends LibraryBinding {
   /// The script this binding is associated with.
   ///
   /// Used for logging context.
-  final Script script;
+  // final Script script;
 
   /// The logger instance for this script.
   late final Logger logger;
 
   /// Bindings for the logging standard library.
-  LogBindings(this.script) : super(name: 'log') {
-    logger = Logger(
-      'Dscript.${script.contract.name}.${script.name}@${script.author}',
-    );
+  // LogBindings(this.script) : super(name: 'log') {
+  //   logger = Logger(
+  //     'Dscript.${script.contract.name}.${script.name}@${script.author}',
+  //   );
+
+  LogBindings() : super(name: 'log') {
+    logger = Logger('Dscript.StdLib.LogBindings');
   }
 
   @override

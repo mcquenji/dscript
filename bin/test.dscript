@@ -1,5 +1,5 @@
 author "McQuenji";
-version "0.0.1";
+version 0.0.1;
 name "TestScript";
 description "Random number generator.";
 description "For testing purposes.";
@@ -10,11 +10,9 @@ repo "https://github.com/mcquenji/dscript";
 permissions fs::read, fs::write;
 permissions http::client, http::server;
 
-
-
 contract Random {
   impl randomNumber(int foo) -> double {
-    log::info("Hello, world!");
+    log::info(string::from(5));
 
     return math::floor(foo * pi);
   }
@@ -25,23 +23,24 @@ contract Random {
   }
 
   impl test() -> void {
-    // final test = "Test";
+     final string? test
 
-    // return;
 
-    // final string? nonNullable;
+    return;
 
-    // final bool test2 = 1;
+    var string? nonNullable;
 
-    // test = "Test2";
+     final bool test2 = 1;
 
-    // var p = 1.0;
-    // p = 2.0;
+     test = "Test2";
 
-    // return;
+     var p = 1;
+     p = 2.0;
+
+     return;
   }
 
-  hook onLogout() -> void {
+  hook onLogout() {
     // Hook implementation
     // return "Logout successful!";
   }

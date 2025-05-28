@@ -25,10 +25,9 @@ linter:
     - public_member_api_docs
     - avoid_print
     - sort_pub_dependencies
-# analyzer:
-#   exclude:
-#     - path/to/excluded/files/**
-
+analyzer:
+  exclude:
+    - lib/src/gen/antlr/**
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints
 

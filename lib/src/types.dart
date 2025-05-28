@@ -1,4 +1,7 @@
-part of 'analyzer.dart';
+import 'package:antlr4/antlr4.dart';
+import 'package:collection/collection.dart';
+import 'package:dscript/src/bindings.dart';
+import 'package:equatable/equatable.dart';
 
 /// Base class for all signatures.
 sealed class Signature extends Equatable {
@@ -32,12 +35,12 @@ class ParameterSignature extends Signature {
   });
 
   /// Creates a parameter signature from a [Parameter] object.
-  factory ParameterSignature.from(Parameter parameter) {
-    return ParameterSignature(
-      name: parameter.name,
-      type: parameter.type,
-    );
-  }
+  // factory ParameterSignature.from(Parameter parameter) {
+  //   return ParameterSignature(
+  //     name: parameter.name,
+  //     type: parameter.type,
+  //   );
+  // }
 
   @override
   Map<String, dynamic> toMap() {
@@ -68,7 +71,7 @@ class FunctionSignature extends Signature {
   final $Type returnType;
 
   /// The underlying AST node of the function signature, if available.
-  final FunctionDeclaration? node;
+  final ParserRuleContext? node;
 
   /// Signature of a function.
   const FunctionSignature({
@@ -109,15 +112,15 @@ class HookSignature extends FunctionSignature {
         );
 
   /// Creates a hook signature from a [Hook] object.
-  HookSignature.from(Hook hook)
-      : super(
-          name: hook.name,
-          namedParameters:
-              hook.parameters.map((e) => ParameterSignature.from(e)).toList(),
-          returnType: PrimitiveType.VOID,
-          positionalParameters: [],
-          node: hook,
-        );
+  // HookSignature.from(Hook hook)
+  //     : super(
+  //         name: hook.name,
+  //         namedParameters:
+  //             hook.parameters.map((e) => ParameterSignature.from(e)).toList(),
+  //         returnType: PrimitiveType.VOID,
+  //         positionalParameters: [],
+  //         node: hook,
+  //       );
 }
 
 /// Signature of an implementation.
@@ -131,18 +134,18 @@ class ImplementationSignature extends FunctionSignature {
           positionalParameters: [],
         );
 
-  /// Creates an implementation signature from an [Implementation] object.
-  ImplementationSignature.from(
-    Implementation implementation,
-  ) : super(
-          name: implementation.name,
-          namedParameters: implementation.parameters
-              .map((e) => ParameterSignature.from(e))
-              .toList(),
-          returnType: implementation.returnType,
-          positionalParameters: [],
-          node: implementation,
-        );
+  // /// Creates an implementation signature from an [Implementation] object.
+  // ImplementationSignature.from(
+  //   Implementation implementation,
+  // ) : super(
+  //         name: implementation.name,
+  //         namedParameters: implementation.parameters
+  //             .map((e) => ParameterSignature.from(e))
+  //             .toList(),
+  //         returnType: implementation.returnType,
+  //         positionalParameters: [],
+  //         node: implementation,
+  //       );
 }
 
 /// Represents a type in the DScript language.
@@ -159,7 +162,11 @@ sealed class $Type extends Signature {
   /// Parse a type from a string.
   factory $Type.from(String type) {
     if (type.isEmpty) {
-      throw const AnalyzerError('Type cannot be empty', statement: null);
+      throw ArgumentError.value(
+        type,
+        'type',
+        'Type string cannot be empty',
+      );
     }
 
     bool nullable = false;
@@ -204,20 +211,20 @@ sealed class $Type extends Signature {
             elementType: $Type.from(elementType.trim()),
           ).asNullable(nullable);
         } else {
-          return Struct(name: type, fields: []).asNullable(nullable);
+          return Struct(name: type, fields: {}).asNullable(nullable);
         }
     }
   }
 
   /// Converts the type to a map.
-  $Type lookup(List<$Type> types) {
+  $Type? lookup(List<$Type> types) {
     for (final type in types) {
       if (type.name == name) {
         return type;
       }
     }
 
-    throw AnalyzerError('Undefined type: $name', statement: null);
+    return null;
   }
 
   /// Returns a nullable version of this type.
@@ -234,16 +241,20 @@ sealed class $Type extends Signature {
       return true;
     }
 
+    if (other == const DynamicType()) {
+      return true;
+    }
+
     if (this == PrimitiveType.NULL) {
       return other.nullable || other == PrimitiveType.VOID;
     }
 
-    if (name == other.name) {
-      return other.nullable;
-    }
-
     if (this == PrimitiveType.INT) {
       return other == PrimitiveType.DOUBLE;
+    }
+
+    if (name == other.name) {
+      return other.nullable;
     }
 
     return false;
@@ -258,6 +269,10 @@ sealed class $Type extends Signature {
     }
 
     if (type == this) {
+      return value;
+    }
+
+    if (type == const DynamicType()) {
       return value;
     }
 
@@ -397,6 +412,10 @@ class MapType extends $Type {
 
   @override
   bool canCast($Type other) {
+    if (other == const DynamicType()) {
+      return true;
+    }
+
     if (other is MapType) {
       return keyType.canCast(other.keyType) &&
           valueType.canCast(other.valueType);
@@ -407,6 +426,10 @@ class MapType extends $Type {
 
   @override
   cast($Type type, dynamic value) {
+    if (type == const DynamicType()) {
+      return value;
+    }
+
     if (type is MapType && value is Map) {
       final Map newMap = {};
 
@@ -457,6 +480,10 @@ class ListType extends $Type {
 
   @override
   bool canCast($Type other) {
+    if (other == const DynamicType()) {
+      return true;
+    }
+
     if (other is ListType) {
       return elementType.canCast(other.elementType);
     }
@@ -466,6 +493,10 @@ class ListType extends $Type {
 
   @override
   cast($Type type, dynamic value) {
+    if (type == const DynamicType()) {
+      return value;
+    }
+
     if (type is ListType && value is List) {
       return value.map((e) => elementType.cast(type.elementType, e)).toList();
     }
@@ -477,7 +508,7 @@ class ListType extends $Type {
 /// Represents a custom object type.
 class Struct extends $Type {
   /// The fields of the object.
-  final List<ParameterSignature> fields;
+  final Map<String, $Type> fields;
 
   /// Represents a custom object type.
   const Struct({
@@ -490,7 +521,7 @@ class Struct extends $Type {
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'fields': fields.map((e) => e.toMap()).toList(),
+      'fields': fields.map((key, value) => MapEntry(key, value.toMap())),
     };
   }
 
@@ -508,7 +539,7 @@ class Struct extends $Type {
   }
 
   @override
-  bool canCast($Type other) => false;
+  bool canCast($Type other) => other == const DynamicType();
 }
 
 /// Signature of a contract.
@@ -538,17 +569,17 @@ class ContractSignature extends Signature {
   });
 
   /// Creates a contract signature from a [Contract] object.
-  factory ContractSignature.from(Contract contract,
-      {required ExternalBindings bindings}) {
-    return ContractSignature(
-      name: contract.name,
-      implementations: contract.implementations
-          .map((e) => ImplementationSignature.from(e))
-          .toList(),
-      hooks: contract.hooks.map((e) => HookSignature.from(e)).toList(),
-      bindings: bindings,
-    );
-  }
+  // factory ContractSignature.from(Contract contract,
+  //     {required ExternalBindings bindings}) {
+  //   return ContractSignature(
+  //     name: contract.name,
+  //     implementations: contract.implementations
+  //         .map((e) => ImplementationSignature.from(e))
+  //         .toList(),
+  //     hooks: contract.hooks.map((e) => HookSignature.from(e)).toList(),
+  //     bindings: bindings,
+  //   );
+  // }
 
   @override
   Map<String, dynamic> toMap() {
@@ -559,4 +590,76 @@ class ContractSignature extends Signature {
       'objects': objects.map((e) => e.toMap()).toList(),
     };
   }
+}
+
+/// Extension methods for [List<HookSignature>].
+extension HookX on List<HookSignature> {
+  /// Finds a hook by its name.
+  HookSignature? find(String name) {
+    return firstWhereOrNull(
+      (hook) => hook.name == name,
+    );
+  }
+}
+
+/// Extension methods for [List<ImplementationSignature>].
+extension ImplementationX on List<ImplementationSignature> {
+  /// Finds an implementation by its name.
+  ImplementationSignature? find(String name) {
+    return firstWhereOrNull(
+      (impl) => impl.name == name,
+    );
+  }
+}
+
+/// Invalid Type meaning the type is not defined or not recognized.
+///
+/// Used to represent types that cannot be resolved or are not valid in the context.
+class InvalidType extends $Type {
+  /// Creates an invalid type.
+  const InvalidType() : super(name: 'InvalidType', nullable: false);
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+    };
+  }
+
+  @override
+  $Type asNullable([bool nullable = true]) => this;
+
+  @override
+  bool canCast($Type other) => false;
+
+  @override
+  cast($Type type, dynamic value) {
+    throw Exception('Cannot cast InvalidType to ${type.name}');
+  }
+}
+
+/// Dynamic Type meaning the type is not known at compile time.
+///
+/// This type cannot be used inside the dscript language it is only used for [RuntimeBinding]s to accept any type of value.
+class DynamicType extends $Type {
+  /// Dynamic Type meaning the type is not known at compile time.
+  ///
+  /// This type cannot be used inside the dscript language it is only used for [RuntimeBinding]s to accept any type of value.
+  const DynamicType() : super(name: 'dynamic', nullable: false);
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+    };
+  }
+
+  @override
+  $Type asNullable([bool nullable = true]) => this;
+
+  @override
+  bool canCast($Type other) => true;
+
+  @override
+  cast($Type type, dynamic value) => value;
 }

@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Dart",
+            "type": "dart",
+            "request": "launch",
+            "program": "bin/dscript.dart"
+        },
+        {
+            "type": "antlr-debug",
+            "request": "launch",
+            "name": "Debug Current Grammar",
+            "input": "${file}",
+            "grammar": "dscript.g4",
+            "startRule": "script",
+            "trace": true,
+            "visualParseTree": true
+        }
+    ]
+}

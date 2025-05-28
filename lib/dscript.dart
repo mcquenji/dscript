@@ -1,4 +1,4 @@
-export 'lexer/lexer.dart';
-export 'ast/ast.dart';
-export 'runtime/runtime.dart';
-export 'analyzer/analyzer.dart';
+export 'src/analyzer/analyzer.dart';
+export 'src/bindings.dart';
+export 'src/types.dart';
+export 'src/permissions.dart';

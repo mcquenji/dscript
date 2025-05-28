@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.4.1"
+  antlr4:
+    dependency: "direct main"
+    description:
+      name: antlr4
+      sha256: "752b4a6e4ad97953652a2b2bbf5377f46c94b579d3372b50080c7e5858234a05"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.13.2"
   args:
     dependency: transitive
     description:
@@ -50,7 +58,7 @@ packages:
     source: hosted
     version: "0.2.0"
   collection:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: collection
       sha256: "2f5709ae4d3d59dd8f7cd309b4e023046b57d8a6c82130785d2b0e5868084e76"
@@ -225,6 +233,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  result_dart:
+    dependency: "direct main"
+    description:
+      name: result_dart
+      sha256: eecf5b08b63572b348bfaa56a50f30191fe21d9edacef59d0e19a33905dd184d
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   shelf:
     dependency: transitive
     description:

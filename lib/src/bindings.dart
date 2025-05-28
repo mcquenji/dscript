@@ -1,4 +1,8 @@
-part of 'runtime.dart';
+import 'package:dscript/src/permissions.dart';
+import 'package:dscript/src/runtime/exceptions.dart';
+import 'package:dscript/src/stdlib/stdlib.dart';
+import 'package:dscript/src/runtime/values.dart';
+import 'package:dscript/src/types.dart';
 
 /// A binding from the DSL to a Dart function.
 class RuntimeBinding<T> {

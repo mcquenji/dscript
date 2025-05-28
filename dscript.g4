@@ -25,21 +25,23 @@ name: NAME STRING SEMI;
 
 // Permissions declarations
 permissions: PERMISSIONS permission (COMMA permission)* SEMI;
-permission: identifier DOUBLE_COLON identifier;
+permission:
+	namespace = identifier DOUBLE_COLON perm = identifier;
 
 // The single contract
 contract:
 	CONTRACT identifier OPEN_BRACE (hook | impl | func)* CLOSE_BRACE;
 
 // Hooks and impls
-hook: HOOK identifier OPEN_PAREN params CLOSE_PAREN block;
+hook: HOOK identifier OPEN_PAREN params? CLOSE_PAREN block;
 impl:
-	IMPL identifier OPEN_PAREN params CLOSE_PAREN ARROW dataType block;
+	IMPL identifier OPEN_PAREN params? CLOSE_PAREN ARROW dataType block;
 
-func: FUNC identifier OPEN_PAREN params CLOSE_PAREN block;
+func:
+	FUNC identifier OPEN_PAREN params? CLOSE_PAREN ARROW dataType block;
 
 // Function parameters
-params: param? | (param (COMMA param)*);
+params: param (COMMA param)*;
 param: dataType identifier;
 dataType:
 	identifier Q?
@@ -48,7 +50,15 @@ dataType:
 
 // Control-flow
 
-stmt: | block | varDecl | assignment;
+stmt:
+	varDecl
+	| assignment
+	| returnStmt
+	| breakStmt
+	| continueStmt
+	| switchStmt;
+
+throwStmt: THROW expr;
 
 ifStmt: IF OPEN_PAREN expr CLOSE_PAREN block elseStmt?;
 elseStmt: ELSE (ifStmt | block);
@@ -58,9 +68,9 @@ forStmt:
 		(varDecl | IDENT) SEMI expr SEMI assignment
 		| varDecl IN expr
 	) CLOSE_PAREN block;
-returnStmt: RETURN expr? SEMI;
-breakStmt: BREAK SEMI;
-continueStmt: CONTINUE SEMI;
+returnStmt: RETURN expr?;
+breakStmt: BREAK;
+continueStmt: CONTINUE;
 switchStmt:
 	SWITCH OPEN_PAREN expr CLOSE_PAREN OPEN_BRACE caseStmt* defaultStmt? CLOSE_BRACE;
 caseStmt: CASE expr COLON block;
@@ -79,23 +89,28 @@ line: (stmt | expr) SEMI | block;
 // Variable declarations & assignments
 varType: FINAL | CONST | VAR;
 assignment:
-	// simple assignment (e.g., variable = value)
-	identifier ASSIGN expr
-	| identifier PLUS_ASSIGN expr
-	// assignment with addition (e.g., variable += value)
-	| identifier MINUS_ASSIGN expr
-	// assignment with multiplication (e.g., variable *= value)
-	| identifier MULTIPLY_ASSIGN expr
-	// assignment with division (e.g., variable /= value)
-	| identifier DIVIDE_ASSIGN expr
-	// assignment with modulo (e.g., variable %= value)
-	| identifier MOD_ASSIGN expr
-	// object property assignment (e.g., object.property = value)
-	| identifier DOT identifier ASSIGN expr
-	// assignment using index (e.g., array[index])
-	| identifier OPEN_BRACKET expr CLOSE_BRACKET ASSIGN expr
-	// assignment using index and property (e.g., array[index].property = value)
-	| identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier ASSIGN expr;
+	simpleAssignment
+	| compoundAssignment
+	| propertyAssignment
+	| indexAssignment
+	| indexPropertyAssignment;
+
+simpleAssignment: identifier ASSIGN expr;
+
+compoundAssignment:
+	identifier op = PLUS_ASSIGN expr
+	| identifier op = MINUS_ASSIGN expr
+	| identifier op = MULTIPLY_ASSIGN expr
+	| identifier op = DIVIDE_ASSIGN expr
+	| identifier op = MOD_ASSIGN expr;
+
+propertyAssignment: identifier DOT identifier ASSIGN expr;
+
+indexAssignment:
+	identifier OPEN_BRACKET expr CLOSE_BRACKET ASSIGN expr;
+
+indexPropertyAssignment:
+	identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier ASSIGN expr;
 varDecl:
 	varType dataType identifier
 	| varType dataType? assignment;
@@ -104,27 +119,47 @@ varDecl:
 
 expr: logicalExpr;
 
-logicalExpr: relationalExpr ((AND | OR) relationalExpr)*;
+logicalExpr:
+	left = relationalExpr (
+		op = (AND | OR) right = relationalExpr
+	)*;
 
 relationalExpr:
-	bitwiseExpr ((GT | LT | EQ | NE | GTE | LTE) bitwiseExpr)*;
+	left = bitwiseExpr (
+		op = (GT | LT | EQ | NE | GTE | LTE) right = bitwiseExpr
+	)*;
 
 bitwiseExpr:
-	shiftExpr ((BIT_AND | BIT_OR | BIT_XOR) shiftExpr)*;
+	left = shiftExpr (
+		op = (BIT_AND | BIT_OR | BIT_XOR) right = shiftExpr
+	)*;
 
 shiftExpr:
-	additiveExpr (
-		(BIT_LEFT_SHIFT | BIT_RIGHT_SHIFT) additiveExpr
+	left = additiveExpr (
+		op = (BIT_LEFT_SHIFT | BIT_RIGHT_SHIFT) right = additiveExpr
 	)*;
 
 additiveExpr:
-	multiplicativeExpr ((PLUS | MINUS) multiplicativeExpr)*;
+	left = multiplicativeExpr (
+		op = (PLUS | MINUS) right = multiplicativeExpr
+	)*;
 
 multiplicativeExpr:
-	unaryExpr ((MULTIPLY | DIVIDE | MOD) unaryExpr)*;
+	left = unaryExpr (
+		op = (MULTIPLY | DIVIDE | MOD) right = unaryExpr
+	)*;
 
-unaryExpr: (PLUS | MINUS | NOT | BIT_NOT) unaryExpr
-	| primaryExpr;
+unaryExpr:
+	op = (PLUS | MINUS | NOT | BIT_NOT) unaryExpr
+	| primaryExpr
+	| identifier PLUS_PLUS
+	| identifier MINUS_MINUS
+	| identifier DOT identifier PLUS_PLUS
+	| identifier DOT identifier MINUS_MINUS
+	| identifier OPEN_BRACKET expr CLOSE_BRACKET PLUS_PLUS
+	| identifier OPEN_BRACKET expr CLOSE_BRACKET MINUS_MINUS
+	| identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier PLUS_PLUS
+	| identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier MINUS_MINUS;
 
 primaryExpr:
 	OPEN_PAREN expr CLOSE_PAREN
@@ -139,9 +174,10 @@ primaryExpr:
 	// Object property access (e.g., object.property)
 	| identifier DOT identifier;
 
-externalFunctionCall: identifier DOUBLE_COLON functionCall;
+externalFunctionCall:
+	namespace = identifier DOUBLE_COLON functionCall;
 
-functionCall: identifier OPEN_PAREN args? CLOSE_PAREN;
+functionCall: method = identifier OPEN_PAREN args? CLOSE_PAREN;
 
 args:
 	positionalArg (COMMA positionalArg)*
@@ -192,7 +228,7 @@ objectProperty: identifier COLON expr;
 mapLiteral:
 	OPEN_BRACE (mapEntry (COMMA mapEntry)*)? CLOSE_BRACE;
 
-mapEntry: expr COLON expr;
+mapEntry: key = expr COLON value = expr;
 
 /*
  * A sequence of statements enclosed in braces.
@@ -201,9 +237,6 @@ block: (OPEN_BRACE line* CLOSE_BRACE)
 	| ifStmt
 	| whileStmt
 	| forStmt
-	| returnStmt
-	| breakStmt
-	| continueStmt
 	| switchStmt
 	| tryStmt
 	| catchBlock;
@@ -336,6 +369,7 @@ CASE: 'case';
 DEFAULT: 'default';
 TRY: 'try';
 CATCH: 'catch';
+THROW: 'throw';
 
 FINAL: 'final';
 CONST: 'const';

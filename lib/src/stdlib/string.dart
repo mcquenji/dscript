@@ -23,7 +23,41 @@ class StringBindings extends LibraryBinding {
         indexOfBinding,
         lastIndexOfBinding,
         replaceFirstBinding,
+        fromBinding,
+        fromCharCodeBinding,
+        fromCharCodesBinding
       };
+
+  /// Binding for [String.fromCharCode].
+  static final fromCharCodeBinding = RuntimeBinding<String>(
+    name: 'fromCharCode',
+    function: (int code) => String.fromCharCode(code),
+    positionalParams: [
+      PrimitiveType.INT,
+    ],
+    description: 'Creates a string from a single character code [code].',
+  );
+
+  /// Binding for [String.fromCharCodes].
+  static final fromCharCodesBinding = RuntimeBinding<String>(
+    name: 'from',
+    function: (List<int> codes) => String.fromCharCodes(codes),
+    positionalParams: [
+      ListType(elementType: PrimitiveType.INT),
+    ],
+    description: 'Creates a string from a list of character codes [codes].',
+  );
+
+  /// Binding for [Object.toString].
+  static final fromBinding = RuntimeBinding<String>(
+    name: 'from',
+    function: (dynamic obj) => obj.toString(),
+    positionalParams: [
+      const DynamicType(),
+    ],
+    description:
+        'String representation of [obj]. If [obj] is a string, it is returned unchanged; otherwise, it is stringfied.',
+  );
 
   /// Binding for [String.length].
   static final lengthBinding = RuntimeBinding<int>(

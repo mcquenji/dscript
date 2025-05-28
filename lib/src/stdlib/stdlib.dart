@@ -1,8 +1,7 @@
 import 'dart:math';
 
-import 'package:dscript/analyzer/analyzer.dart';
-import 'package:dscript/ast/ast.dart';
-import 'package:dscript/runtime/runtime.dart';
+import 'package:dscript/src/bindings.dart';
+import 'package:dscript/src/types.dart';
 import 'package:logging/logging.dart';
 
 part 'math.dart';
@@ -57,9 +56,9 @@ $name {
   int get hashCode => Object.hash(name, bindings);
 
   /// Standard library bindings.
-  static List<LibraryBinding> stdLib(Script script) => [
+  static List<LibraryBinding> stdLib() => [
         const MathBindings(),
         const StringBindings(),
-        LogBindings(script),
+        LogBindings(),
       ];
 }

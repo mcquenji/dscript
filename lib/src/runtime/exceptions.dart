@@ -1,5 +1,3 @@
-part of 'runtime.dart';
-
 /// Base class for all exceptions thrown during runtime execution.
 class RuntimeException implements Exception {
   /// The error message.
