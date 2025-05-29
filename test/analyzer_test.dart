@@ -480,7 +480,7 @@ description "Bad external";
 contract EC {
   impl ecImpl(int x) -> double {
     external::bar(x);
-    return x.toDouble();
+    return x;
   }
   hook onEC() {}
 }
@@ -494,6 +494,200 @@ contract EC {
             (e) => e.message,
             'message',
             contains('No such function'),
+          ),
+        ),
+      );
+    });
+
+    test('calling external function with invalid parameter types', () {
+      final ecContract = contract('EC')
+          .bind<double>('foo', (int x) => x.toDouble())
+          .param(PrimitiveType.INT)
+          .end()
+          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
+          .param('x', PrimitiveType.INT)
+          .end()
+          .hook('onEC')
+          .end()
+          .build();
+
+      final script = '''
+author "Me";
+version 1.0.0;
+name "EC";
+description "Bad external";
+contract EC {
+  impl ecImpl(int x) -> double {
+    external::foo(true); // Invalid type
+    return x;
+  }
+  hook onEC() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [ecContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<ArgumentTypeMismatchError>().having(
+            (e) => e.message,
+            'message',
+            contains("can't be assigned to the parameter type"),
+          ),
+        ),
+      );
+    });
+
+    test('calling external function with missing parameters', () {
+      final ecContract = contract('EC')
+          .bind<double>('foo', (int x) => x.toDouble())
+          .param(PrimitiveType.INT)
+          .end()
+          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
+          .param('x', PrimitiveType.INT)
+          .end()
+          .hook('onEC')
+          .end()
+          .build();
+
+      final script = '''
+author "Me";
+version 1.0.0;
+name "EC";
+description "Bad external";
+contract EC {
+  impl ecImpl(int x) -> double {
+    external::foo(); // Missing parameter
+    return x;
+  }
+  hook onEC() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [ecContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<PositionalArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('0 found'),
+          ),
+        ),
+      );
+    });
+
+    test('calling external function without defining permissions', () {
+      final ecContract = contract('EC')
+          .bind<double>('foo', (int x) => x.toDouble())
+          .param(PrimitiveType.INT)
+          .permission('fooPerm')
+          .end()
+          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
+          .param('x', PrimitiveType.INT)
+          .end()
+          .hook('onEC')
+          .end()
+          .build();
+
+      final script = '''
+author "Me";
+version 1.0.0;
+name "EC";
+description "Bad external";
+contract EC {
+  impl ecImpl(int x) -> double {
+    return external::foo(x);
+  }
+  hook onEC() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [ecContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<PermissionError>().having(
+            (e) => e.message,
+            'message',
+            contains('Missing permission'),
+          ),
+        ),
+      );
+    });
+
+    test('calling external function in undefined namespace', () {
+      final ecContract = contract('EC')
+          .bind<double>('foo', (int x) => x.toDouble())
+          .param(PrimitiveType.INT)
+          .permission('fooPerm')
+          .end()
+          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
+          .param('x', PrimitiveType.INT)
+          .end()
+          .hook('onEC')
+          .end()
+          .build();
+
+      final script = '''
+author "Me";
+version 1.0.0;
+name "EC";
+description "Bad external";
+contract EC {
+  impl ecImpl(int x) -> double {
+    return test::foo(x);
+  }
+  hook onEC() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [ecContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<UndefinedNamespaceError>().having(
+            (e) => e.message,
+            'message',
+            contains('No such namespace'),
+          ),
+        ),
+      );
+    });
+    test('calling undefined external function ', () {
+      final ecContract = contract('EC')
+          .bind<double>('foo', (int x) => x.toDouble())
+          .param(PrimitiveType.INT)
+          .permission('fooPerm')
+          .end()
+          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
+          .param('x', PrimitiveType.INT)
+          .end()
+          .hook('onEC')
+          .end()
+          .build();
+
+      final script = '''
+author "Me";
+version 1.0.0;
+name "EC";
+description "Bad external";
+contract EC {
+  impl ecImpl(int x) -> double {
+    return external::bar(x);
+  }
+  hook onEC() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [ecContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<UndefinedExternalFunctionError>().having(
+            (e) => e.message,
+            'message',
+            contains("is not defined in the 'external' namespace"),
           ),
         ),
       );

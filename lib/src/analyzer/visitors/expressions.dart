@@ -228,7 +228,7 @@ class ExprVisitor extends AnalysisVisitor {
     );
 
     if (binding == null) {
-      return report(SemanticError('No such namespace: "$namespace"', ctx: ctx));
+      return report(UndefinedNamespaceError(namespace, ctx: ctx));
     }
 
     final impl = binding.bindings.firstWhereOrNull(
@@ -236,15 +236,15 @@ class ExprVisitor extends AnalysisVisitor {
     );
 
     if (impl == null) {
-      return report(
-          SemanticError('No such function: "$name" in $namespace', ctx: ctx));
+      return report(UndefinedExternalFunctionError(name, namespace, ctx: ctx));
     }
 
     for (final permission in impl.permissions) {
       if (!permissions.contains(permission)) {
         report(
-          SemanticError(
-            'Missing permission: "$permission" for function "$namespace::$name"',
+          PermissionError(
+            permission,
+            '$namespace::$name',
             ctx: ctx,
           ),
         );
@@ -255,8 +255,8 @@ class ExprVisitor extends AnalysisVisitor {
       return report(
         PositionalArgumentError(
           impl.name,
-          impl.positionalParams.length,
           posArgs.length,
+          impl.positionalParams.length,
           ctx: ctx,
         ),
       );

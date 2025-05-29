@@ -136,6 +136,62 @@ class SemanticError extends AnalyzerMessage {
   final ParserRuleContext? ctx;
 }
 
+/// Error thrown when a symbol referenced is not defined in the current scope.
+class UndefinedError extends SemanticError {
+  /// The name of the symbol that is not defined.
+  final String name;
+
+  /// Error thrown when a symbol referenced is not defined in the current scope.
+  UndefinedError(this.name, {required super.ctx})
+      : super("The name '$name' is not defined in this scope.");
+}
+
+/// An error thrown when a variable is not defined in the current scope.
+class UndefinedVariableError extends UndefinedError {
+  /// An error thrown when a variable is not defined in the current scope.
+  UndefinedVariableError(super.name, {required super.ctx});
+  @override
+  String get message => "The variable '$name' is not defined in this scope.";
+}
+
+/// An error thrown when a referenced namespace is not defined.
+class UndefinedNamespaceError extends UndefinedError {
+  /// An error thrown when a referenced namespace is not defined.
+  UndefinedNamespaceError(super.name, {required super.ctx});
+
+  @override
+  String get message => "No such namespace: '$name'.";
+}
+
+/// Thrown when a called function is not defined in the given [namespace] .
+class UndefinedExternalFunctionError extends UndefinedError {
+  /// The namespace in which the function is expected to be defined.
+  final String namespace;
+
+  /// An error thrown when a function is not defined in the current scope.
+  UndefinedExternalFunctionError(super.name, this.namespace,
+      {required super.ctx});
+
+  @override
+  String get message =>
+      "The function '$name' is not defined in the '$namespace' namespace.";
+}
+
+/// An error thrown when an external function is called without the required permission.
+class PermissionError extends SemanticError {
+  /// The name of the function that requires the permission.
+  final String functionName;
+
+  /// The name of the permission required by the function.
+  final ScriptPermission permission;
+
+  /// An error thrown when a permission is not granted.
+  PermissionError(this.permission, this.functionName, {required super.ctx})
+      : super(
+          "Missing permission '$permission' for external function '$functionName'.",
+        );
+}
+
 /// An error thrown when a type mismatch occurs during analysis.
 class TypeError extends SemanticError {
   /// The type that was expected.
