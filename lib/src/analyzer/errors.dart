@@ -370,8 +370,7 @@ class ContractDeclarationError extends SemanticError {
   })  : assert((implementations == null && foundImplementations == null) ||
             (implementations != null &&
                 foundImplementations != null &&
-                implementations.isNotEmpty &&
-                foundImplementations.isNotEmpty)),
+                implementations.isNotEmpty)),
         super(
           implementations != null
               ? "Contract '$contractName' is missing implementations for ${implementations.where((i) => !foundImplementations!.contains(i)).map((e) => "'$e'").join(', ')}."

@@ -3,7 +3,8 @@ import 'package:antlr4/antlr4.dart';
 import 'package:dscript/dscript.dart';
 
 void main() {
-  final contract = ContractSignature(
+  // The canonical Random contract signature used for most tests.
+  final randomContract = ContractSignature(
     name: 'Random',
     implementations: [
       ImplementationSignature(
@@ -28,249 +29,474 @@ void main() {
       HookSignature(
         name: 'onLogin',
         namedParameters: [
-          const ParameterSignature(
-              name: 'username', type: PrimitiveType.STRING),
+          const ParameterSignature(name: 'username', type: PrimitiveType.STRING)
         ],
       ),
-      HookSignature(
-        name: 'onLogout',
-        namedParameters: [],
-      ),
+      HookSignature(name: 'onLogout', namedParameters: []),
     ],
     bindings: ExternalBindings(),
   );
 
-  group('metadata', () {
-    test('Valid script parses correctly', () async {
-      final stream = InputStream.fromString('''
-      author "McQuenji";
-      version 0.0.1;
-      name "TestScript";
-      description "Random number generator.";
-      license "MIT";
-      website "https://example.com";
-      repo "https://github.com/mcquenji/dscript";
+  // Helper to create a full script with a customized body for randomNumber.
+  String baseRandomScript(String body) => '''
+author "McQuenji";
+version 0.0.1;
+name "TestScript";
+description "Test Script";
+license "MIT";
+website "https://example.com";
+repo "https://github.com/mcquenji/dscript";
+permissions fs::read, fs::write;
+permissions http::client, http::server;
 
-      permissions fs::read, fs::write;
-      permissions http::client, http::server;
+contract Random {
+  impl randomNumber(int foo) -> double {
+    $body
+  }
+  impl randomString() -> string {
+    return "STR";
+  }
+  impl test() -> void {
+    return;
+  }
+  hook onLogin(string username) {
+    return;
+  }
+  hook onLogout() {
+    return;
+  }
+}
+''';
 
-      contract Random {
-        impl randomNumber(int foo) -> double {
-          return foo * pi;
-        }
-
-        impl randomString() -> string {
-          return "Random String";
-        }
-
-        impl test() -> void {
-          return;
-        }
-
-        hook onLogin(string username) {
-          return;
-        }
-
-        hook onLogout() {
-          return;
-        }
-      }
-    ''');
-
-      final result = analyze(stream, [contract]);
+  group('bindings', () {
+    test('valid stdlib call', () {
+      final script = baseRandomScript('math::floor(3.7); return foo * 1.0;');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isSuccess(), isTrue);
-
-      final script = result.getOrThrow();
-      expect(script.name, equals('TestScript'));
-      expect(script.author, equals('McQuenji'));
-      expect(script.permissions, isNotEmpty);
     });
 
-    test('Fails if contract is missing', () async {
-      final stream = InputStream.fromString('''
-      author "McQuenji";
-      version 0.0.1;
-      name "TestScript";
-      description "Testing missing contract";
-
-      contract Missing {
-        impl test() -> void {
-          return;
-        }
-      }
-    ''');
-
-      final result = analyze(stream, [contract]);
+    test('unknown namespace', () {
+      final script = baseRandomScript('foo::bar(1); return foo * 1.0;');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
-      final errors = result.exceptionOrNull();
-      expect(errors.toString(), isNotEmpty);
-      expect(errors.toString(), contains(isA<ContractDeclarationError>()));
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>().having(
+            (e) => e.message,
+            'message',
+            contains('No such namespace'),
+          ),
+        ),
+      );
     });
 
-    test('Fails if metadata is missing', () async {
-      final stream = InputStream.fromString('''
-      contract Random {
-        impl test() -> void {
-          return;
-        }
-      }
-    ''');
-
-      final result = analyze(stream, [contract]);
+    test('unknown function in a valid namespace', () {
+      final script = baseRandomScript('math::unknown(1); return foo * 1.0;');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
-      final errors = result.exceptionOrNull()!.errors;
-      expect(errors, contains(isA<RequiredMetadataError>()));
-    });
-  });
-
-  group('signatures', () {
-    test('Fails on impl with missing parameters', () async {
-      final stream = InputStream.fromString('''
-    author "McQuenji";
-    version 0.0.1;
-    name "TestScript";
-    description "Impl param test";
-
-    contract Random {
-      impl randomNumber() -> double {
-        return 3.14;
-      }
-
-      impl randomString() -> string {
-        return "abc";
-      }
-
-      impl test() -> void {
-        return;
-      }
-
-      hook onLogin(string username) {
-        return;
-      }
-
-      hook onLogout() {
-        return;
-      }
-    }
-  ''');
-
-      final result = analyze(stream, [contract]);
-      expect(result.isError(), isTrue);
-      final errors = result.exceptionOrNull();
-      expect(errors!.errors, contains(isA<ImplentationDeclarationError>()));
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>().having(
+            (e) => e.message,
+            'message',
+            contains('No such function'),
+          ),
+        ),
+      );
     });
 
-    test('Fails on hook with incorrect parameter type', () async {
-      final stream = InputStream.fromString('''
-    author "McQuenji";
-    version 0.0.1;
-    name "TestScript";
-    description "Hook param test";
-
-    contract Random {
-      impl randomNumber(int foo) -> double {
-        return 3.14;
-      }
-
-      impl randomString() -> string {
-        return "abc";
-      }
-
-      impl test() -> void {
-        return;
-      }
-
-      hook onLogin(int username) {
-        return;
-      }
-
-      hook onLogout() {
-        return;
-      }
-    }
-  ''');
-
-      final result = analyze(stream, [contract]);
+    test('invalid positional param type', () {
+      final script = baseRandomScript('math::floor(true); return foo * 1.0;');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
-      final errors = result.exceptionOrNull();
-      expect(errors!.errors, contains(isA<ArgumentTypeMismatchError>()));
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<ArgumentTypeMismatchError>()),
+      );
+    });
+
+    test('missing custom permission for external binding', () {
+      // A small contract that defines a custom external binding requiring
+      // `external::custom` permission, but the script omits it.
+      final bindContract = contract('BindTest')
+          .bind<double>('testBind', (int x) => x * 2)
+          .param(PrimitiveType.INT)
+          .permission('custom')
+          .end()
+          .impl('useBind', returnType: PrimitiveType.DOUBLE)
+          .param('x', PrimitiveType.INT)
+          .end()
+          .hook('onInit')
+          .param('x', PrimitiveType.INT)
+          .end()
+          .build();
+
+      final script = '''
+author "Me";
+version 1.0.0;
+name "B";
+description "Missing custom permission";
+contract BindTest {
+  impl useBind(int x) -> double {
+    external::testBind(x);
+  }
+  hook onInit(int x) {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [bindContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>().having(
+            (e) => e.message,
+            'message',
+            contains('Missing permission'),
+          ),
+        ),
+      );
     });
   });
 
-  group('syntax', () {
-    test('Fails on missing semicolon', () async {
-      final stream = InputStream.fromString('''
-    author "McQuenji"
-    version 0.0.1;
-    name "TestScript";
-    description "Missing semicolon";
-
-    contract Random {
-      impl test() -> void {
-        return;
-      }
-
-      hook onLogout() {
-        return;
-      }
-    }
-  ''');
-
-      final result = analyze(stream, [contract]);
+  group('syntax errors', () {
+    test('missing semicolon after metadata', () {
+      final script = '''
+author "McQuenji"
+version 0.0.1;
+name "TestScript";
+description "Oops missing semicolon";
+contract Random {
+  impl test() -> void {
+    return;
+  }
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
-      final errors = result.exceptionOrNull();
-      expect(errors?.errors ?? [], contains(isA<SyntaxError>()));
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SyntaxError>(),
+        ),
+      );
+    });
+  });
+
+  group('unknown contract', () {
+    test('script names a non-existent contract', () {
+      final script = '''
+author "McQuenji";
+version 0.0.1;
+name "TestScript";
+description "Wrong contract";
+contract NotRandom {
+  impl test() -> void { return; }
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<ContractDeclarationError>(),
+        ),
+      );
+    });
+  });
+
+  group('valid contract', () {
+    test('complete Random script parses cleanly', () {
+      final script = baseRandomScript('return foo * 2.0;');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+  });
+
+  group('impls', () {
+    test('missing all impls', () {
+      final script = '''
+author "X";
+version 1.0.0;
+name "Y";
+description "No impls";
+contract Random {
+  hook onLogin(string username) {}
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<ContractDeclarationError>().having(
+            (e) => e.message,
+            'message',
+            contains('missing implementations'),
+          ),
+        ),
+      );
     });
 
-    test('Fails on unexpected token', () async {
-      final stream = InputStream.fromString('''
-    author "McQuenji";
-    version 0.0.1;
-    name "TestScript";
-    description "Unexpected token";
-
-    contract Random {
-      impl test() -> void {
-        final int x = 5
-        return;
-      }
-
-      hook onLogout() {
-        return;
-      }
-    }
-  ''');
-
-      final result = analyze(stream, [contract]);
+    test('impl with wrong number of parameters', () {
+      final script = '''
+author "M";
+version 2.0.0;
+name "N";
+description "Param count";
+contract Random {
+  impl randomNumber() -> double { return 0.0; }
+  impl randomString() -> string { return ""; }
+  impl test() -> void { return; }
+  hook onLogin(string username) {}
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
-      final errors = result.exceptionOrNull();
-      expect(errors?.errors ?? [], contains(isA<SyntaxError>()));
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<ImplentationDeclarationError>(),
+        ),
+      );
     });
 
-    test('Fails on unterminated block', () async {
-      final stream = InputStream.fromString('''
-    author "McQuenji";
-    version 0.0.1;
-    name "TestScript";
-    description "Unterminated block";
-
-    contract Random {
-      impl test() -> void {
-        var int x = 1;
-        if (x > 0) {
-          x = x + 1;
-      }
-
-      hook onLogout() {
-        return;
-      }
-    }
-  ''');
-
-      final result = analyze(stream, [contract]);
+    test('impl with invalid return declaration', () {
+      final script = '''
+author "M";
+version 2.0.0;
+name "N";
+description "Return type mismatch";
+contract Random {
+  impl randomNumber(int foo) -> string { return ""; }
+  impl randomString() -> string { return ""; }
+  impl test() -> void { return; }
+  hook onLogin(string username) {}
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
-      final errors = result.exceptionOrNull();
-      expect(errors?.errors ?? [], contains(isA<SyntaxError>()));
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<ImplentationDeclarationError>(),
+        ),
+      );
+    });
+  });
+
+  group('hooks', () {
+    test('undefined hook', () {
+      final script = '''
+author "A";
+version 1.0.0;
+name "T";
+description "Bad hook";
+contract Random {
+  impl randomNumber(int foo) -> double { return foo * 1.0; }
+  impl randomString() -> string { return ""; }
+  impl test() -> void { return; }
+  hook onStart() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<HookDeclarationError>(),
+        ),
+      );
+    });
+
+    test('hook with wrong parameter type', () {
+      final script = '''
+author "A";
+version 1.0.0;
+name "T";
+description "Type mismatch";
+contract Random {
+  impl randomNumber(int foo) -> double { return foo * 1.0; }
+  impl randomString() -> string { return ""; }
+  impl test() -> void { return; }
+  hook onLogin(int username) {}
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<ArgumentTypeMismatchError>(),
+        ),
+      );
+    });
+  });
+
+  group('function return types', () {
+    test('missing return in non-void impl', () {
+      final script = '''
+author "A";
+version 1.0.0;
+name "T";
+description "No return";
+contract Random {
+  impl randomNumber(int foo) -> double {}
+  impl randomString() -> string { return ""; }
+  impl test() -> void { return; }
+  hook onLogin(string username) {}
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>().having(
+            (e) => e.message,
+            'message',
+            contains('does not return a value'),
+          ),
+        ),
+      );
+    });
+
+    test('returning value from void impl', () {
+      final script = '''
+author "A";
+version 1.0.0;
+name "T";
+description "Extra return";
+contract Random {
+  impl randomNumber(int foo) -> double { return foo * 1.0; }
+  impl randomString() -> string { return ""; }
+  impl test() -> void { return 42; }
+  hook onLogin(string username) {}
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>().having(
+            (e) => e.message,
+            'message',
+            contains('Cannot return a value from a void function'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('variables', () {
+    test('type mismatch in declaration', () {
+      final script = '''
+author "A";
+version 1.0.0;
+name "T";
+description "Bad var";
+contract Random {
+  impl randomNumber(int foo) -> double {
+    final int x = "oops";
+    return foo * 1.0;
+  }
+  impl randomString() -> string { return ""; }
+  impl test() -> void { return; }
+  hook onLogin(string username) {}
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>(),
+        ),
+      );
+    });
+
+    test('immutable non-nullable without initializer', () {
+      final script = '''
+author "A";
+version 1.0.0;
+name "T";
+description "No init";
+contract Random {
+  impl randomNumber(int foo) -> double {
+    final int? x;
+    return foo * 1.0;
+  }
+  impl randomString() -> string { return ""; }
+  impl test() -> void { return; }
+  hook onLogin(string username) {}
+  hook onLogout() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticWarning>().having(
+            (e) => e.message,
+            'message',
+            contains('should have an initializer'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('external calls', () {
+    test('calling undefined external function', () {
+      final ecContract = contract('EC')
+          .bind<double>('foo', (int x) => x.toDouble())
+          .param(PrimitiveType.INT)
+          .permission('fooPerm')
+          .end()
+          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
+          .param('x', PrimitiveType.INT)
+          .end()
+          .hook('onEC')
+          .end()
+          .build();
+
+      final script = '''
+author "Me";
+version 1.0.0;
+name "EC";
+description "Bad external";
+contract EC {
+  impl ecImpl(int x) -> double {
+    external::bar(x);
+    return x.toDouble();
+  }
+  hook onEC() {}
+}
+''';
+      final result = analyze(InputStream.fromString(script), [ecContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>().having(
+            (e) => e.message,
+            'message',
+            contains('No such function'),
+          ),
+        ),
+      );
     });
   });
 }

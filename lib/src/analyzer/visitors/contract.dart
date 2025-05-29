@@ -155,6 +155,26 @@ class ContractVisitor extends AnalysisVisitor {
 
     ctx.block()!.accept(BlockVisitor(this));
 
+    if (scope.returned == null && impl.returnType != PrimitiveType.VOID) {
+      report(
+        SemanticError(
+          "Implementation '$name' does not return a value.",
+          ctx: ctx,
+        ),
+      );
+    }
+
+    if (scope.returned != null && !scope.returned!.canCast(impl.returnType)) {
+      report(
+        ImplentationDeclarationError(
+          name,
+          actualReturnType: scope.returned!,
+          returnType: impl.returnType,
+          ctx: ctx,
+        ),
+      );
+    }
+
     scope = scope.pop();
 
     return const InvalidType();

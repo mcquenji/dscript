@@ -68,6 +68,8 @@ class StmtVisitor extends AnalysisVisitor {
       }
     }
 
+    scope.markReturned(expr?.accept(ExprVisitor(this)));
+
     return const InvalidType();
   }
 

@@ -9,6 +9,9 @@ class TypeScope {
   /// If this scope is not in a function context, this will be null.
   final $Type? returnType;
 
+  /// If this scope has returned a value, this will be set to the type of the returned value.
+  $Type? returned;
+
   /// Same as [Scope] but only stores the types of variables and not their values.
   TypeScope(this._parent, {$Type? returnType})
       : returnType = returnType ?? _parent?.returnType;
@@ -40,6 +43,24 @@ class TypeScope {
     if (mutable) {
       _mutables.add(name);
     }
+  }
+
+  /// Marks the scope as having returned a value.
+  /// This is used to check if a function has returned a value.
+  void markReturned($Type? type) {
+    if (returnType == null) {
+      return;
+    }
+
+    if (returned != null) {
+      return;
+    }
+
+    returned = type;
+    // TODO: figure out how to propagate to the parent scope for branches.
+    // When we propagate from within an if statement and mark the parent scope as returned,
+    // this does not ensure that the function actually returns a value in all branches.
+    _parent?.markReturned(type);
   }
 
   /// Returns true if a variable is defined directly in this scope.

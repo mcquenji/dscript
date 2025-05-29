@@ -168,11 +168,11 @@ class VarsVisitor extends AnalysisVisitor {
       report(
         resolvedType.nullable
             ? SemanticWarning(
-                'Immutable variable "$name" should have an initializer',
+                "Immutable variable '$name' should have an initializer",
                 ctx: ctx,
               )
             : SemanticError(
-                'Immutable non-nullable variable "$name" must have an initializer',
+                "Immutable non-nullable variable '$name' must have an initializer",
                 ctx: ctx,
               ),
       );
