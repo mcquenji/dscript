@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  lint:
-    name: Lint Check
+  test:
+    name: Unit Testing
     runs-on: ubuntu-latest
 
     steps:
