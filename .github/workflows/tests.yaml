@@ -29,6 +29,12 @@ jobs:
         run: dart test -r json > test-results.json
 
       - name: 📊 Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results.json
+
+      - name: 💬 Report Results
         uses: dorny/test-reporter@v2.1.0
         with:
             artifact: test-results
