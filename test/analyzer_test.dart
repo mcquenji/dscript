@@ -98,10 +98,10 @@ contract Random {
       expect(
         result.exceptionOrNull()?.errors,
         contains(
-          isA<SemanticError>().having(
+          isA<UndefinedExternalFunctionError>().having(
             (e) => e.message,
             'message',
-            contains('No such function'),
+            contains('is not defined in the'),
           ),
         ),
       );
@@ -490,10 +490,10 @@ contract EC {
       expect(
         result.exceptionOrNull()?.errors,
         contains(
-          isA<SemanticError>().having(
+          isA<UndefinedExternalFunctionError>().having(
             (e) => e.message,
             'message',
-            contains('No such function'),
+            contains("is not defined in the 'external' namespace"),
           ),
         ),
       );
@@ -650,44 +650,6 @@ contract EC {
             (e) => e.message,
             'message',
             contains('No such namespace'),
-          ),
-        ),
-      );
-    });
-    test('calling undefined external function ', () {
-      final ecContract = contract('EC')
-          .bind<double>('foo', (int x) => x.toDouble())
-          .param(PrimitiveType.INT)
-          .permission('fooPerm')
-          .end()
-          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
-          .param('x', PrimitiveType.INT)
-          .end()
-          .hook('onEC')
-          .end()
-          .build();
-
-      final script = '''
-author "Me";
-version 1.0.0;
-name "EC";
-description "Bad external";
-contract EC {
-  impl ecImpl(int x) -> double {
-    return external::bar(x);
-  }
-  hook onEC() {}
-}
-''';
-      final result = analyze(InputStream.fromString(script), [ecContract]);
-      expect(result.isError(), isTrue);
-      expect(
-        result.exceptionOrNull()?.errors,
-        contains(
-          isA<UndefinedExternalFunctionError>().having(
-            (e) => e.message,
-            'message',
-            contains("is not defined in the 'external' namespace"),
           ),
         ),
       );

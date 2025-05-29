@@ -1,0 +1,40 @@
+name: Unit Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🐦 Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: 📦 Install dependencies
+        run: dart pub get
+
+      - name: 🧪 Run Tests
+        run: dart test -r json > test_results.json
+
+      - name: 📊 Upload Test Results
+        uses: dorny/test-reporter@v1
+        with:
+            artifact: test-results           
+            name: 🧪 Unit Tests           
+            path: '*.json'                    
+            reporter: dart-json
+            fail-on-empty: true
+            fail-on-error: true
+            
