@@ -33,8 +33,7 @@ jobs:
         with:
             artifact: test-results           
             name: 🧪 Unit Tests           
-            path: '*.json'                    
+            path: test_results.json         
             reporter: dart-json
             fail-on-empty: true
             fail-on-error: true
-            
