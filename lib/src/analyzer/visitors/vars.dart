@@ -10,7 +10,7 @@ class VarsVisitor extends AnalysisVisitor {
     final type = $Type.from(ctx.text);
 
     if (type is Struct) {
-      final struct = type.lookup(contract.objects);
+      final struct = type.lookup(contract.structs);
 
       if (struct == null) {
         report(

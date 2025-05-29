@@ -356,7 +356,7 @@ class ExprVisitor extends AnalysisVisitor {
   @override
   $Type? visitObjectLiteral(ObjectLiteralContext ctx) {
     final type =
-        $Type.from(ctx.identifier()!.text).lookup(contract.objects) as Struct?;
+        $Type.from(ctx.identifier()!.text).lookup(contract.structs) as Struct?;
 
     if (type == null) {
       report(

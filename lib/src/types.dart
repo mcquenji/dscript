@@ -1,11 +1,12 @@
-import 'package:antlr4/antlr4.dart';
 import 'package:collection/collection.dart';
-import 'package:dscript/src/bindings.dart';
+import 'package:dscript/dscript.dart';
 import 'package:equatable/equatable.dart';
 
 /// Base class for all signatures.
 sealed class Signature extends Equatable {
-  const Signature();
+  const Signature({
+    this.description,
+  });
 
   /// Converts the signature to a map.
   Map<String, dynamic> toMap();
@@ -14,7 +15,11 @@ sealed class Signature extends Equatable {
   Map<String, dynamic> toJson() => {
         ...toMap(),
         'type': runtimeType.toString(),
+        'description': description,
       };
+
+  /// The description of the signature, if any.
+  final String? description;
 
   @override
   List<Object?> get props => toMap().values.toList();
@@ -32,6 +37,7 @@ class ParameterSignature extends Signature {
   const ParameterSignature({
     required this.name,
     required this.type,
+    super.description,
   });
 
   /// Creates a parameter signature from a [Parameter] object.
@@ -70,16 +76,13 @@ class FunctionSignature extends Signature {
   /// The return type of the function.
   final $Type returnType;
 
-  /// The underlying AST node of the function signature, if available.
-  final ParserRuleContext? node;
-
   /// Signature of a function.
   const FunctionSignature({
     required this.name,
     required this.namedParameters,
     required this.positionalParameters,
     required this.returnType,
-    this.node,
+    super.description,
   });
 
   @override
@@ -105,22 +108,11 @@ class HookSignature extends FunctionSignature {
   HookSignature({
     required super.name,
     required super.namedParameters,
+    super.description,
   }) : super(
           returnType: PrimitiveType.VOID,
           positionalParameters: [],
-          node: null,
         );
-
-  /// Creates a hook signature from a [Hook] object.
-  // HookSignature.from(Hook hook)
-  //     : super(
-  //         name: hook.name,
-  //         namedParameters:
-  //             hook.parameters.map((e) => ParameterSignature.from(e)).toList(),
-  //         returnType: PrimitiveType.VOID,
-  //         positionalParameters: [],
-  //         node: hook,
-  //       );
 }
 
 /// Signature of an implementation.
@@ -130,22 +122,10 @@ class ImplementationSignature extends FunctionSignature {
     required super.name,
     required super.namedParameters,
     required super.returnType,
+    super.description,
   }) : super(
           positionalParameters: [],
         );
-
-  // /// Creates an implementation signature from an [Implementation] object.
-  // ImplementationSignature.from(
-  //   Implementation implementation,
-  // ) : super(
-  //         name: implementation.name,
-  //         namedParameters: implementation.parameters
-  //             .map((e) => ParameterSignature.from(e))
-  //             .toList(),
-  //         returnType: implementation.returnType,
-  //         positionalParameters: [],
-  //         node: implementation,
-  //       );
 }
 
 /// Represents a type in the DScript language.
@@ -157,7 +137,11 @@ sealed class $Type extends Signature {
   final bool nullable;
 
   /// Represents a type (e.g., int, string, etc.).
-  const $Type({required this.name, this.nullable = false});
+  const $Type({
+    required this.name,
+    this.nullable = false,
+    super.description,
+  });
 
   /// Parse a type from a string.
   factory $Type.from(String type) {
@@ -312,23 +296,46 @@ sealed class $Type extends Signature {
 /// This class is used to represent basic data types in the DScript language.
 class PrimitiveType extends $Type {
   /// Represents a primitive type (e.g., int, string, etc.).
-  const PrimitiveType._({required super.name, super.nullable = false});
+  const PrimitiveType._({
+    required super.name,
+    super.nullable = false,
+    super.description,
+  });
 
   /// Integer type.
   // ignore: constant_identifier_names
-  static const PrimitiveType INT = PrimitiveType._(name: 'int');
+  static const PrimitiveType INT = PrimitiveType._(name: 'int', description: """
+An integer number.
+
+The default implementation of int is 64-bit two's complement integers with operations that wrap to that range on overflow.
+
+Note: When compiling to JavaScript, integers are restricted to values that can be represented exactly by double-precision floating point values. The available integer values include all integers between -2^53 and 2^53, and some integers with larger magnitude. That includes some integers larger than 2^63. The behavior of the operators and methods in the [int] class therefore sometimes differs between the Dart VM and Dart code compiled to JavaScript. For example, the bitwise operators truncate their operands to 32-bit integers when compiled to JavaScript.""");
 
   /// String type.
   // ignore: constant_identifier_names
-  static const PrimitiveType STRING = PrimitiveType._(name: 'string');
+  static const PrimitiveType STRING = PrimitiveType._(
+      name: 'string', description: '''A sequence of UTF-16 code units.
+
+Strings are mainly used to represent text. A character may be represented by multiple code points, each code point consisting of one or two code units. For example, the Papua New Guinea flag character requires four code units to represent two code points, but should be treated like a single character: "🇵🇬". Platforms that do not support the flag character may show the letters "PG" instead. If the code points are swapped, it instead becomes the Guadeloupe flag "🇬🇵" ("GP").
+
+A string can be either single or multiline. Single line strings are written using matching single or double quotes, and multiline strings are written using triple quotes.''');
 
   /// Double type.
   // ignore: constant_identifier_names
-  static const PrimitiveType DOUBLE = PrimitiveType._(name: 'double');
+  static const PrimitiveType DOUBLE = PrimitiveType._(
+      name: 'double', description: '''A double-precision floating point number.
+
+Representation of Dart doubles containing double specific constants and operations and specializations of operations inherited from [num]. Dart doubles are 64-bit floating-point numbers as specified in the IEEE 754 standard.
+
+The [double] type is contagious. Operations on [double]s return [double] results.''');
 
   /// Boolean type.
   // ignore: constant_identifier_names
-  static const PrimitiveType BOOL = PrimitiveType._(name: 'bool');
+  static const PrimitiveType BOOL = PrimitiveType._(
+    name: 'bool',
+    description:
+        'The reserved words true and false denote objects that are the only two instances of this class.',
+  );
 
   /// Void type.
   // ignore: constant_identifier_names
@@ -515,6 +522,7 @@ class Struct extends $Type {
     required super.name,
     required this.fields,
     super.nullable = false,
+    super.description,
   });
 
   @override
@@ -554,7 +562,7 @@ class ContractSignature extends Signature {
   final List<HookSignature> hooks;
 
   /// Signatures of objects passed to the contract or returned from it.
-  final List<Struct> objects;
+  final List<Struct> structs;
 
   /// Host provided functions the contract can call.
   final ExternalBindings bindings;
@@ -564,8 +572,9 @@ class ContractSignature extends Signature {
     required this.name,
     required this.implementations,
     required this.hooks,
-    this.objects = const [],
+    this.structs = const [],
     required this.bindings,
+    super.description,
   });
 
   /// Creates a contract signature from a [Contract] object.
@@ -587,7 +596,7 @@ class ContractSignature extends Signature {
       'name': name,
       'implementations': implementations.map((e) => e.toMap()).toList(),
       'hooks': hooks.map((e) => e.toMap()).toList(),
-      'objects': objects.map((e) => e.toMap()).toList(),
+      'objects': structs.map((e) => e.toMap()).toList(),
     };
   }
 }

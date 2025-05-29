@@ -25,44 +25,36 @@ void main(List<String> arguments) async {
   final script = analyze(
     code,
     [
-      ContractSignature(
-        name: 'Random',
-        implementations: [
-          ImplementationSignature(
-            name: 'randomNumber',
-            namedParameters: [
-              const ParameterSignature(name: 'foo', type: PrimitiveType.INT)
-            ],
-            returnType: PrimitiveType.DOUBLE,
-          ),
-          ImplementationSignature(
-            name: 'randomString',
-            namedParameters: [],
-            returnType: PrimitiveType.STRING,
-          ),
-          ImplementationSignature(
-            name: 'test',
-            namedParameters: [],
-            returnType: PrimitiveType.VOID,
-          ),
-        ],
-        hooks: [
-          HookSignature(
-            name: 'onLogin',
-            namedParameters: [
-              const ParameterSignature(
-                name: 'username',
-                type: PrimitiveType.STRING,
-              )
-            ],
-          ),
-          HookSignature(
-            name: 'onLogout',
-            namedParameters: [],
-          ),
-        ],
-        bindings: ExternalBindings(),
-      ),
+      contract('Random')
+          .impl('randomNumber', returnType: PrimitiveType.DOUBLE)
+          .param('foo', PrimitiveType.INT)
+          .describe('Generates a random number using [foo] as a seed.')
+          .end()
+          .impl('randomString', returnType: PrimitiveType.STRING)
+          .describe('Generates a random string.')
+          .end()
+          .impl('test', returnType: PrimitiveType.VOID)
+          .describe('A test implementation that does nothing.')
+          .end()
+          .hook('onLogin')
+          .param('username', PrimitiveType.STRING)
+          .describe(
+            'Event emitted when a user logs in.',
+          )
+          .end()
+          .hook('onLogout')
+          .describe(
+            'Event emitted when a user logs out.',
+          )
+          .end()
+          .bind<double>('double', (int x) => x * 2)
+          .param(PrimitiveType.INT)
+          .describe(
+            'A simple function that doubles an integer.',
+          )
+          .permission('math')
+          .end()
+          .build(),
     ],
   ).getOrThrow();
 
@@ -70,62 +62,4 @@ void main(List<String> arguments) async {
   print('Name: ${script.name}');
   print('Version: ${script.version}');
   print('Description: ${script.description}');
-
-  // final runtime = Runtime(
-  //   script,
-  //   contracts: [
-  //     ContractSignature(
-  //       name: 'Random',
-  //       implementations: [
-  //         ImplementationSignature(
-  //           name: 'randomNumber',
-  //           namedParameters: [
-  //             const ParameterSignature(name: 'foo', type: PrimitiveType.INT)
-  //           ],
-  //           returnType: PrimitiveType.DOUBLE,
-  //         ),
-  //         ImplementationSignature(
-  //           name: 'randomString',
-  //           namedParameters: [],
-  //           returnType: PrimitiveType.STRING,
-  //         ),
-  //         ImplementationSignature(
-  //           name: 'test',
-  //           namedParameters: [],
-  //           returnType: PrimitiveType.VOID,
-  //         ),
-  //       ],
-  //       hooks: [
-  //         HookSignature(
-  //           name: 'onLogin',
-  //           namedParameters: [
-  //             const ParameterSignature(
-  //               name: 'username',
-  //               type: PrimitiveType.STRING,
-  //             )
-  //           ],
-  //         ),
-  //         HookSignature(
-  //           name: 'onLogout',
-  //           namedParameters: [],
-  //         ),
-  //       ],
-  //       bindings: ExternalBindings(),
-  //     ),
-  //   ],
-  // );
-  // runtime.allow(ScriptPermission.readFiles);
-  // runtime.allow(ScriptPermission.writeFiles);
-  // runtime.allow(ScriptPermission.networkClient);
-  // runtime.allow(ScriptPermission.networkServer);
-
-  // print(script.version);
-  // print(script.author);
-  // print(script.name);
-  // print(script.description);
-  // print(script.license);
-  // print(script.website);
-  // print(script.repo);
-
-  // print(runtime.run('randomNumber', {'foo': 10}));
 }

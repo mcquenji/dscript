@@ -94,7 +94,7 @@ def chunk_and_write(entries, out_prefix):
         print(f"Written {out_file} ({len(batch)} entries)")
 
 
-def gather_paths(root):
+def gather_paths(root, out_prefix):
     """
     Walk through the directory and collect relative file paths,
     skipping any that match the blacklist.
@@ -104,6 +104,12 @@ def gather_paths(root):
         for fname in filenames:
             rel = os.path.relpath(os.path.join(dirpath, fname), root)
             skip = False
+
+            # Skip if file has output prefix
+            if rel.startswith(out_prefix):
+                continue
+            
+            # Check against the blacklist
             for pat in BLACKLIST:
                 # wildcard patterns
                 if '*' in pat:
@@ -132,7 +138,7 @@ def main():
         print(f"Error: {args.root_dir} is not a directory.", file=sys.stderr)
         sys.exit(1)
 
-    paths = gather_paths(args.root_dir)
+    paths = gather_paths(args.root_dir, args.output_prefix)
     entries = [serialize_entry(p, args.root_dir) for p in paths]
     chunk_and_write(entries, args.output_prefix)
 

@@ -9,12 +9,13 @@ repo "https://github.com/mcquenji/dscript";
 
 permissions fs::read, fs::write;
 permissions http::client, http::server;
+permissions external::math;
 
 contract Random {
   impl randomNumber(int foo) -> double {
     log::info(string::from(5));
 
-    return math::floor(foo * pi) ;
+    return external::double(math::floor(foo * pi));
   }
 
 

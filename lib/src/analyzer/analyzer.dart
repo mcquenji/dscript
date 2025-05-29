@@ -1,11 +1,8 @@
 import 'package:antlr4/antlr4.dart';
-import 'package:collection/collection.dart';
-import 'package:dscript/src/gen/antlr/dscriptBaseVisitor.dart';
 import 'package:dscript/src/gen/antlr/dscriptLexer.dart';
 import 'package:dscript/src/gen/antlr/dscriptParser.dart';
 import 'package:dscript/src/permissions.dart';
 import 'package:dscript/src/runtime/scope.dart';
-import 'package:dscript/src/stdlib/stdlib.dart';
 import 'package:dscript/src/types.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:result_dart/result_dart.dart';
