@@ -26,14 +26,14 @@ jobs:
         run: dart pub get
 
       - name: 🧪 Run Tests
-        run: dart test -r json > test_results.json
+        run: dart test -r json > test-results.json
 
       - name: 📊 Upload Test Results
-        uses: MichaelVoelkel/test-reporter@v1.8.0
+        uses: dorny/test-reporter@v2.1.0
         with:
-            artifact: test-results           
-            name: 🧪 Unit Tests           
-            path: test_results.json         
+            artifact: test-results
+            name: 🧪 Unit Tests
+            path: test-results.json
             reporter: dart-json
+            fail-on-empty: true
             fail-on-error: true
-            working-directory: ./
