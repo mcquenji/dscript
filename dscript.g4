@@ -56,6 +56,11 @@ stmt:
 	| returnStmt
 	| breakStmt
 	| continueStmt
+	| throwStmt
+	| ifStmt
+	| whileStmt
+	| forStmt
+	| tryStmt
 	| switchStmt;
 
 throwStmt: THROW expr;

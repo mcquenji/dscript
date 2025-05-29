@@ -10,6 +10,7 @@ import sys
 import argparse
 import base64
 import fnmatch
+import glob
 
 # Constants
 MAX_SIZE = 512 * 1024 * 1024   # 512 MB
@@ -24,8 +25,11 @@ BLACKLIST = [
     'agents.py',
     'AGENTS.md',
     'LICENSE',
-    'CHANGELOG.md'
-    'README.md'
+    'CHANGELOG.md',
+    'README.md',
+    'gen',
+    '.antlr',
+    '.gen',
 ]
 
 
@@ -47,7 +51,17 @@ def serialize_entry(path, root):
 def chunk_and_write(entries, out_prefix):
     """
     Chunk entries into batches that fit MAX_SIZE and write JSON files.
+    Deletes any files matching the prefix before writing the new ones.
     """
+    
+    for existing_file in glob.glob(f"{out_prefix}_*.json"):
+        try:
+            os.remove(existing_file)
+            print(f"Deleted existing file: {existing_file}")
+        except OSError as e:
+            print(f"Error deleting file {existing_file}: {e}", file=sys.stderr)
+    
+    
     batches = []
     current = []
     current_size = 2  # for the '[' and ']' in JSON

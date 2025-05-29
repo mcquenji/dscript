@@ -1,0 +1,517 @@
+part of 'visitors.dart';
+
+/// Analyzes primary expressions in the script.
+class ExprVisitor extends AnalysisVisitor {
+  /// Analyzes primary expressions in the script.
+  ExprVisitor(super._parent);
+
+  /// Helper method to resolve binary expressions.
+  ///
+  /// - If the [left] and [right] expressions are both non-null, [resolve] is called.
+  /// - If only the [left] expression is non-null, it's type is returned.
+  /// - If both are null, an [InferenceError] is reported and null returned.
+  $Type? binop(
+      ParserRuleContext ctx,
+      ParserRuleContext? left,
+      ParserRuleContext? right,
+      Token? op,
+      $Type? Function($Type, $Type, String) resolve) {
+    final leftType = left?.accept(this);
+    final rightType = right?.accept(this);
+
+    if (leftType != null && rightType != null) {
+      return resolve(leftType, rightType, op?.text ?? '');
+    }
+
+    if (leftType != null && rightType == null) {
+      return leftType;
+    }
+
+    report(InferenceError(ctx: ctx));
+    return const InvalidType();
+  }
+
+  @override
+  $Type? visitLogicalExpr(LogicalExprContext ctx) => binop(
+        ctx,
+        ctx.left,
+        ctx.right,
+        ctx.op,
+        (left, right, op) {
+          if (op == '&&' || op == '||') {
+            match(PrimitiveType.BOOL, left, ctx);
+            match(PrimitiveType.BOOL, right, ctx);
+
+            return PrimitiveType.BOOL;
+          } else {
+            return report(
+              SemanticError('Unknown logical operator: "$op"', ctx: ctx),
+            );
+          }
+        },
+      );
+
+  @override
+  $Type? visitBitwiseExpr(BitwiseExprContext ctx) => binop(
+        ctx,
+        ctx.left,
+        ctx.right,
+        ctx.op,
+        (left, right, op) {
+          if (op == '&' || op == '|') {
+            match(PrimitiveType.INT, left, ctx);
+            match(PrimitiveType.INT, right, ctx);
+
+            return PrimitiveType.INT;
+          } else {
+            return report(
+              SemanticError('Unknown bitwise operator: "$op"', ctx: ctx),
+            );
+          }
+        },
+      );
+
+  @override
+  $Type? visitAdditiveExpr(AdditiveExprContext ctx) {
+    return binop(
+      ctx,
+      ctx.left,
+      ctx.right,
+      ctx.op,
+      (left, right, op) {
+        if (op == '+' || op == '-') {
+          if (left == PrimitiveType.STRING) {
+            return PrimitiveType.STRING;
+          }
+
+          if (left == PrimitiveType.INT && right == PrimitiveType.INT) {
+            return PrimitiveType.INT;
+          }
+
+          if (left == PrimitiveType.DOUBLE) {
+            match(PrimitiveType.DOUBLE, right, ctx);
+            return PrimitiveType.DOUBLE;
+          }
+
+          if (right == PrimitiveType.DOUBLE) {
+            match(PrimitiveType.DOUBLE, left, ctx);
+            return PrimitiveType.DOUBLE;
+          }
+
+          return report(InferenceError(ctx: ctx));
+        } else {
+          report(
+            SemanticError('Unknown additive operator: "$op"', ctx: ctx),
+          );
+          return const InvalidType();
+        }
+      },
+    );
+  }
+
+  @override
+  $Type? visitMultiplicativeExpr(MultiplicativeExprContext ctx) {
+    return binop(
+      ctx,
+      ctx.left,
+      ctx.right,
+      ctx.op,
+      (left, right, op) {
+        switch (op) {
+          case '*':
+            if (left == PrimitiveType.INT && right == PrimitiveType.INT) {
+              return PrimitiveType.INT;
+            }
+            if (left == PrimitiveType.DOUBLE || right == PrimitiveType.DOUBLE) {
+              match(PrimitiveType.DOUBLE, left, ctx);
+              match(PrimitiveType.DOUBLE, right, ctx);
+              return PrimitiveType.DOUBLE;
+            }
+
+            return report(
+              InferenceError(ctx: ctx),
+            );
+          case '/':
+            match(PrimitiveType.DOUBLE, left, ctx);
+            match(PrimitiveType.DOUBLE, right, ctx);
+            return PrimitiveType.DOUBLE;
+          case '%':
+            match(PrimitiveType.INT, left, ctx);
+            match(PrimitiveType.INT, right, ctx);
+            return PrimitiveType.INT;
+          default:
+            return report(
+              SemanticError('Unknown multiplicative operator: "$op"', ctx: ctx),
+            );
+        }
+      },
+    );
+  }
+
+  @override
+  $Type? visitRelationalExpr(RelationalExprContext ctx) {
+    return binop(
+      ctx,
+      ctx.left,
+      ctx.right,
+      ctx.op,
+      (left, right, op) {
+        switch (op) {
+          case '<':
+          case '>':
+          case '<=':
+          case '>=':
+            match(PrimitiveType.DOUBLE, left, ctx);
+            match(PrimitiveType.DOUBLE, right, ctx);
+            return PrimitiveType.BOOL;
+          case '==':
+          case '!=':
+            if (left != right) {
+              report(
+                SemanticError(
+                  'Cannot compare different types: "$left" and "$right"',
+                  ctx: ctx,
+                ),
+              );
+            }
+            return PrimitiveType.BOOL;
+          default:
+            return report(
+              SemanticError('Unknown relational operator: "$op"', ctx: ctx),
+            );
+        }
+      },
+    );
+  }
+
+  @override
+  $Type? visitIdentifier(IdentifierContext ctx) {
+    final type = scope.get(ctx.text);
+
+    if (type == null) {
+      report(
+        SemanticError(
+          'Undefined identifier: "${ctx.text}"',
+          ctx: ctx,
+        ),
+      );
+      return const InvalidType();
+    }
+
+    return type;
+  }
+
+  @override
+  $Type? visitExpr(ExprContext ctx) {
+    return ctx.logicalExpr()?.accept(this);
+  }
+
+  @override
+  $Type? visitExternalFunctionCall(ExternalFunctionCallContext ctx) {
+    final namespace = ctx.namespace!.text;
+
+    final func = ctx.functionCall()!;
+
+    final name = func.method!.text;
+
+    final posArgs =
+        func.args()?.positionalArgs().map((a) => a.accept(this)!).toList() ??
+            [];
+    final namedArgs = {
+      for (var e in func.args()?.namedArgs() ?? [])
+        Symbol(e.identifier()!.text): e.expr()?.accept(this)!
+    };
+
+    final binding =
+        [...LibraryBinding.stdLib(), contract.bindings].firstWhereOrNull(
+      (b) => b.name == namespace,
+    );
+
+    if (binding == null) {
+      return report(SemanticError('No such namespace: "$namespace"', ctx: ctx));
+    }
+
+    final impl = binding.bindings.firstWhereOrNull(
+      (b) => b.name == name,
+    );
+
+    if (impl == null) {
+      return report(
+          SemanticError('No such function: "$name" in $namespace', ctx: ctx));
+    }
+
+    for (final permission in impl.permissions) {
+      if (!permissions.contains(permission)) {
+        report(
+          SemanticError(
+            'Missing permission: "$permission" for function "$namespace::$name"',
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    if (impl.positionalParams.length != posArgs.length) {
+      return report(
+        PositionalArgumentError(
+          impl.name,
+          impl.positionalParams.length,
+          posArgs.length,
+          ctx: ctx,
+        ),
+      );
+    }
+
+    for (var i = 0; i < posArgs.length; i++) {
+      final expected = impl.positionalParams[i];
+      final found = posArgs[i];
+
+      if (!found.canCast(expected)) {
+        report(
+          ArgumentTypeMismatchError(
+            expected,
+            found,
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    for (final arg in namedArgs.entries) {
+      final expected = impl.namedParams[arg.key];
+
+      if (expected == null) {
+        report(
+          UndefinedArgumentError(
+            impl.name,
+            arg.key.toString(),
+            ctx: ctx,
+          ),
+        );
+        continue;
+      }
+
+      final found = arg.value;
+
+      if (!found.canCast(expected)) {
+        report(
+          ArgumentTypeMismatchError(
+            expected,
+            found,
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    for (final param in impl.namedParams.entries) {
+      if (!namedArgs.containsKey(param.key) && !param.value.nullable) {
+        report(
+          SemanticError(
+            'Missing non-nullable parameter "${param.key}" in "$namespace::$name"',
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    return impl.returnType;
+  }
+
+  @override
+  $Type? visitLiteral(LiteralContext ctx) {
+    if (ctx.BOOL() != null) {
+      return PrimitiveType.BOOL;
+    }
+    if (ctx.INT() != null) {
+      return PrimitiveType.INT;
+    }
+    if (ctx.DOUBLE() != null) {
+      return PrimitiveType.DOUBLE;
+    }
+    if (ctx.STRING() != null) {
+      return PrimitiveType.STRING;
+    }
+    if (ctx.NULL() != null) {
+      return PrimitiveType.NULL;
+    }
+
+    if (ctx.objectLiteral() != null) {
+      return ctx.objectLiteral()!.accept(this);
+    }
+
+    if (ctx.arrayLiteral() != null) {
+      return ctx.arrayLiteral()!.accept(this);
+    }
+
+    if (ctx.mapLiteral() != null) {
+      return ctx.mapLiteral()!.accept(this);
+    }
+
+    report(SemanticError('Unknown literal type', ctx: ctx));
+
+    return const InvalidType();
+  }
+
+  @override
+  $Type? visitObjectLiteral(ObjectLiteralContext ctx) {
+    final type =
+        $Type.from(ctx.identifier()!.text).lookup(contract.objects) as Struct?;
+
+    if (type == null) {
+      report(
+        SemanticError('Unknown type: "${ctx.identifier()!.text}"', ctx: ctx),
+      );
+      return const InvalidType();
+    }
+
+    final Set<String> properties = {};
+
+    for (final field in ctx.objectPropertys()) {
+      final name = field.identifier()!.text;
+      final found = field.expr()?.accept(this);
+
+      final expected = type.fields[name];
+
+      if (expected == null) {
+        report(
+          SemanticError(
+            'Object "${type.name}" has no field "$name"',
+            ctx: field,
+          ),
+        );
+        continue;
+      }
+      if (found == null) {
+        report(
+          InferenceError(ctx: field),
+        );
+        continue;
+      }
+
+      if (!found.canCast(expected)) {
+        report(
+          AssignmentError(
+            expected,
+            found,
+            ctx: field,
+          ),
+        );
+      }
+
+      properties.add(name);
+    }
+
+    for (final field in type.fields.entries) {
+      if (!properties.contains(field.key) && !field.value.nullable) {
+        report(
+          SemanticError(
+            'Missing required field "${field.key}"',
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    return type;
+  }
+
+  @override
+  $Type? visitArrayLiteral(ArrayLiteralContext ctx) {
+    final elements = ctx.exprs();
+
+    if (elements.isEmpty) {
+      return ListType(elementType: PrimitiveType.NULL);
+    }
+
+    final types = elements.map((e) => e.accept(this)).toList();
+
+    final firstType = types.firstWhereOrNull((type) => type != null);
+
+    if (firstType == null) {
+      report(InferenceError(ctx: ctx));
+      return const InvalidType();
+    }
+
+    for (final type in types.skip(1)) {
+      if (type == null) {
+        continue;
+      }
+
+      if (!type.canCast(firstType)) {
+        report(
+          AssignmentError(
+            firstType,
+            type,
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    return ListType(elementType: firstType);
+  }
+
+  @override
+  $Type? visitMapLiteral(MapLiteralContext ctx) {
+    final entries = ctx.mapEntrys();
+
+    if (entries.isEmpty) {
+      return MapType(
+        keyType: PrimitiveType.NULL,
+        valueType: PrimitiveType.NULL,
+      );
+    }
+
+    final keyTypes = <$Type>{};
+    final valueTypes = <$Type>{};
+
+    for (final entry in entries) {
+      final key = entry.key?.accept(this);
+      final value = entry.value?.accept(this);
+
+      if (key == null || value == null) {
+        report(InferenceError(ctx: ctx));
+        continue;
+      }
+
+      keyTypes.add(key);
+      valueTypes.add(value);
+    }
+
+    final keyType = keyTypes.isNotEmpty ? keyTypes.first : null;
+
+    final valueType = valueTypes.isNotEmpty ? valueTypes.first : null;
+
+    if (keyType == null || valueType == null) {
+      report(InferenceError(ctx: ctx));
+      return const InvalidType();
+    }
+
+    for (final key in keyTypes.skip(1)) {
+      if (!key.canCast(keyType)) {
+        report(
+          AssignmentError(
+            keyType,
+            key,
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    for (final value in valueTypes.skip(1)) {
+      if (!value.canCast(valueType)) {
+        report(
+          AssignmentError(
+            valueType,
+            value,
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    return MapType(keyType: keyType, valueType: valueType);
+  }
+}

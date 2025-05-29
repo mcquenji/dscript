@@ -10,15 +10,10 @@ import 'package:dscript/src/types.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:result_dart/result_dart.dart';
 
-part 'visitor.dart';
+import 'visitors/visitors.dart';
+
 part 'errors.dart';
 part 'scope.dart';
-
-extension on TerminalNode {
-  String? get innerText {
-    return text?.substring(1, text!.length - 1); // Remove quotes
-  }
-}
 
 /// Metadata of an analyzed script.
 class Script {
@@ -49,9 +44,21 @@ class Script {
   /// The parsed AST after analysis.
   final ScriptContext ast;
 
+  /// The implementations found in the script, mapping names to ast nodes.
+  final Map<String, ImplContext> implementations;
+
+  /// The contract implemented by the script.
+  final ContractSignature contract;
+
+  /// The hooks defined in the script, mapping names to ast nodes.
+  final Map<String, HookContext> hooks;
+
   /// Metadata of an analyzed script.
   const Script({
     required this.ast,
+    required this.implementations,
+    required this.contract,
+    required this.hooks,
     required this.author,
     required this.name,
     required this.version,
@@ -66,7 +73,7 @@ class Script {
 /// Analyzes the script in the given [code] against the provided [contracts].
 ///
 /// Returns a [Result] containing the [Script] if successful, or an [AnalysisReport] if errors are found.
-Result<Script> analyze(
+ResultDart<Script, AnalysisReport> analyze(
   CharStream code,
   List<ContractSignature> contracts,
 ) {
@@ -76,27 +83,28 @@ Result<Script> analyze(
   final parser = dscriptParser(tokens);
 
   parser.removeErrorListeners(); // Remove default error listener
-  parser.addErrorListener(AnalyzerErrorListener(analyzer._report));
+  parser.addErrorListener(AnalyzerErrorListener(analyzer.errors));
   final tree = parser.script();
   analyzer.visitScript(tree);
 
-  if (analyzer._report.hasErrors) {
-    return Failure(analyzer._report);
+  if (analyzer.errors.hasErrors) {
+    return analyzer.errors.toFailure();
   }
 
-  return Success(
-    Script(
-      ast: tree,
-      author: analyzer.author!,
-      name: analyzer.name!,
-      version: analyzer.version!,
-      description: analyzer.description,
-      license: analyzer.license,
-      repository: analyzer.repository,
-      website: analyzer.website,
-      permissions: analyzer.permissions,
-    ),
-  );
+  return Script(
+    ast: tree,
+    implementations: analyzer.implementations,
+    contract: analyzer.contract,
+    hooks: analyzer.hooks,
+    author: analyzer.author!,
+    name: analyzer.name!,
+    version: analyzer.version!,
+    description: analyzer.description,
+    license: analyzer.license,
+    repository: analyzer.repository,
+    website: analyzer.website,
+    permissions: analyzer.permissions,
+  ).toSuccess();
 }
 
 /// Error listener for the ANTLR parser that reports syntax errors to the given analysis [report].
