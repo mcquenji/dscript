@@ -29,7 +29,7 @@ jobs:
         run: dart test -r json > test-results.json
 
       - name: 📊 Upload Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: test-results
           path: test-results.json
