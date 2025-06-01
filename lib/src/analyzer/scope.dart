@@ -26,10 +26,13 @@ class TypeScope {
   /// List of mutable variables in this scope.
   final List<String> _mutables = [];
 
+  /// List of constants in this scope.
+  final List<String> _constants = [];
+
   /// Sets the type of a variable in this scope.
   ///
   /// Throws an [AnalyzerMessage] if the variable is already defined in this scope.
-  void set(String name, $Type type, bool mutable) {
+  void set(String name, $Type type, bool mutable, {bool constant = false}) {
     if (type == PrimitiveType.VOID) {
       throw ArgumentError.value(
         type,
@@ -46,6 +49,10 @@ class TypeScope {
 
     if (mutable) {
       _mutables.add(name);
+    }
+
+    if (constant) {
+      _constants.add(name);
     }
   }
 
@@ -95,6 +102,17 @@ class TypeScope {
       return _mutables.contains(name);
     } else if (_parent != null) {
       return _parent.mutable(name);
+    }
+
+    throw StateError('Variable $name not defined');
+  }
+
+  /// Checks if a variable is constant in this scope.
+  bool constant(String name) {
+    if (_types.containsKey(name)) {
+      return _constants.contains(name);
+    } else if (_parent != null) {
+      return _parent.constant(name);
     }
 
     throw StateError('Variable $name not defined');

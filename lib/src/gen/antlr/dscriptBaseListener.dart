@@ -236,30 +236,6 @@ class dscriptBaseListener implements dscriptListener {
 
   /// The default implementation does nothing.
   @override
-  void enterSwitchStmt(SwitchStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitSwitchStmt(SwitchStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterCaseStmt(CaseStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitCaseStmt(CaseStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterDefaultStmt(DefaultStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitDefaultStmt(DefaultStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
   void enterTryStmt(TryStmtContext ctx) {}
 
   /// The default implementation does nothing.

@@ -20,6 +20,12 @@ class ContractVisitor extends AnalysisVisitor {
 
     this.contract = contract;
 
+    // check variable declarations first
+    // to ensure all variables are defined before use
+    for (final decl in ctx.varDecls()) {
+      decl.accept(VarsVisitor(this));
+    }
+
     for (final func in [...ctx.hooks(), ...ctx.funcs(), ...ctx.impls()]) {
       func.accept(this);
     }

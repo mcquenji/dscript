@@ -203,27 +203,6 @@ abstract class dscriptListener extends ParseTreeListener {
   /// [ctx] the parse tree
   void exitContinueStmt(ContinueStmtContext ctx);
 
-  /// Enter a parse tree produced by [dscriptParser.switchStmt].
-  /// [ctx] the parse tree
-  void enterSwitchStmt(SwitchStmtContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.switchStmt].
-  /// [ctx] the parse tree
-  void exitSwitchStmt(SwitchStmtContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.caseStmt].
-  /// [ctx] the parse tree
-  void enterCaseStmt(CaseStmtContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.caseStmt].
-  /// [ctx] the parse tree
-  void exitCaseStmt(CaseStmtContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.defaultStmt].
-  /// [ctx] the parse tree
-  void enterDefaultStmt(DefaultStmtContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.defaultStmt].
-  /// [ctx] the parse tree
-  void exitDefaultStmt(DefaultStmtContext ctx);
-
   /// Enter a parse tree produced by [dscriptParser.tryStmt].
   /// [ctx] the parse tree
   void enterTryStmt(TryStmtContext ctx);

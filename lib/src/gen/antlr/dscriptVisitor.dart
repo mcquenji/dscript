@@ -150,21 +150,6 @@ abstract class dscriptVisitor<T> extends ParseTreeVisitor<T> {
   /// Return the visitor result.
   T? visitContinueStmt(ContinueStmtContext ctx);
 
-  /// Visit a parse tree produced by [dscriptParser.switchStmt].
-  /// [ctx] the parse tree.
-  /// Return the visitor result.
-  T? visitSwitchStmt(SwitchStmtContext ctx);
-
-  /// Visit a parse tree produced by [dscriptParser.caseStmt].
-  /// [ctx] the parse tree.
-  /// Return the visitor result.
-  T? visitCaseStmt(CaseStmtContext ctx);
-
-  /// Visit a parse tree produced by [dscriptParser.defaultStmt].
-  /// [ctx] the parse tree.
-  /// Return the visitor result.
-  T? visitDefaultStmt(DefaultStmtContext ctx);
-
   /// Visit a parse tree produced by [dscriptParser.tryStmt].
   /// [ctx] the parse tree.
   /// Return the visitor result.

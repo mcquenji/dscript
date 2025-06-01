@@ -127,18 +127,6 @@ class dscriptBaseVisitor<T> extends ParseTreeVisitor<T> implements dscriptVisito
   /// The default implementation returns the result of calling
   /// [visitChildren] on [ctx].
   @override
-  T? visitSwitchStmt(SwitchStmtContext ctx) => visitChildren(ctx);
-  /// The default implementation returns the result of calling
-  /// [visitChildren] on [ctx].
-  @override
-  T? visitCaseStmt(CaseStmtContext ctx) => visitChildren(ctx);
-  /// The default implementation returns the result of calling
-  /// [visitChildren] on [ctx].
-  @override
-  T? visitDefaultStmt(DefaultStmtContext ctx) => visitChildren(ctx);
-  /// The default implementation returns the result of calling
-  /// [visitChildren] on [ctx].
-  @override
   T? visitTryStmt(TryStmtContext ctx) => visitChildren(ctx);
   /// The default implementation returns the result of calling
   /// [visitChildren] on [ctx].

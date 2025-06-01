@@ -31,7 +31,11 @@ permission:
 
 // The single contract
 contract:
-	CONTRACT identifier OPEN_BRACE (hook | impl | func)* CLOSE_BRACE;
+	CONTRACT identifier OPEN_BRACE (varDecl SEMI)* (
+		hook
+		| impl
+		| func
+	)* CLOSE_BRACE;
 
 // Hooks and impls
 hook: HOOK identifier OPEN_PAREN params? CLOSE_PAREN block;
@@ -61,8 +65,8 @@ stmt:
 	| ifStmt
 	| whileStmt
 	| forStmt
-	| tryStmt
-	| switchStmt;
+	| tryStmt;
+// switch postponed | switchStmt;
 
 throwStmt: THROW expr;
 
@@ -77,10 +81,9 @@ forStmt:
 returnStmt: RETURN expr?;
 breakStmt: BREAK;
 continueStmt: CONTINUE;
-switchStmt:
-	SWITCH OPEN_PAREN expr CLOSE_PAREN OPEN_BRACE caseStmt* defaultStmt? CLOSE_BRACE;
-caseStmt: CASE expr COLON block;
-defaultStmt: DEFAULT COLON block;
+// switch is postponed until further notice switchStmt: SWITCH OPEN_PAREN expr CLOSE_PAREN
+// OPEN_BRACE caseStmt* defaultStmt? CLOSE_BRACE; caseStmt: CASE (literal | identifier) COLON block;
+// defaultStmt: DEFAULT COLON block;
 /*
  * Try block for exception handling.
  */
@@ -241,7 +244,7 @@ block: (OPEN_BRACE line* CLOSE_BRACE)
 	| ifStmt
 	| whileStmt
 	| forStmt
-	| switchStmt
+	//| switchStmt
 	| tryStmt
 	| catchBlock;
 

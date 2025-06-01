@@ -321,8 +321,8 @@ class ExprVisitor extends AnalysisVisitor {
 
     if (type == null) {
       report(
-        SemanticError(
-          'Undefined identifier: "${ctx.text}"',
+        UndefinedError(
+          ctx.text,
           ctx: ctx,
         ),
       );
