@@ -204,7 +204,7 @@ sealed class $Type extends Signature {
   $Type? lookup(List<$Type> types) {
     for (final type in types) {
       if (type.name == name) {
-        return type;
+        return type.asNullable(nullable);
       }
     }
 
@@ -520,7 +520,7 @@ class Struct extends $Type {
   /// Represents a custom object type.
   const Struct({
     required super.name,
-    required this.fields,
+    this.fields = const {},
     super.nullable = false,
     super.description,
   });
@@ -547,7 +547,23 @@ class Struct extends $Type {
   }
 
   @override
-  bool canCast($Type other) => other == const DynamicType();
+  bool canCast($Type other) {
+    if (other.name == name && other is Struct) {
+      if (other.nullable && nullable) {
+        return true;
+      }
+
+      if (!other.nullable && nullable) {
+        return false;
+      }
+
+      if (other.nullable && !nullable) {
+        return true;
+      }
+    }
+
+    return other == const DynamicType();
+  }
 }
 
 /// Signature of a contract.

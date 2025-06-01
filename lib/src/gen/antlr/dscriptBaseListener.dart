@@ -28,6 +28,14 @@ class dscriptBaseListener implements dscriptListener {
 
   /// The default implementation does nothing.
   @override
+  void enterSchema(SchemaContext ctx) {}
+
+  /// The default implementation does nothing.
+  @override
+  void exitSchema(SchemaContext ctx) {}
+
+  /// The default implementation does nothing.
+  @override
   void enterAuthor(AuthorContext ctx) {}
 
   /// The default implementation does nothing.
@@ -401,6 +409,14 @@ class dscriptBaseListener implements dscriptListener {
   /// The default implementation does nothing.
   @override
   void exitUnaryExpr(UnaryExprContext ctx) {}
+
+  /// The default implementation does nothing.
+  @override
+  void enterSuffixExpr(SuffixExprContext ctx) {}
+
+  /// The default implementation does nothing.
+  @override
+  void exitSuffixExpr(SuffixExprContext ctx) {}
 
   /// The default implementation does nothing.
   @override

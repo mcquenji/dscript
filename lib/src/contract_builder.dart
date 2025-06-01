@@ -31,9 +31,7 @@ class ContractSignatureBuilder {
   /// Adds a new struct definition with the specified [name], returning
   /// a [StructBuilder] to configure fields and description.
   StructBuilder struct(String name) {
-    final builder = StructBuilder(name);
-    builder._parent = this;
-    _structs.add(builder.build());
+    final builder = StructBuilder(name, this);
     return builder;
   }
 
@@ -132,8 +130,8 @@ class BindingBuilder<T> {
       throw StateError(
           'BindingBuilder must be attached to a parent ContractSignatureBuilder to call end()');
     }
-    _parent!._addBinding(build());
-    return _parent!;
+    _parent._addBinding(build());
+    return _parent;
   }
 
   /// Builds the immutable [RuntimeBinding] instance.
@@ -185,8 +183,8 @@ class ImplBuilder {
       throw StateError(
           'ImplBuilder must be attached to a parent ContractSignatureBuilder to call end()');
     }
-    _parent!._addImpl(build());
-    return _parent!;
+    _parent._addImpl(build());
+    return _parent;
   }
 
   /// Builds the immutable [ImplementationSignature].
@@ -235,8 +233,8 @@ class HookBuilder {
       throw StateError(
           'HookBuilder must be attached to a parent ContractSignatureBuilder to call end()');
     }
-    _parent!._addHook(build());
-    return _parent!;
+    _parent._addHook(build());
+    return _parent;
   }
 
   /// Builds the immutable [HookSignature].
@@ -257,10 +255,10 @@ class StructBuilder {
   final String _name;
   final Map<String, $Type> _fields = {};
   String _description = '';
-  ContractSignatureBuilder? _parent;
+  final ContractSignatureBuilder? _parent;
 
   /// Creates a struct builder with the given [name].
-  StructBuilder(this._name);
+  StructBuilder(this._name, this._parent);
 
   /// Adds a field named [name] of [type] to the struct.
   StructBuilder field(String name, $Type type) {
@@ -284,8 +282,8 @@ class StructBuilder {
       throw StateError(
           'StructBuilder must be attached to a parent ContractSignatureBuilder to call end()');
     }
-    _parent!._addStruct(build());
-    return _parent!;
+    _parent._addStruct(build());
+    return _parent;
   }
 
   /// Builds the immutable [Struct] definition.
@@ -303,7 +301,7 @@ ContractSignatureBuilder contract(String name) =>
     ContractSignatureBuilder(name);
 
 /// Shorthand to start a standalone [StructBuilder].
-StructBuilder struct(String name) => StructBuilder(name);
+StructBuilder struct(String name) => StructBuilder(name, null);
 
 /// Shorthand to start a standalone [HookBuilder].
 HookBuilder hook(String name) => HookBuilder(null, name);

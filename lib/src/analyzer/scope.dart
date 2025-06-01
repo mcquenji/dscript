@@ -12,8 +12,12 @@ class TypeScope {
   /// If this scope has returned a value, this will be set to the type of the returned value.
   $Type? returned;
 
+  /// If this scope is a fork of another scope for branching,
+  /// this will be true.
+  final bool isFork;
+
   /// Same as [Scope] but only stores the types of variables and not their values.
-  TypeScope(this._parent, {$Type? returnType})
+  TypeScope(this._parent, {$Type? returnType, this.isFork = false})
       : returnType = returnType ?? _parent?.returnType;
 
   final Map<String, $Type> _types =
@@ -57,10 +61,14 @@ class TypeScope {
     }
 
     returned = type;
-    // TODO: figure out how to propagate to the parent scope for branches.
-    // When we propagate from within an if statement and mark the parent scope as returned,
-    // this does not ensure that the function actually returns a value in all branches.
-    _parent?.markReturned(type);
+
+    // Only propagate the returned type to the parent scope if this is not a fork.
+    // If this is a fork, we don't want to propagate the returned type to the parent
+    // because this scope is a possible branch of a function and we thus can't assume
+    // that the parent scope has returned a value as well.
+    if (!isFork) {
+      _parent?.markReturned(type);
+    }
   }
 
   /// Returns true if a variable is defined directly in this scope.
@@ -111,5 +119,10 @@ class TypeScope {
   /// Returns the root scope of this scope.
   TypeScope get root {
     return _parent?.root ?? this;
+  }
+
+  /// Creates a child scope of this scope.
+  TypeScope fork() {
+    return TypeScope(this, returnType: returnType, isFork: true);
   }
 }

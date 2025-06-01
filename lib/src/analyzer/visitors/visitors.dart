@@ -2,6 +2,7 @@ import 'package:antlr4/antlr4.dart';
 import 'package:collection/collection.dart';
 import 'package:dscript/dscript.dart' hide contract;
 import 'package:dscript/src/gen/antlr/dscriptBaseVisitor.dart';
+import 'package:dscript/src/gen/antlr/dscriptLexer.dart';
 import 'package:dscript/src/gen/antlr/dscriptParser.dart';
 import 'package:dscript/src/stdlib/stdlib.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -12,6 +13,7 @@ part 'contract.dart';
 part 'expressions.dart';
 part 'block.dart';
 part 'stmts.dart';
+part 'flow.dart';
 
 extension on TerminalNode {
   String? get innerText {

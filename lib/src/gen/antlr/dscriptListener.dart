@@ -21,6 +21,13 @@ abstract class dscriptListener extends ParseTreeListener {
   /// [ctx] the parse tree
   void exitMetadata(MetadataContext ctx);
 
+  /// Enter a parse tree produced by [dscriptParser.schema].
+  /// [ctx] the parse tree
+  void enterSchema(SchemaContext ctx);
+  /// Exit a parse tree produced by [dscriptParser.schema].
+  /// [ctx] the parse tree
+  void exitSchema(SchemaContext ctx);
+
   /// Enter a parse tree produced by [dscriptParser.author].
   /// [ctx] the parse tree
   void enterAuthor(AuthorContext ctx);
@@ -349,6 +356,13 @@ abstract class dscriptListener extends ParseTreeListener {
   /// Exit a parse tree produced by [dscriptParser.unaryExpr].
   /// [ctx] the parse tree
   void exitUnaryExpr(UnaryExprContext ctx);
+
+  /// Enter a parse tree produced by [dscriptParser.suffixExpr].
+  /// [ctx] the parse tree
+  void enterSuffixExpr(SuffixExprContext ctx);
+  /// Exit a parse tree produced by [dscriptParser.suffixExpr].
+  /// [ctx] the parse tree
+  void exitSuffixExpr(SuffixExprContext ctx);
 
   /// Enter a parse tree produced by [dscriptParser.primaryExpr].
   /// [ctx] the parse tree

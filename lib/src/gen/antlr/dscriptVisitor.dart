@@ -20,6 +20,11 @@ abstract class dscriptVisitor<T> extends ParseTreeVisitor<T> {
   /// Return the visitor result.
   T? visitMetadata(MetadataContext ctx);
 
+  /// Visit a parse tree produced by [dscriptParser.schema].
+  /// [ctx] the parse tree.
+  /// Return the visitor result.
+  T? visitSchema(SchemaContext ctx);
+
   /// Visit a parse tree produced by [dscriptParser.author].
   /// [ctx] the parse tree.
   /// Return the visitor result.
@@ -254,6 +259,11 @@ abstract class dscriptVisitor<T> extends ParseTreeVisitor<T> {
   /// [ctx] the parse tree.
   /// Return the visitor result.
   T? visitUnaryExpr(UnaryExprContext ctx);
+
+  /// Visit a parse tree produced by [dscriptParser.suffixExpr].
+  /// [ctx] the parse tree.
+  /// Return the visitor result.
+  T? visitSuffixExpr(SuffixExprContext ctx);
 
   /// Visit a parse tree produced by [dscriptParser.primaryExpr].
   /// [ctx] the parse tree.

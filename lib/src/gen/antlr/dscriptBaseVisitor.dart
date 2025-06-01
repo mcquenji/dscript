@@ -23,6 +23,10 @@ class dscriptBaseVisitor<T> extends ParseTreeVisitor<T> implements dscriptVisito
   /// The default implementation returns the result of calling
   /// [visitChildren] on [ctx].
   @override
+  T? visitSchema(SchemaContext ctx) => visitChildren(ctx);
+  /// The default implementation returns the result of calling
+  /// [visitChildren] on [ctx].
+  @override
   T? visitAuthor(AuthorContext ctx) => visitChildren(ctx);
   /// The default implementation returns the result of calling
   /// [visitChildren] on [ctx].
@@ -208,6 +212,10 @@ class dscriptBaseVisitor<T> extends ParseTreeVisitor<T> implements dscriptVisito
   /// [visitChildren] on [ctx].
   @override
   T? visitUnaryExpr(UnaryExprContext ctx) => visitChildren(ctx);
+  /// The default implementation returns the result of calling
+  /// [visitChildren] on [ctx].
+  @override
+  T? visitSuffixExpr(SuffixExprContext ctx) => visitChildren(ctx);
   /// The default implementation returns the result of calling
   /// [visitChildren] on [ctx].
   @override

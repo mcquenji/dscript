@@ -1,3 +1,5 @@
+schema "";	
+
 author "McQuenji";
 version 0.0.1;
 name "TestScript";
@@ -15,12 +17,23 @@ contract Random {
   impl randomNumber(int foo) -> double {
     log::info(string::from(5));
 
-    return external::double(math::floor(foo * pi));
+    if(5 == foo) {
+      return 1.0;
+    }else if(5 < foo && foo < 10) {
+      return 4;
+    }else {
+      return external::double(math::floor(foo * pi));
+    }
   }
 
 
   impl randomString() -> string 
   {
+    while(true) {
+      log::info("Generating random string...");
+      break;
+    }
+
     return "Random String";
   }
 
@@ -46,10 +59,25 @@ contract Random {
     // return "Logout successful!";
   }
 
-  hook onLogin(string username) {
+  hook onLogin(User user) {
     // Hook implementation
 
     // return math::floor(1.5);
+
+    log::info("User logged in: " + user.name);
+
+    final User? test = @User {
+      name: "TestUser",
+      id : 12345
+    };
+
+    final Map<string, string>? map = {"key1": "value1", "key2": "value2"};
+    final array = [1, 2, 3, 4, 5];
+
+    log::info("Map: " + array[1]);
+
+    final int x = array[1]! + 0;
+    final string name = test!.name;
   }
 
 }
