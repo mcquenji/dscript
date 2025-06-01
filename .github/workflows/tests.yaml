@@ -33,6 +33,7 @@ jobs:
         with:
           name: test-results
           path: test-results.json
+        continue-on-error: true
 
       - name: 💬 Report Results
         uses: dorny/test-reporter@v2.1.0
