@@ -30,12 +30,16 @@ class FlowVisitor extends AnalysisVisitor {
       ));
     }
 
+    // TODO: Handle constant expressions for true/false conditions
+    // This is a simple check, but it can be improved with constant folding.
     if (ctx.text == 'true') {
       report(SemanticWarning(
           'Condition is always true, this branch will always execute.',
           ctx: ctx));
     }
 
+    // TODO: Handle constant expressions for true/false conditions
+    // This is a simple check, but it can be improved with constant folding.
     if (ctx.text == 'false') {
       report(SemanticWarning(
           'Condition is always false, this branch will never execute.',
