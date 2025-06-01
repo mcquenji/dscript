@@ -295,7 +295,7 @@ DOLLAR: '$';
 // Keywords
 
 /*
- * Schmea keyword declaring the script's schema it's following.
+ * Schema keyword declaring the script's schema it's following.
  */
 SCHEMA: 'schema';
 
