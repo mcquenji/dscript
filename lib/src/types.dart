@@ -549,6 +549,9 @@ class Struct extends $Type {
   @override
   bool canCast($Type other) {
     if (other.name == name && other is Struct) {
+      if (!nullable && !other.nullable) {
+        return true;
+      }
       if (other.nullable && nullable) {
         return true;
       }
