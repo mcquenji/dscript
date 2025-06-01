@@ -35,12 +35,4 @@ jobs:
           name: test-results
           path: test-results.json
 
-      - name: 💬 Report Results
-        uses: dorny/test-reporter@v2.1.0
-        with:
-            artifact: test-results
-            name: 🧪 Unit Tests
-            path: test-results.json
-            reporter: dart-json
-            fail-on-empty: true
-            fail-on-error: true
+  
