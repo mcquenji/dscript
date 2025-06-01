@@ -71,12 +71,12 @@ contract Random {
       id : 12345
     };
 
-    final Map<string, string>? map = {"key1": "value1", "key2": "value2"};
+    final  map = {"key1": user};
     final array = [1, 2, 3, 4, 5];
 
-    log::info("Map: " + array[1]);
+    log::info("Map: " + map["key1"].name);
 
-    final int x = array[1]! + 0;
+    final int x = array[1]!;
     final string name = test!.name;
   }
 

@@ -2,7 +2,7 @@ grammar dscript;
 
 // ------ GRAMMAR RULES ------ //
 
-script: schema metadata* permissions* contract EOF;
+script: schema? metadata* permissions* contract EOF;
 
 // Top-level metadata
 
