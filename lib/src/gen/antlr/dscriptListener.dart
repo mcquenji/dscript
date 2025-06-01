@@ -252,27 +252,6 @@ abstract class dscriptListener extends ParseTreeListener {
   /// [ctx] the parse tree
   void exitCompoundAssignment(CompoundAssignmentContext ctx);
 
-  /// Enter a parse tree produced by [dscriptParser.propertyAssignment].
-  /// [ctx] the parse tree
-  void enterPropertyAssignment(PropertyAssignmentContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.propertyAssignment].
-  /// [ctx] the parse tree
-  void exitPropertyAssignment(PropertyAssignmentContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.indexAssignment].
-  /// [ctx] the parse tree
-  void enterIndexAssignment(IndexAssignmentContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.indexAssignment].
-  /// [ctx] the parse tree
-  void exitIndexAssignment(IndexAssignmentContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.indexPropertyAssignment].
-  /// [ctx] the parse tree
-  void enterIndexPropertyAssignment(IndexPropertyAssignmentContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.indexPropertyAssignment].
-  /// [ctx] the parse tree
-  void exitIndexPropertyAssignment(IndexPropertyAssignmentContext ctx);
-
   /// Enter a parse tree produced by [dscriptParser.varDecl].
   /// [ctx] the parse tree
   void enterVarDecl(VarDeclContext ctx);

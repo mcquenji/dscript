@@ -185,21 +185,6 @@ abstract class dscriptVisitor<T> extends ParseTreeVisitor<T> {
   /// Return the visitor result.
   T? visitCompoundAssignment(CompoundAssignmentContext ctx);
 
-  /// Visit a parse tree produced by [dscriptParser.propertyAssignment].
-  /// [ctx] the parse tree.
-  /// Return the visitor result.
-  T? visitPropertyAssignment(PropertyAssignmentContext ctx);
-
-  /// Visit a parse tree produced by [dscriptParser.indexAssignment].
-  /// [ctx] the parse tree.
-  /// Return the visitor result.
-  T? visitIndexAssignment(IndexAssignmentContext ctx);
-
-  /// Visit a parse tree produced by [dscriptParser.indexPropertyAssignment].
-  /// [ctx] the parse tree.
-  /// Return the visitor result.
-  T? visitIndexPropertyAssignment(IndexPropertyAssignmentContext ctx);
-
   /// Visit a parse tree produced by [dscriptParser.varDecl].
   /// [ctx] the parse tree.
   /// Return the visitor result.

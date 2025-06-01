@@ -155,18 +155,6 @@ class dscriptBaseVisitor<T> extends ParseTreeVisitor<T> implements dscriptVisito
   /// The default implementation returns the result of calling
   /// [visitChildren] on [ctx].
   @override
-  T? visitPropertyAssignment(PropertyAssignmentContext ctx) => visitChildren(ctx);
-  /// The default implementation returns the result of calling
-  /// [visitChildren] on [ctx].
-  @override
-  T? visitIndexAssignment(IndexAssignmentContext ctx) => visitChildren(ctx);
-  /// The default implementation returns the result of calling
-  /// [visitChildren] on [ctx].
-  @override
-  T? visitIndexPropertyAssignment(IndexPropertyAssignmentContext ctx) => visitChildren(ctx);
-  /// The default implementation returns the result of calling
-  /// [visitChildren] on [ctx].
-  @override
   T? visitVarDecl(VarDeclContext ctx) => visitChildren(ctx);
   /// The default implementation returns the result of calling
   /// [visitChildren] on [ctx].

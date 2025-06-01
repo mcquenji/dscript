@@ -34,12 +34,12 @@ class LogBindings extends LibraryBinding {
   /// Binding for info logging.
   late final infoBinding = RuntimeBinding<void>(
     name: 'info',
-    function: (String message, {String? error}) => logger.info(message, error),
+    function: (dynamic message, {dynamic error}) => logger.info(message, error),
     positionalParams: [
-      PrimitiveType.STRING,
+      const DynamicType(),
     ],
     namedParams: {
-      #error: PrimitiveType.STRING.asNullable(),
+      #error: const DynamicType(),
     },
     description: 'Logs an info message.',
   );
@@ -47,13 +47,13 @@ class LogBindings extends LibraryBinding {
   /// Binding for warning logging.
   late final warningBinding = RuntimeBinding<void>(
     name: 'warning',
-    function: (String message, {String? error}) =>
+    function: (dynamic message, {dynamic error}) =>
         logger.warning(message, error),
     positionalParams: [
-      PrimitiveType.STRING,
+      const DynamicType(),
     ],
     namedParams: {
-      #error: PrimitiveType.STRING.asNullable(),
+      #error: const DynamicType(),
     },
     description: 'Logs a warning message.',
   );
@@ -61,14 +61,14 @@ class LogBindings extends LibraryBinding {
   /// Binding for error logging.
   late final errorBinding = RuntimeBinding<void>(
     name: 'error',
-    function: (String message, {String? error}) {
+    function: (dynamic message, {dynamic error}) {
       logger.severe(message, error);
     },
     positionalParams: [
-      PrimitiveType.STRING,
+      const DynamicType(),
     ],
     namedParams: {
-      #error: PrimitiveType.STRING.asNullable(),
+      #error: const DynamicType(),
     },
     description: 'Logs an error message.',
   );
@@ -76,12 +76,12 @@ class LogBindings extends LibraryBinding {
   /// Binding for debug logging.
   late final debugBinding = RuntimeBinding<void>(
     name: 'debug',
-    function: (String message, {String? error}) => logger.fine(message, error),
+    function: (dynamic message, {dynamic error}) => logger.fine(message, error),
     positionalParams: [
-      PrimitiveType.STRING,
+      const DynamicType(),
     ],
     namedParams: {
-      #error: PrimitiveType.STRING.asNullable(),
+      #error: const DynamicType(),
     },
     description: 'Logs a debug message.',
   );
@@ -89,12 +89,13 @@ class LogBindings extends LibraryBinding {
   /// Binding for verbose logging.
   late final verboseBinding = RuntimeBinding<void>(
     name: 'verbose',
-    function: (String message, {String? error}) => logger.finer(message, error),
+    function: (dynamic message, {dynamic error}) =>
+        logger.finer(message, error),
     positionalParams: [
-      PrimitiveType.STRING,
+      const DynamicType(),
     ],
     namedParams: {
-      #error: PrimitiveType.STRING.asNullable(),
+      #error: const DynamicType(),
     },
     description: 'Logs a verbose message.',
   );
@@ -102,12 +103,13 @@ class LogBindings extends LibraryBinding {
   /// Binding for fatal logging.
   late final fatalBinding = RuntimeBinding<void>(
     name: 'fatal',
-    function: (String message, {String? error}) => logger.shout(message, error),
+    function: (dynamic message, {dynamic error}) =>
+        logger.shout(message, error),
     positionalParams: [
-      PrimitiveType.STRING,
+      const DynamicType(),
     ],
     namedParams: {
-      #error: PrimitiveType.STRING.asNullable(),
+      #error: const DynamicType(),
     },
     description: 'Logs a fatal message.',
   );
@@ -115,12 +117,13 @@ class LogBindings extends LibraryBinding {
   /// Binding for critical logging.
   late final criticalBinding = RuntimeBinding<void>(
     name: 'critical',
-    function: (String message, {String? error}) => logger.shout(message, error),
+    function: (dynamic message, {dynamic error}) =>
+        logger.shout(message, error),
     positionalParams: [
-      PrimitiveType.STRING,
+      const DynamicType(),
     ],
     namedParams: {
-      #error: PrimitiveType.STRING.asNullable(),
+      #error: const DynamicType(),
     },
     description: 'Logs a critical message.',
   );

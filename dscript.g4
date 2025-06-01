@@ -97,12 +97,7 @@ line: (stmt | expr) SEMI | block;
 
 // Variable declarations & assignments
 varType: FINAL | CONST | VAR;
-assignment:
-	simpleAssignment
-	| compoundAssignment
-	| propertyAssignment
-	| indexAssignment
-	| indexPropertyAssignment;
+assignment: simpleAssignment | compoundAssignment;
 
 simpleAssignment: identifier ASSIGN expr;
 
@@ -113,13 +108,6 @@ compoundAssignment:
 	| identifier op = DIVIDE_ASSIGN expr
 	| identifier op = MOD_ASSIGN expr;
 
-propertyAssignment: identifier DOT identifier ASSIGN expr;
-
-indexAssignment:
-	identifier OPEN_BRACKET expr CLOSE_BRACKET ASSIGN expr;
-
-indexPropertyAssignment:
-	identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier ASSIGN expr;
 varDecl:
 	varType dataType identifier
 	| varType dataType? assignment;

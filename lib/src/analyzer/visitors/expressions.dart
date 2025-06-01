@@ -253,22 +253,19 @@ class ExprVisitor extends AnalysisVisitor {
     if (ctx.objIdent != null) {
       // we're accessing a property of an object, like `obj.prop`
 
-      final objType = ctx.objIdent!.accept(this)?.lookup(contract.structs);
+      final rawType = ctx.objIdent!.accept(this);
+      final objType = rawType?.lookup(contract.structs);
 
       if (objType == null) {
-        return report(InferenceError(ctx: ctx));
-      }
-
-      bool nullable = objType.nullable && ctx.objIdent!.nullAware == null;
-
-      if (objType is! Struct) {
         return report(
           SemanticError(
-            "Cannot access properties of type '$objType'",
+            "Cannot access properties of type '$rawType'",
             ctx: ctx,
           ),
         );
       }
+
+      bool nullable = objType.nullable && ctx.objIdent!.nullAware == null;
 
       final propName = ctx.property!.ident!.text!;
       var propType = objType.fields[propName];
@@ -322,7 +319,7 @@ class ExprVisitor extends AnalysisVisitor {
     if (type == null) {
       report(
         UndefinedError(
-          ctx.text,
+          ctx.ident!.text!,
           ctx: ctx,
         ),
       );
@@ -498,12 +495,11 @@ class ExprVisitor extends AnalysisVisitor {
 
   @override
   $Type? visitObjectLiteral(ObjectLiteralContext ctx) {
-    final type =
-        $Type.from(ctx.identifier()!.text).lookup(contract.structs) as Struct?;
+    final type = $Type.from(ctx.identifier()!.text).lookup(contract.structs);
 
     if (type == null) {
       report(
-        SemanticError('Unknown type: "${ctx.identifier()!.text}"', ctx: ctx),
+        SemanticError("Unknown type: '${ctx.identifier()!.text}'", ctx: ctx),
       );
       return const InvalidType();
     }

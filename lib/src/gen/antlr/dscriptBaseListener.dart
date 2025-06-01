@@ -292,30 +292,6 @@ class dscriptBaseListener implements dscriptListener {
 
   /// The default implementation does nothing.
   @override
-  void enterPropertyAssignment(PropertyAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitPropertyAssignment(PropertyAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterIndexAssignment(IndexAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitIndexAssignment(IndexAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterIndexPropertyAssignment(IndexPropertyAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitIndexPropertyAssignment(IndexPropertyAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
   void enterVarDecl(VarDeclContext ctx) {}
 
   /// The default implementation does nothing.

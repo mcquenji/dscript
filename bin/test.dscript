@@ -19,6 +19,7 @@ contract Random {
   impl randomNumber(int foo) -> double {
     log::info(string::from(5 + bar));
 
+
     if(5 == foo) {
       return 1.0;
     }else if(5 < foo && foo < 10) {
@@ -36,7 +37,13 @@ contract Random {
       break;
     }
 
-    return "Random String";
+     try {
+      log::info("test");
+      return 'test';
+    } catch (e) {
+      log::error("Error", error: e);
+      return e.message;
+    }
   }
 
   impl test() -> void {
@@ -72,6 +79,8 @@ contract Random {
       name: "TestUser",
       id : 12345
     };
+
+  
 
     final  map = {"key1": user};
     final array = [1, 2, 3, 4, 5];

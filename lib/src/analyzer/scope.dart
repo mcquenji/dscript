@@ -18,10 +18,12 @@ class TypeScope {
 
   /// Same as [Scope] but only stores the types of variables and not their values.
   TypeScope(this._parent, {$Type? returnType, this.isFork = false})
-      : returnType = returnType ?? _parent?.returnType;
+      : returnType = returnType ?? _parent?.returnType,
+        _types = _parent == null
+            ? Scope().variables.map((name, v) => MapEntry(name, v.value.type))
+            : <String, $Type>{};
 
-  final Map<String, $Type> _types =
-      Scope().variables.map((name, v) => MapEntry(name, v.value.type));
+  final Map<String, $Type> _types;
 
   /// List of mutable variables in this scope.
   final List<String> _mutables = [];

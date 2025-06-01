@@ -201,10 +201,16 @@ sealed class $Type extends Signature {
   }
 
   /// Converts the type to a map.
-  $Type? lookup(List<$Type> types) {
+  Struct? lookup(List<Struct> types) {
     for (final type in types) {
       if (type.name == name) {
-        return type.asNullable(nullable);
+        return type.asNullable(nullable) as Struct;
+      }
+    }
+
+    for (final type in Struct.defaults) {
+      if (type.name == name) {
+        return type.asNullable(nullable) as Struct;
       }
     }
 
@@ -567,6 +573,20 @@ class Struct extends $Type {
 
     return other == const DynamicType();
   }
+
+  /// Stdandard error struct used in DScript.
+  static final error = Struct(
+    name: 'Error',
+    fields: {
+      'message': PrimitiveType.STRING,
+      'stackTrace': PrimitiveType.STRING.asNullable(),
+    },
+    nullable: false,
+    description: 'Represents an error with a message and stack trace.',
+  );
+
+  /// Default structs defined within the language.
+  static final defaults = [error];
 }
 
 /// Signature of a contract.
@@ -673,7 +693,7 @@ class DynamicType extends $Type {
   /// Dynamic Type meaning the type is not known at compile time.
   ///
   /// This type cannot be used inside the dscript language it is only used for [RuntimeBinding]s to accept any type of value.
-  const DynamicType() : super(name: 'dynamic', nullable: false);
+  const DynamicType() : super(name: 'dynamic', nullable: true);
 
   @override
   Map<String, dynamic> toMap() {

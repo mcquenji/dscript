@@ -96,4 +96,37 @@ class FlowVisitor extends AnalysisVisitor {
 
     return const InvalidType();
   }
+
+  @override
+  $Type? visitTryStmt(TryStmtContext ctx) {
+    scope = scope.fork();
+
+    ctx.block()?.accept(BlockVisitor(this));
+
+    final tryReturned = scope.returned != null;
+    scope = scope.pop();
+
+    final catchBlock = ctx.catchBlock();
+    if (catchBlock != null) {
+      scope = scope.fork();
+
+      final ident = catchBlock.identifier()!.text;
+      scope.set(
+        ident,
+        Struct.error,
+        false,
+      );
+
+      catchBlock.block()?.accept(BlockVisitor(this));
+
+      final catchReturned = scope.returned != null;
+      scope = scope.pop();
+
+      if (tryReturned && catchReturned) {
+        scope.markReturned(scope.returnType);
+      }
+    }
+
+    return const InvalidType();
+  }
 }

@@ -15,16 +15,15 @@ const int RULE_script = 0, RULE_metadata = 1, RULE_schema = 2, RULE_author = 3,
           RULE_forStmt = 24, RULE_returnStmt = 25, RULE_breakStmt = 26, 
           RULE_continueStmt = 27, RULE_tryStmt = 28, RULE_catchBlock = 29, 
           RULE_line = 30, RULE_varType = 31, RULE_assignment = 32, RULE_simpleAssignment = 33, 
-          RULE_compoundAssignment = 34, RULE_propertyAssignment = 35, RULE_indexAssignment = 36, 
-          RULE_indexPropertyAssignment = 37, RULE_varDecl = 38, RULE_expr = 39, 
-          RULE_logicalExpr = 40, RULE_relationalExpr = 41, RULE_bitwiseExpr = 42, 
-          RULE_shiftExpr = 43, RULE_additiveExpr = 44, RULE_multiplicativeExpr = 45, 
-          RULE_unaryExpr = 46, RULE_suffixExpr = 47, RULE_primaryExpr = 48, 
-          RULE_externalFunctionCall = 49, RULE_functionCall = 50, RULE_args = 51, 
-          RULE_namedArg = 52, RULE_positionalArg = 53, RULE_literal = 54, 
-          RULE_identifier = 55, RULE_arrayLiteral = 56, RULE_objectLiteral = 57, 
-          RULE_objectProperty = 58, RULE_mapLiteral = 59, RULE_mapEntry = 60, 
-          RULE_block = 61;
+          RULE_compoundAssignment = 34, RULE_varDecl = 35, RULE_expr = 36, 
+          RULE_logicalExpr = 37, RULE_relationalExpr = 38, RULE_bitwiseExpr = 39, 
+          RULE_shiftExpr = 40, RULE_additiveExpr = 41, RULE_multiplicativeExpr = 42, 
+          RULE_unaryExpr = 43, RULE_suffixExpr = 44, RULE_primaryExpr = 45, 
+          RULE_externalFunctionCall = 46, RULE_functionCall = 47, RULE_args = 48, 
+          RULE_namedArg = 49, RULE_positionalArg = 50, RULE_literal = 51, 
+          RULE_identifier = 52, RULE_arrayLiteral = 53, RULE_objectLiteral = 54, 
+          RULE_objectProperty = 55, RULE_mapLiteral = 56, RULE_mapEntry = 57, 
+          RULE_block = 58;
 class dscriptParser extends Parser {
   static final checkVersion = () => RuntimeMetaData.checkVersion('4.13.2', RuntimeMetaData.VERSION);
   static const int TOKEN_EOF = IntStream.EOF;
@@ -67,10 +66,9 @@ class dscriptParser extends Parser {
     'hook', 'impl', 'func', 'params', 'param', 'dataType', 'stmt', 'throwStmt', 
     'ifStmt', 'elseStmt', 'whileStmt', 'forStmt', 'returnStmt', 'breakStmt', 
     'continueStmt', 'tryStmt', 'catchBlock', 'line', 'varType', 'assignment', 
-    'simpleAssignment', 'compoundAssignment', 'propertyAssignment', 'indexAssignment', 
-    'indexPropertyAssignment', 'varDecl', 'expr', 'logicalExpr', 'relationalExpr', 
-    'bitwiseExpr', 'shiftExpr', 'additiveExpr', 'multiplicativeExpr', 'unaryExpr', 
-    'suffixExpr', 'primaryExpr', 'externalFunctionCall', 'functionCall', 
+    'simpleAssignment', 'compoundAssignment', 'varDecl', 'expr', 'logicalExpr', 
+    'relationalExpr', 'bitwiseExpr', 'shiftExpr', 'additiveExpr', 'multiplicativeExpr', 
+    'unaryExpr', 'suffixExpr', 'primaryExpr', 'externalFunctionCall', 'functionCall', 
     'args', 'namedArg', 'positionalArg', 'literal', 'identifier', 'arrayLiteral', 
     'objectLiteral', 'objectProperty', 'mapLiteral', 'mapEntry', 'block'
   ];
@@ -131,37 +129,37 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 125;
+      state = 119;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if (_la == TOKEN_SCHEMA) {
-        state = 124;
+        state = 118;
         schema();
       }
 
-      state = 130;
+      state = 124;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while ((((_la) & ~0x3f) == 0 && ((1 << _la) & 4468415255281664) != 0)) {
-        state = 127;
+        state = 121;
         metadata();
+        state = 126;
+        errorHandler.sync(this);
+        _la = tokenStream.LA(1)!;
+      }
+      state = 130;
+      errorHandler.sync(this);
+      _la = tokenStream.LA(1)!;
+      while (_la == TOKEN_PERMISSIONS) {
+        state = 127;
+        permissions();
         state = 132;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
-      state = 136;
-      errorHandler.sync(this);
-      _la = tokenStream.LA(1)!;
-      while (_la == TOKEN_PERMISSIONS) {
-        state = 133;
-        permissions();
-        state = 138;
-        errorHandler.sync(this);
-        _la = tokenStream.LA(1)!;
-      }
-      state = 139;
+      state = 133;
       contract();
-      state = 140;
+      state = 134;
       match(TOKEN_EOF);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -177,42 +175,42 @@ class dscriptParser extends Parser {
     dynamic _localctx = MetadataContext(context, state);
     enterRule(_localctx, 2, RULE_metadata);
     try {
-      state = 149;
+      state = 143;
       errorHandler.sync(this);
       switch (tokenStream.LA(1)!) {
       case TOKEN_NAME:
         enterOuterAlt(_localctx, 1);
-        state = 142;
+        state = 136;
         name();
         break;
       case TOKEN_DESCRIPTION:
         enterOuterAlt(_localctx, 2);
-        state = 143;
+        state = 137;
         description();
         break;
       case TOKEN_AUTHOR:
         enterOuterAlt(_localctx, 3);
-        state = 144;
+        state = 138;
         author();
         break;
       case TOKEN_VERSION:
         enterOuterAlt(_localctx, 4);
-        state = 145;
+        state = 139;
         version();
         break;
       case TOKEN_LICENSE:
         enterOuterAlt(_localctx, 5);
-        state = 146;
+        state = 140;
         license();
         break;
       case TOKEN_REPO:
         enterOuterAlt(_localctx, 6);
-        state = 147;
+        state = 141;
         repo();
         break;
       case TOKEN_WEBSITE:
         enterOuterAlt(_localctx, 7);
-        state = 148;
+        state = 142;
         website();
         break;
       default:
@@ -233,11 +231,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 4, RULE_schema);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 151;
+      state = 145;
       match(TOKEN_SCHEMA);
-      state = 152;
+      state = 146;
       match(TOKEN_STRING);
-      state = 153;
+      state = 147;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -254,11 +252,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 6, RULE_author);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 155;
+      state = 149;
       match(TOKEN_AUTHOR);
-      state = 156;
+      state = 150;
       match(TOKEN_STRING);
-      state = 157;
+      state = 151;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -275,11 +273,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 8, RULE_description);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 159;
+      state = 153;
       match(TOKEN_DESCRIPTION);
-      state = 160;
+      state = 154;
       match(TOKEN_STRING);
-      state = 161;
+      state = 155;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -296,11 +294,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 10, RULE_version);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 163;
+      state = 157;
       match(TOKEN_VERSION);
-      state = 164;
+      state = 158;
       match(TOKEN_SEMVER);
-      state = 165;
+      state = 159;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -317,11 +315,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 12, RULE_license);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 167;
+      state = 161;
       match(TOKEN_LICENSE);
-      state = 168;
+      state = 162;
       match(TOKEN_STRING);
-      state = 169;
+      state = 163;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -338,11 +336,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 14, RULE_repo);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 171;
+      state = 165;
       match(TOKEN_REPO);
-      state = 172;
+      state = 166;
       match(TOKEN_STRING);
-      state = 173;
+      state = 167;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -359,11 +357,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 16, RULE_website);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 175;
+      state = 169;
       match(TOKEN_WEBSITE);
-      state = 176;
+      state = 170;
       match(TOKEN_STRING);
-      state = 177;
+      state = 171;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -380,11 +378,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 18, RULE_name);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 179;
+      state = 173;
       match(TOKEN_NAME);
-      state = 180;
+      state = 174;
       match(TOKEN_STRING);
-      state = 181;
+      state = 175;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -402,23 +400,23 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 183;
+      state = 177;
       match(TOKEN_PERMISSIONS);
-      state = 184;
+      state = 178;
       permission();
-      state = 189;
+      state = 183;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while (_la == TOKEN_COMMA) {
-        state = 185;
+        state = 179;
         match(TOKEN_COMMA);
-        state = 186;
+        state = 180;
         permission();
-        state = 191;
+        state = 185;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
-      state = 192;
+      state = 186;
       match(TOKEN_SEMI);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -435,11 +433,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 22, RULE_permission);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 194;
+      state = 188;
       _localctx.namespace = identifier(0);
-      state = 195;
+      state = 189;
       match(TOKEN_DOUBLE_COLON);
-      state = 196;
+      state = 190;
       _localctx.perm = identifier(0);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -457,51 +455,51 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 198;
+      state = 192;
       match(TOKEN_CONTRACT);
-      state = 199;
+      state = 193;
       identifier(0);
-      state = 200;
+      state = 194;
       match(TOKEN_OPEN_BRACE);
-      state = 206;
+      state = 200;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while (((((_la - 74)) & ~0x3f) == 0 && ((1 << (_la - 74)) & 7) != 0)) {
-        state = 201;
+        state = 195;
         varDecl();
-        state = 202;
+        state = 196;
         match(TOKEN_SEMI);
-        state = 208;
+        state = 202;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
-      state = 214;
+      state = 208;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while ((((_la) & ~0x3f) == 0 && ((1 << _la) & 126100789566373888) != 0)) {
-        state = 212;
+        state = 206;
         errorHandler.sync(this);
         switch (tokenStream.LA(1)!) {
         case TOKEN_HOOK:
-          state = 209;
+          state = 203;
           hook();
           break;
         case TOKEN_IMPL:
-          state = 210;
+          state = 204;
           impl();
           break;
         case TOKEN_FUNC:
-          state = 211;
+          state = 205;
           func();
           break;
         default:
           throw NoViableAltException(this);
         }
-        state = 216;
+        state = 210;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
-      state = 217;
+      state = 211;
       match(TOKEN_CLOSE_BRACE);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -519,23 +517,23 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 219;
+      state = 213;
       match(TOKEN_HOOK);
-      state = 220;
+      state = 214;
       identifier(0);
-      state = 221;
+      state = 215;
       match(TOKEN_OPEN_PAREN);
-      state = 223;
+      state = 217;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if (((((_la - 44)) & ~0x3f) == 0 && ((1 << (_la - 44)) & 274877939711) != 0)) {
-        state = 222;
+        state = 216;
         params();
       }
 
-      state = 225;
+      state = 219;
       match(TOKEN_CLOSE_PAREN);
-      state = 226;
+      state = 220;
       block();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -553,27 +551,27 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 228;
+      state = 222;
       match(TOKEN_IMPL);
-      state = 229;
+      state = 223;
       identifier(0);
-      state = 230;
+      state = 224;
       match(TOKEN_OPEN_PAREN);
-      state = 232;
+      state = 226;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if (((((_la - 44)) & ~0x3f) == 0 && ((1 << (_la - 44)) & 274877939711) != 0)) {
-        state = 231;
+        state = 225;
         params();
       }
 
-      state = 234;
+      state = 228;
       match(TOKEN_CLOSE_PAREN);
-      state = 235;
+      state = 229;
       match(TOKEN_ARROW);
-      state = 236;
+      state = 230;
       dataType();
-      state = 237;
+      state = 231;
       block();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -591,27 +589,27 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 239;
+      state = 233;
       match(TOKEN_FUNC);
-      state = 240;
+      state = 234;
       identifier(0);
-      state = 241;
+      state = 235;
       match(TOKEN_OPEN_PAREN);
-      state = 243;
+      state = 237;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if (((((_la - 44)) & ~0x3f) == 0 && ((1 << (_la - 44)) & 274877939711) != 0)) {
-        state = 242;
+        state = 236;
         params();
       }
 
-      state = 245;
+      state = 239;
       match(TOKEN_CLOSE_PAREN);
-      state = 246;
+      state = 240;
       match(TOKEN_ARROW);
-      state = 247;
+      state = 241;
       dataType();
-      state = 248;
+      state = 242;
       block();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -629,17 +627,17 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 250;
+      state = 244;
       param();
-      state = 255;
+      state = 249;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while (_la == TOKEN_COMMA) {
-        state = 251;
+        state = 245;
         match(TOKEN_COMMA);
-        state = 252;
+        state = 246;
         param();
-        state = 257;
+        state = 251;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
@@ -658,9 +656,9 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 34, RULE_param);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 258;
+      state = 252;
       dataType();
-      state = 259;
+      state = 253;
       identifier(0);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -677,60 +675,60 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 36, RULE_dataType);
     int _la;
     try {
-      state = 281;
+      state = 275;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 15, context)) {
       case 1:
         enterOuterAlt(_localctx, 1);
-        state = 261;
+        state = 255;
         identifier(0);
-        state = 263;
+        state = 257;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         if (_la == TOKEN_Q) {
-          state = 262;
+          state = 256;
           match(TOKEN_Q);
         }
 
         break;
       case 2:
         enterOuterAlt(_localctx, 2);
-        state = 265;
+        state = 259;
         match(TOKEN_LIST);
-        state = 266;
+        state = 260;
         match(TOKEN_LT);
-        state = 267;
+        state = 261;
         dataType();
-        state = 268;
+        state = 262;
         match(TOKEN_GT);
-        state = 270;
+        state = 264;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         if (_la == TOKEN_Q) {
-          state = 269;
+          state = 263;
           match(TOKEN_Q);
         }
 
         break;
       case 3:
         enterOuterAlt(_localctx, 3);
-        state = 272;
+        state = 266;
         match(TOKEN_MAP);
-        state = 273;
+        state = 267;
         match(TOKEN_LT);
-        state = 274;
+        state = 268;
         dataType();
-        state = 275;
+        state = 269;
         match(TOKEN_COMMA);
-        state = 276;
+        state = 270;
         dataType();
-        state = 277;
+        state = 271;
         match(TOKEN_GT);
-        state = 279;
+        state = 273;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         if (_la == TOKEN_Q) {
-          state = 278;
+          state = 272;
           match(TOKEN_Q);
         }
 
@@ -750,14 +748,14 @@ class dscriptParser extends Parser {
     dynamic _localctx = StmtContext(context, state);
     enterRule(_localctx, 38, RULE_stmt);
     try {
-      state = 293;
+      state = 287;
       errorHandler.sync(this);
       switch (tokenStream.LA(1)!) {
       case TOKEN_FINAL:
       case TOKEN_CONST:
       case TOKEN_VAR:
         enterOuterAlt(_localctx, 1);
-        state = 283;
+        state = 277;
         varDecl();
         break;
       case TOKEN_SCHEMA:
@@ -777,47 +775,47 @@ class dscriptParser extends Parser {
       case TOKEN_MAP:
       case TOKEN_IDENT:
         enterOuterAlt(_localctx, 2);
-        state = 284;
+        state = 278;
         assignment();
         break;
       case TOKEN_RETURN:
         enterOuterAlt(_localctx, 3);
-        state = 285;
+        state = 279;
         returnStmt();
         break;
       case TOKEN_BREAK:
         enterOuterAlt(_localctx, 4);
-        state = 286;
+        state = 280;
         breakStmt();
         break;
       case TOKEN_CONTINUE:
         enterOuterAlt(_localctx, 5);
-        state = 287;
+        state = 281;
         continueStmt();
         break;
       case TOKEN_THROW:
         enterOuterAlt(_localctx, 6);
-        state = 288;
+        state = 282;
         throwStmt();
         break;
       case TOKEN_IF:
         enterOuterAlt(_localctx, 7);
-        state = 289;
+        state = 283;
         ifStmt();
         break;
       case TOKEN_WHILE:
         enterOuterAlt(_localctx, 8);
-        state = 290;
+        state = 284;
         whileStmt();
         break;
       case TOKEN_FOR:
         enterOuterAlt(_localctx, 9);
-        state = 291;
+        state = 285;
         forStmt();
         break;
       case TOKEN_TRY:
         enterOuterAlt(_localctx, 10);
-        state = 292;
+        state = 286;
         tryStmt();
         break;
       default:
@@ -838,9 +836,9 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 40, RULE_throwStmt);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 295;
+      state = 289;
       match(TOKEN_THROW);
-      state = 296;
+      state = 290;
       expr();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -857,21 +855,21 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 42, RULE_ifStmt);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 298;
+      state = 292;
       match(TOKEN_IF);
-      state = 299;
+      state = 293;
       match(TOKEN_OPEN_PAREN);
-      state = 300;
+      state = 294;
       expr();
-      state = 301;
+      state = 295;
       match(TOKEN_CLOSE_PAREN);
-      state = 302;
+      state = 296;
       block();
-      state = 304;
+      state = 298;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 17, context)) {
       case 1:
-        state = 303;
+        state = 297;
         elseStmt();
         break;
       }
@@ -890,17 +888,17 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 44, RULE_elseStmt);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 306;
+      state = 300;
       match(TOKEN_ELSE);
-      state = 309;
+      state = 303;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 18, context)) {
       case 1:
-        state = 307;
+        state = 301;
         ifStmt();
         break;
       case 2:
-        state = 308;
+        state = 302;
         block();
         break;
       }
@@ -919,15 +917,15 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 46, RULE_whileStmt);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 311;
+      state = 305;
       match(TOKEN_WHILE);
-      state = 312;
+      state = 306;
       match(TOKEN_OPEN_PAREN);
-      state = 313;
+      state = 307;
       expr();
-      state = 314;
+      state = 308;
       match(TOKEN_CLOSE_PAREN);
-      state = 315;
+      state = 309;
       block();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -944,51 +942,51 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 48, RULE_forStmt);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 317;
+      state = 311;
       match(TOKEN_FOR);
-      state = 318;
+      state = 312;
       match(TOKEN_OPEN_PAREN);
-      state = 332;
+      state = 326;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 20, context)) {
       case 1:
-        state = 321;
+        state = 315;
         errorHandler.sync(this);
         switch (tokenStream.LA(1)!) {
         case TOKEN_FINAL:
         case TOKEN_CONST:
         case TOKEN_VAR:
-          state = 319;
+          state = 313;
           varDecl();
           break;
         case TOKEN_IDENT:
-          state = 320;
+          state = 314;
           match(TOKEN_IDENT);
           break;
         default:
           throw NoViableAltException(this);
         }
-        state = 323;
+        state = 317;
         match(TOKEN_SEMI);
-        state = 324;
+        state = 318;
         expr();
-        state = 325;
+        state = 319;
         match(TOKEN_SEMI);
-        state = 326;
+        state = 320;
         assignment();
         break;
       case 2:
-        state = 328;
+        state = 322;
         varDecl();
-        state = 329;
+        state = 323;
         match(TOKEN_IN);
-        state = 330;
+        state = 324;
         expr();
         break;
       }
-      state = 334;
+      state = 328;
       match(TOKEN_CLOSE_PAREN);
-      state = 335;
+      state = 329;
       block();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1006,13 +1004,13 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 337;
+      state = 331;
       match(TOKEN_RETURN);
-      state = 339;
+      state = 333;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if ((((_la) & ~0x3f) == 0 && ((1 << _la) & 576447558734316870) != 0) || ((((_la - 78)) & ~0x3f) == 0 && ((1 << (_la - 78)) & 63) != 0)) {
-        state = 338;
+        state = 332;
         expr();
       }
 
@@ -1031,7 +1029,7 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 52, RULE_breakStmt);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 341;
+      state = 335;
       match(TOKEN_BREAK);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1048,7 +1046,7 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 54, RULE_continueStmt);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 343;
+      state = 337;
       match(TOKEN_CONTINUE);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1065,11 +1063,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 56, RULE_tryStmt);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 345;
+      state = 339;
       match(TOKEN_TRY);
-      state = 346;
+      state = 340;
       block();
-      state = 347;
+      state = 341;
       catchBlock();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1086,15 +1084,15 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 58, RULE_catchBlock);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 349;
+      state = 343;
       match(TOKEN_CATCH);
-      state = 350;
+      state = 344;
       match(TOKEN_OPEN_PAREN);
-      state = 351;
+      state = 345;
       identifier(0);
-      state = 352;
+      state = 346;
       match(TOKEN_CLOSE_PAREN);
-      state = 353;
+      state = 347;
       block();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1110,29 +1108,29 @@ class dscriptParser extends Parser {
     dynamic _localctx = LineContext(context, state);
     enterRule(_localctx, 60, RULE_line);
     try {
-      state = 362;
+      state = 356;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 23, context)) {
       case 1:
         enterOuterAlt(_localctx, 1);
-        state = 357;
+        state = 351;
         errorHandler.sync(this);
         switch (interpreter!.adaptivePredict(tokenStream, 22, context)) {
         case 1:
-          state = 355;
+          state = 349;
           stmt();
           break;
         case 2:
-          state = 356;
+          state = 350;
           expr();
           break;
         }
-        state = 359;
+        state = 353;
         match(TOKEN_SEMI);
         break;
       case 2:
         enterOuterAlt(_localctx, 2);
-        state = 361;
+        state = 355;
         block();
         break;
       }
@@ -1152,7 +1150,7 @@ class dscriptParser extends Parser {
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 364;
+      state = 358;
       _la = tokenStream.LA(1)!;
       if (!(((((_la - 74)) & ~0x3f) == 0 && ((1 << (_la - 74)) & 7) != 0))) {
       errorHandler.recoverInline(this);
@@ -1175,33 +1173,18 @@ class dscriptParser extends Parser {
     dynamic _localctx = AssignmentContext(context, state);
     enterRule(_localctx, 64, RULE_assignment);
     try {
-      state = 371;
+      state = 362;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 24, context)) {
       case 1:
         enterOuterAlt(_localctx, 1);
-        state = 366;
+        state = 360;
         simpleAssignment();
         break;
       case 2:
         enterOuterAlt(_localctx, 2);
-        state = 367;
+        state = 361;
         compoundAssignment();
-        break;
-      case 3:
-        enterOuterAlt(_localctx, 3);
-        state = 368;
-        propertyAssignment();
-        break;
-      case 4:
-        enterOuterAlt(_localctx, 4);
-        state = 369;
-        indexAssignment();
-        break;
-      case 5:
-        enterOuterAlt(_localctx, 5);
-        state = 370;
-        indexPropertyAssignment();
         break;
       }
     } on RecognitionException catch (re) {
@@ -1219,11 +1202,11 @@ class dscriptParser extends Parser {
     enterRule(_localctx, 66, RULE_simpleAssignment);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 373;
+      state = 364;
       identifier(0);
-      state = 374;
+      state = 365;
       match(TOKEN_ASSIGN);
-      state = 375;
+      state = 366;
       expr();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1239,52 +1222,52 @@ class dscriptParser extends Parser {
     dynamic _localctx = CompoundAssignmentContext(context, state);
     enterRule(_localctx, 68, RULE_compoundAssignment);
     try {
-      state = 397;
+      state = 388;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 25, context)) {
       case 1:
         enterOuterAlt(_localctx, 1);
-        state = 377;
+        state = 368;
         identifier(0);
-        state = 378;
+        state = 369;
         _localctx.op = match(TOKEN_PLUS_ASSIGN);
-        state = 379;
+        state = 370;
         expr();
         break;
       case 2:
         enterOuterAlt(_localctx, 2);
-        state = 381;
+        state = 372;
         identifier(0);
-        state = 382;
+        state = 373;
         _localctx.op = match(TOKEN_MINUS_ASSIGN);
-        state = 383;
+        state = 374;
         expr();
         break;
       case 3:
         enterOuterAlt(_localctx, 3);
-        state = 385;
+        state = 376;
         identifier(0);
-        state = 386;
+        state = 377;
         _localctx.op = match(TOKEN_MULTIPLY_ASSIGN);
-        state = 387;
+        state = 378;
         expr();
         break;
       case 4:
         enterOuterAlt(_localctx, 4);
-        state = 389;
+        state = 380;
         identifier(0);
-        state = 390;
+        state = 381;
         _localctx.op = match(TOKEN_DIVIDE_ASSIGN);
-        state = 391;
+        state = 382;
         expr();
         break;
       case 5:
         enterOuterAlt(_localctx, 5);
-        state = 393;
+        state = 384;
         identifier(0);
-        state = 394;
+        state = 385;
         _localctx.op = match(TOKEN_MOD_ASSIGN);
-        state = 395;
+        state = 386;
         expr();
         break;
       }
@@ -1298,118 +1281,35 @@ class dscriptParser extends Parser {
     return _localctx;
   }
 
-  PropertyAssignmentContext propertyAssignment() {
-    dynamic _localctx = PropertyAssignmentContext(context, state);
-    enterRule(_localctx, 70, RULE_propertyAssignment);
-    try {
-      enterOuterAlt(_localctx, 1);
-      state = 399;
-      identifier(0);
-      state = 400;
-      match(TOKEN_DOT);
-      state = 401;
-      identifier(0);
-      state = 402;
-      match(TOKEN_ASSIGN);
-      state = 403;
-      expr();
-    } on RecognitionException catch (re) {
-      _localctx.exception = re;
-      errorHandler.reportError(this, re);
-      errorHandler.recover(this, re);
-    } finally {
-      exitRule();
-    }
-    return _localctx;
-  }
-
-  IndexAssignmentContext indexAssignment() {
-    dynamic _localctx = IndexAssignmentContext(context, state);
-    enterRule(_localctx, 72, RULE_indexAssignment);
-    try {
-      enterOuterAlt(_localctx, 1);
-      state = 405;
-      identifier(0);
-      state = 406;
-      match(TOKEN_OPEN_BRACKET);
-      state = 407;
-      expr();
-      state = 408;
-      match(TOKEN_CLOSE_BRACKET);
-      state = 409;
-      match(TOKEN_ASSIGN);
-      state = 410;
-      expr();
-    } on RecognitionException catch (re) {
-      _localctx.exception = re;
-      errorHandler.reportError(this, re);
-      errorHandler.recover(this, re);
-    } finally {
-      exitRule();
-    }
-    return _localctx;
-  }
-
-  IndexPropertyAssignmentContext indexPropertyAssignment() {
-    dynamic _localctx = IndexPropertyAssignmentContext(context, state);
-    enterRule(_localctx, 74, RULE_indexPropertyAssignment);
-    try {
-      enterOuterAlt(_localctx, 1);
-      state = 412;
-      identifier(0);
-      state = 413;
-      match(TOKEN_OPEN_BRACKET);
-      state = 414;
-      expr();
-      state = 415;
-      match(TOKEN_CLOSE_BRACKET);
-      state = 416;
-      match(TOKEN_DOT);
-      state = 417;
-      identifier(0);
-      state = 418;
-      match(TOKEN_ASSIGN);
-      state = 419;
-      expr();
-    } on RecognitionException catch (re) {
-      _localctx.exception = re;
-      errorHandler.reportError(this, re);
-      errorHandler.recover(this, re);
-    } finally {
-      exitRule();
-    }
-    return _localctx;
-  }
-
   VarDeclContext varDecl() {
     dynamic _localctx = VarDeclContext(context, state);
-    enterRule(_localctx, 76, RULE_varDecl);
+    enterRule(_localctx, 70, RULE_varDecl);
     try {
-      state = 431;
+      state = 400;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 27, context)) {
       case 1:
         enterOuterAlt(_localctx, 1);
-        state = 421;
+        state = 390;
         varType();
-        state = 422;
+        state = 391;
         dataType();
-        state = 423;
+        state = 392;
         identifier(0);
         break;
       case 2:
         enterOuterAlt(_localctx, 2);
-        state = 425;
+        state = 394;
         varType();
-        state = 427;
+        state = 396;
         errorHandler.sync(this);
         switch (interpreter!.adaptivePredict(tokenStream, 26, context)) {
         case 1:
-          state = 426;
+          state = 395;
           dataType();
           break;
         }
-        state = 429;
+        state = 398;
         assignment();
         break;
       }
@@ -1425,10 +1325,10 @@ class dscriptParser extends Parser {
 
   ExprContext expr() {
     dynamic _localctx = ExprContext(context, state);
-    enterRule(_localctx, 78, RULE_expr);
+    enterRule(_localctx, 72, RULE_expr);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 433;
+      state = 402;
       logicalExpr();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1442,17 +1342,17 @@ class dscriptParser extends Parser {
 
   LogicalExprContext logicalExpr() {
     dynamic _localctx = LogicalExprContext(context, state);
-    enterRule(_localctx, 80, RULE_logicalExpr);
+    enterRule(_localctx, 74, RULE_logicalExpr);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 435;
+      state = 404;
       _localctx.left = relationalExpr();
-      state = 440;
+      state = 409;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while (_la == TOKEN_AND || _la == TOKEN_OR) {
-        state = 436;
+        state = 405;
         _localctx.op = tokenStream.LT(1);
         _la = tokenStream.LA(1)!;
         if (!(_la == TOKEN_AND || _la == TOKEN_OR)) {
@@ -1462,9 +1362,9 @@ class dscriptParser extends Parser {
           errorHandler.reportMatch(this);
           consume();
         }
-        state = 437;
+        state = 406;
         _localctx.right = relationalExpr();
-        state = 442;
+        state = 411;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
@@ -1480,17 +1380,17 @@ class dscriptParser extends Parser {
 
   RelationalExprContext relationalExpr() {
     dynamic _localctx = RelationalExprContext(context, state);
-    enterRule(_localctx, 82, RULE_relationalExpr);
+    enterRule(_localctx, 76, RULE_relationalExpr);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 443;
+      state = 412;
       _localctx.left = bitwiseExpr();
-      state = 448;
+      state = 417;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while ((((_la) & ~0x3f) == 0 && ((1 << _la) & 487424) != 0)) {
-        state = 444;
+        state = 413;
         _localctx.op = tokenStream.LT(1);
         _la = tokenStream.LA(1)!;
         if (!((((_la) & ~0x3f) == 0 && ((1 << _la) & 487424) != 0))) {
@@ -1500,9 +1400,9 @@ class dscriptParser extends Parser {
           errorHandler.reportMatch(this);
           consume();
         }
-        state = 445;
+        state = 414;
         _localctx.right = bitwiseExpr();
-        state = 450;
+        state = 419;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
@@ -1518,17 +1418,17 @@ class dscriptParser extends Parser {
 
   BitwiseExprContext bitwiseExpr() {
     dynamic _localctx = BitwiseExprContext(context, state);
-    enterRule(_localctx, 84, RULE_bitwiseExpr);
+    enterRule(_localctx, 78, RULE_bitwiseExpr);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 451;
+      state = 420;
       _localctx.left = shiftExpr();
-      state = 456;
+      state = 425;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while ((((_la) & ~0x3f) == 0 && ((1 << _la) & 469762048) != 0)) {
-        state = 452;
+        state = 421;
         _localctx.op = tokenStream.LT(1);
         _la = tokenStream.LA(1)!;
         if (!((((_la) & ~0x3f) == 0 && ((1 << _la) & 469762048) != 0))) {
@@ -1538,9 +1438,9 @@ class dscriptParser extends Parser {
           errorHandler.reportMatch(this);
           consume();
         }
-        state = 453;
+        state = 422;
         _localctx.right = shiftExpr();
-        state = 458;
+        state = 427;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
@@ -1556,17 +1456,17 @@ class dscriptParser extends Parser {
 
   ShiftExprContext shiftExpr() {
     dynamic _localctx = ShiftExprContext(context, state);
-    enterRule(_localctx, 86, RULE_shiftExpr);
+    enterRule(_localctx, 80, RULE_shiftExpr);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 459;
+      state = 428;
       _localctx.left = additiveExpr();
-      state = 464;
+      state = 433;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while (_la == TOKEN_BIT_LEFT_SHIFT || _la == TOKEN_BIT_RIGHT_SHIFT) {
-        state = 460;
+        state = 429;
         _localctx.op = tokenStream.LT(1);
         _la = tokenStream.LA(1)!;
         if (!(_la == TOKEN_BIT_LEFT_SHIFT || _la == TOKEN_BIT_RIGHT_SHIFT)) {
@@ -1576,9 +1476,9 @@ class dscriptParser extends Parser {
           errorHandler.reportMatch(this);
           consume();
         }
-        state = 461;
+        state = 430;
         _localctx.right = additiveExpr();
-        state = 466;
+        state = 435;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
@@ -1594,17 +1494,17 @@ class dscriptParser extends Parser {
 
   AdditiveExprContext additiveExpr() {
     dynamic _localctx = AdditiveExprContext(context, state);
-    enterRule(_localctx, 88, RULE_additiveExpr);
+    enterRule(_localctx, 82, RULE_additiveExpr);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 467;
+      state = 436;
       _localctx.left = multiplicativeExpr();
-      state = 472;
+      state = 441;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while (_la == TOKEN_PLUS || _la == TOKEN_MINUS) {
-        state = 468;
+        state = 437;
         _localctx.op = tokenStream.LT(1);
         _la = tokenStream.LA(1)!;
         if (!(_la == TOKEN_PLUS || _la == TOKEN_MINUS)) {
@@ -1614,9 +1514,9 @@ class dscriptParser extends Parser {
           errorHandler.reportMatch(this);
           consume();
         }
-        state = 469;
+        state = 438;
         _localctx.right = multiplicativeExpr();
-        state = 474;
+        state = 443;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
@@ -1632,17 +1532,17 @@ class dscriptParser extends Parser {
 
   MultiplicativeExprContext multiplicativeExpr() {
     dynamic _localctx = MultiplicativeExprContext(context, state);
-    enterRule(_localctx, 90, RULE_multiplicativeExpr);
+    enterRule(_localctx, 84, RULE_multiplicativeExpr);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 475;
+      state = 444;
       _localctx.left = unaryExpr();
-      state = 480;
+      state = 449;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       while ((((_la) & ~0x3f) == 0 && ((1 << _la) & 56) != 0)) {
-        state = 476;
+        state = 445;
         _localctx.op = tokenStream.LT(1);
         _la = tokenStream.LA(1)!;
         if (!((((_la) & ~0x3f) == 0 && ((1 << _la) & 56) != 0))) {
@@ -1652,9 +1552,9 @@ class dscriptParser extends Parser {
           errorHandler.reportMatch(this);
           consume();
         }
-        state = 477;
+        state = 446;
         _localctx.right = unaryExpr();
-        state = 482;
+        state = 451;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
       }
@@ -1670,10 +1570,10 @@ class dscriptParser extends Parser {
 
   UnaryExprContext unaryExpr() {
     dynamic _localctx = UnaryExprContext(context, state);
-    enterRule(_localctx, 92, RULE_unaryExpr);
+    enterRule(_localctx, 86, RULE_unaryExpr);
     int _la;
     try {
-      state = 486;
+      state = 455;
       errorHandler.sync(this);
       switch (tokenStream.LA(1)!) {
       case TOKEN_PLUS:
@@ -1681,7 +1581,7 @@ class dscriptParser extends Parser {
       case TOKEN_NOT:
       case TOKEN_BIT_NOT:
         enterOuterAlt(_localctx, 1);
-        state = 483;
+        state = 452;
         _localctx.op = tokenStream.LT(1);
         _la = tokenStream.LA(1)!;
         if (!((((_la) & ~0x3f) == 0 && ((1 << _la) & 570425350) != 0))) {
@@ -1691,7 +1591,7 @@ class dscriptParser extends Parser {
           errorHandler.reportMatch(this);
           consume();
         }
-        state = 484;
+        state = 453;
         unaryExpr();
         break;
       case TOKEN_OPEN_PAREN:
@@ -1720,7 +1620,7 @@ class dscriptParser extends Parser {
       case TOKEN_IDENT:
       case TOKEN_STRING:
         enterOuterAlt(_localctx, 2);
-        state = 485;
+        state = 454;
         suffixExpr();
         break;
       default:
@@ -1738,17 +1638,17 @@ class dscriptParser extends Parser {
 
   SuffixExprContext suffixExpr() {
     dynamic _localctx = SuffixExprContext(context, state);
-    enterRule(_localctx, 94, RULE_suffixExpr);
+    enterRule(_localctx, 88, RULE_suffixExpr);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 488;
+      state = 457;
       primaryExpr();
-      state = 490;
+      state = 459;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if (_la == TOKEN_PLUS_PLUS || _la == TOKEN_MINUS_MINUS) {
-        state = 489;
+        state = 458;
         _localctx.op = tokenStream.LT(1);
         _la = tokenStream.LA(1)!;
         if (!(_la == TOKEN_PLUS_PLUS || _la == TOKEN_MINUS_MINUS)) {
@@ -1772,38 +1672,38 @@ class dscriptParser extends Parser {
 
   PrimaryExprContext primaryExpr() {
     dynamic _localctx = PrimaryExprContext(context, state);
-    enterRule(_localctx, 96, RULE_primaryExpr);
+    enterRule(_localctx, 90, RULE_primaryExpr);
     try {
-      state = 500;
+      state = 469;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 36, context)) {
       case 1:
         enterOuterAlt(_localctx, 1);
-        state = 492;
+        state = 461;
         match(TOKEN_OPEN_PAREN);
-        state = 493;
+        state = 462;
         expr();
-        state = 494;
+        state = 463;
         match(TOKEN_CLOSE_PAREN);
         break;
       case 2:
         enterOuterAlt(_localctx, 2);
-        state = 496;
+        state = 465;
         functionCall();
         break;
       case 3:
         enterOuterAlt(_localctx, 3);
-        state = 497;
+        state = 466;
         externalFunctionCall();
         break;
       case 4:
         enterOuterAlt(_localctx, 4);
-        state = 498;
+        state = 467;
         literal();
         break;
       case 5:
         enterOuterAlt(_localctx, 5);
-        state = 499;
+        state = 468;
         identifier(0);
         break;
       }
@@ -1819,14 +1719,14 @@ class dscriptParser extends Parser {
 
   ExternalFunctionCallContext externalFunctionCall() {
     dynamic _localctx = ExternalFunctionCallContext(context, state);
-    enterRule(_localctx, 98, RULE_externalFunctionCall);
+    enterRule(_localctx, 92, RULE_externalFunctionCall);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 502;
+      state = 471;
       _localctx.namespace = identifier(0);
-      state = 503;
+      state = 472;
       match(TOKEN_DOUBLE_COLON);
-      state = 504;
+      state = 473;
       functionCall();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1840,23 +1740,23 @@ class dscriptParser extends Parser {
 
   FunctionCallContext functionCall() {
     dynamic _localctx = FunctionCallContext(context, state);
-    enterRule(_localctx, 100, RULE_functionCall);
+    enterRule(_localctx, 94, RULE_functionCall);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 506;
+      state = 475;
       _localctx.method = identifier(0);
-      state = 507;
+      state = 476;
       match(TOKEN_OPEN_PAREN);
-      state = 509;
+      state = 478;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if ((((_la) & ~0x3f) == 0 && ((1 << _la) & 576447558734316870) != 0) || ((((_la - 78)) & ~0x3f) == 0 && ((1 << (_la - 78)) & 63) != 0)) {
-        state = 508;
+        state = 477;
         args();
       }
 
-      state = 511;
+      state = 480;
       match(TOKEN_CLOSE_PAREN);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1870,78 +1770,78 @@ class dscriptParser extends Parser {
 
   ArgsContext args() {
     dynamic _localctx = ArgsContext(context, state);
-    enterRule(_localctx, 102, RULE_args);
+    enterRule(_localctx, 96, RULE_args);
     int _la;
     try {
       int _alt;
-      state = 546;
+      state = 515;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 42, context)) {
       case 1:
         enterOuterAlt(_localctx, 1);
-        state = 513;
+        state = 482;
         positionalArg();
-        state = 518;
+        state = 487;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         while (_la == TOKEN_COMMA) {
-          state = 514;
+          state = 483;
           match(TOKEN_COMMA);
-          state = 515;
+          state = 484;
           positionalArg();
-          state = 520;
+          state = 489;
           errorHandler.sync(this);
           _la = tokenStream.LA(1)!;
         }
         break;
       case 2:
         enterOuterAlt(_localctx, 2);
-        state = 521;
+        state = 490;
         namedArg();
-        state = 526;
+        state = 495;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         while (_la == TOKEN_COMMA) {
-          state = 522;
+          state = 491;
           match(TOKEN_COMMA);
-          state = 523;
+          state = 492;
           namedArg();
-          state = 528;
+          state = 497;
           errorHandler.sync(this);
           _la = tokenStream.LA(1)!;
         }
         break;
       case 3:
         enterOuterAlt(_localctx, 3);
-        state = 529;
+        state = 498;
         positionalArg();
-        state = 534;
+        state = 503;
         errorHandler.sync(this);
         _alt = interpreter!.adaptivePredict(tokenStream, 40, context);
         while (_alt != 2 && _alt != ATN.INVALID_ALT_NUMBER) {
           if (_alt == 1) {
-            state = 530;
+            state = 499;
             match(TOKEN_COMMA);
-            state = 531;
+            state = 500;
             positionalArg(); 
           }
-          state = 536;
+          state = 505;
           errorHandler.sync(this);
           _alt = interpreter!.adaptivePredict(tokenStream, 40, context);
         }
-        state = 537;
+        state = 506;
         match(TOKEN_COMMA);
-        state = 538;
+        state = 507;
         namedArg();
-        state = 543;
+        state = 512;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         while (_la == TOKEN_COMMA) {
-          state = 539;
+          state = 508;
           match(TOKEN_COMMA);
-          state = 540;
+          state = 509;
           namedArg();
-          state = 545;
+          state = 514;
           errorHandler.sync(this);
           _la = tokenStream.LA(1)!;
         }
@@ -1959,14 +1859,14 @@ class dscriptParser extends Parser {
 
   NamedArgContext namedArg() {
     dynamic _localctx = NamedArgContext(context, state);
-    enterRule(_localctx, 104, RULE_namedArg);
+    enterRule(_localctx, 98, RULE_namedArg);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 548;
+      state = 517;
       identifier(0);
-      state = 549;
+      state = 518;
       match(TOKEN_COLON);
-      state = 550;
+      state = 519;
       expr();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1980,10 +1880,10 @@ class dscriptParser extends Parser {
 
   PositionalArgContext positionalArg() {
     dynamic _localctx = PositionalArgContext(context, state);
-    enterRule(_localctx, 106, RULE_positionalArg);
+    enterRule(_localctx, 100, RULE_positionalArg);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 552;
+      state = 521;
       expr();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -1997,49 +1897,49 @@ class dscriptParser extends Parser {
 
   LiteralContext literal() {
     dynamic _localctx = LiteralContext(context, state);
-    enterRule(_localctx, 108, RULE_literal);
+    enterRule(_localctx, 102, RULE_literal);
     try {
-      state = 562;
+      state = 531;
       errorHandler.sync(this);
       switch (tokenStream.LA(1)!) {
       case TOKEN_INT:
         enterOuterAlt(_localctx, 1);
-        state = 554;
+        state = 523;
         match(TOKEN_INT);
         break;
       case TOKEN_DOUBLE:
         enterOuterAlt(_localctx, 2);
-        state = 555;
+        state = 524;
         match(TOKEN_DOUBLE);
         break;
       case TOKEN_BOOL:
         enterOuterAlt(_localctx, 3);
-        state = 556;
+        state = 525;
         match(TOKEN_BOOL);
         break;
       case TOKEN_STRING:
         enterOuterAlt(_localctx, 4);
-        state = 557;
+        state = 526;
         match(TOKEN_STRING);
         break;
       case TOKEN_NULL:
         enterOuterAlt(_localctx, 5);
-        state = 558;
+        state = 527;
         match(TOKEN_NULL);
         break;
       case TOKEN_OPEN_BRACKET:
         enterOuterAlt(_localctx, 6);
-        state = 559;
+        state = 528;
         arrayLiteral();
         break;
       case TOKEN_OPEN_BRACE:
         enterOuterAlt(_localctx, 7);
-        state = 560;
+        state = 529;
         mapLiteral();
         break;
       case TOKEN_AT:
         enterOuterAlt(_localctx, 8);
-        state = 561;
+        state = 530;
         objectLiteral();
         break;
       default:
@@ -2060,147 +1960,147 @@ class dscriptParser extends Parser {
     final _parentState = state;
     dynamic _localctx = IdentifierContext(context, _parentState);
     var _prevctx = _localctx;
-    var _startState = 110;
-    enterRecursionRule(_localctx, 110, RULE_identifier, _p);
+    var _startState = 104;
+    enterRecursionRule(_localctx, 104, RULE_identifier, _p);
     try {
       int _alt;
       enterOuterAlt(_localctx, 1);
-      state = 581;
+      state = 550;
       errorHandler.sync(this);
       switch (tokenStream.LA(1)!) {
       case TOKEN_IDENT:
-        state = 565;
+        state = 534;
         _localctx.ident = match(TOKEN_IDENT);
         break;
       case TOKEN_AUTHOR:
-        state = 566;
+        state = 535;
         _localctx.ident = match(TOKEN_AUTHOR);
         break;
       case TOKEN_NAME:
-        state = 567;
+        state = 536;
         _localctx.ident = match(TOKEN_NAME);
         break;
       case TOKEN_DESCRIPTION:
-        state = 568;
+        state = 537;
         _localctx.ident = match(TOKEN_DESCRIPTION);
         break;
       case TOKEN_VERSION:
-        state = 569;
+        state = 538;
         _localctx.ident = match(TOKEN_VERSION);
         break;
       case TOKEN_LICENSE:
-        state = 570;
+        state = 539;
         _localctx.ident = match(TOKEN_LICENSE);
         break;
       case TOKEN_REPO:
-        state = 571;
+        state = 540;
         _localctx.ident = match(TOKEN_REPO);
         break;
       case TOKEN_WEBSITE:
-        state = 572;
+        state = 541;
         _localctx.ident = match(TOKEN_WEBSITE);
         break;
       case TOKEN_PERMISSIONS:
-        state = 573;
+        state = 542;
         _localctx.ident = match(TOKEN_PERMISSIONS);
         break;
       case TOKEN_CONTRACT:
-        state = 574;
+        state = 543;
         _localctx.ident = match(TOKEN_CONTRACT);
         break;
       case TOKEN_IMPL:
-        state = 575;
+        state = 544;
         _localctx.ident = match(TOKEN_IMPL);
         break;
       case TOKEN_HOOK:
-        state = 576;
+        state = 545;
         _localctx.ident = match(TOKEN_HOOK);
         break;
       case TOKEN_FUNC:
-        state = 577;
+        state = 546;
         _localctx.ident = match(TOKEN_FUNC);
         break;
       case TOKEN_LIST:
-        state = 578;
+        state = 547;
         _localctx.ident = match(TOKEN_LIST);
         break;
       case TOKEN_MAP:
-        state = 579;
+        state = 548;
         _localctx.ident = match(TOKEN_MAP);
         break;
       case TOKEN_SCHEMA:
-        state = 580;
+        state = 549;
         _localctx.ident = match(TOKEN_SCHEMA);
         break;
       default:
         throw NoViableAltException(this);
       }
-      state = 585;
+      state = 554;
       errorHandler.sync(this);
       switch (interpreter!.adaptivePredict(tokenStream, 45, context)) {
       case 1:
-        state = 583;
+        state = 552;
         _localctx.nullAware = match(TOKEN_NOT);
         break;
       case 2:
-        state = 584;
+        state = 553;
         _localctx.allowNull = match(TOKEN_Q);
         break;
       }
       context!.stop = tokenStream.LT(-1);
-      state = 600;
+      state = 569;
       errorHandler.sync(this);
       _alt = interpreter!.adaptivePredict(tokenStream, 48, context);
       while (_alt != 2 && _alt != ATN.INVALID_ALT_NUMBER) {
         if (_alt == 1) {
           if (parseListeners != null) triggerExitRuleEvent();
           _prevctx = _localctx;
-          state = 598;
+          state = 567;
           errorHandler.sync(this);
           switch (interpreter!.adaptivePredict(tokenStream, 47, context)) {
           case 1:
             _localctx = IdentifierContext(_parentctx, _parentState);
             _localctx.objIdent = _prevctx;
             pushNewRecursionContext(_localctx, _startState, RULE_identifier);
-            state = 587;
+            state = 556;
             if (!(precpred(context, 1))) {
               throw FailedPredicateException(this, "precpred(context, 1)");
             }
-            state = 588;
+            state = 557;
             match(TOKEN_DOT);
-            state = 589;
+            state = 558;
             _localctx.property = identifier(2);
             break;
           case 2:
             _localctx = IdentifierContext(_parentctx, _parentState);
             _localctx.indexIdent = _prevctx;
             pushNewRecursionContext(_localctx, _startState, RULE_identifier);
-            state = 590;
+            state = 559;
             if (!(precpred(context, 2))) {
               throw FailedPredicateException(this, "precpred(context, 2)");
             }
-            state = 591;
+            state = 560;
             match(TOKEN_OPEN_BRACKET);
-            state = 592;
+            state = 561;
             _localctx.index = expr();
-            state = 593;
+            state = 562;
             match(TOKEN_CLOSE_BRACKET);
-            state = 596;
+            state = 565;
             errorHandler.sync(this);
             switch (interpreter!.adaptivePredict(tokenStream, 46, context)) {
             case 1:
-              state = 594;
+              state = 563;
               _localctx.nullAware = match(TOKEN_NOT);
               break;
             case 2:
-              state = 595;
+              state = 564;
               _localctx.allowNull = match(TOKEN_Q);
               break;
             }
             break;
           } 
         }
-        state = 602;
+        state = 571;
         errorHandler.sync(this);
         _alt = interpreter!.adaptivePredict(tokenStream, 48, context);
       }
@@ -2216,33 +2116,33 @@ class dscriptParser extends Parser {
 
   ArrayLiteralContext arrayLiteral() {
     dynamic _localctx = ArrayLiteralContext(context, state);
-    enterRule(_localctx, 112, RULE_arrayLiteral);
+    enterRule(_localctx, 106, RULE_arrayLiteral);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 603;
+      state = 572;
       match(TOKEN_OPEN_BRACKET);
-      state = 612;
+      state = 581;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if ((((_la) & ~0x3f) == 0 && ((1 << _la) & 576447558734316870) != 0) || ((((_la - 78)) & ~0x3f) == 0 && ((1 << (_la - 78)) & 63) != 0)) {
-        state = 604;
+        state = 573;
         expr();
-        state = 609;
+        state = 578;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         while (_la == TOKEN_COMMA) {
-          state = 605;
+          state = 574;
           match(TOKEN_COMMA);
-          state = 606;
+          state = 575;
           expr();
-          state = 611;
+          state = 580;
           errorHandler.sync(this);
           _la = tokenStream.LA(1)!;
         }
       }
 
-      state = 614;
+      state = 583;
       match(TOKEN_CLOSE_BRACKET);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -2256,37 +2156,37 @@ class dscriptParser extends Parser {
 
   ObjectLiteralContext objectLiteral() {
     dynamic _localctx = ObjectLiteralContext(context, state);
-    enterRule(_localctx, 114, RULE_objectLiteral);
+    enterRule(_localctx, 108, RULE_objectLiteral);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 616;
+      state = 585;
       match(TOKEN_AT);
-      state = 617;
+      state = 586;
       identifier(0);
-      state = 618;
+      state = 587;
       match(TOKEN_OPEN_BRACE);
-      state = 627;
+      state = 596;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if (((((_la - 44)) & ~0x3f) == 0 && ((1 << (_la - 44)) & 274877939711) != 0)) {
-        state = 619;
+        state = 588;
         objectProperty();
-        state = 624;
+        state = 593;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         while (_la == TOKEN_COMMA) {
-          state = 620;
+          state = 589;
           match(TOKEN_COMMA);
-          state = 621;
+          state = 590;
           objectProperty();
-          state = 626;
+          state = 595;
           errorHandler.sync(this);
           _la = tokenStream.LA(1)!;
         }
       }
 
-      state = 629;
+      state = 598;
       match(TOKEN_CLOSE_BRACE);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -2300,14 +2200,14 @@ class dscriptParser extends Parser {
 
   ObjectPropertyContext objectProperty() {
     dynamic _localctx = ObjectPropertyContext(context, state);
-    enterRule(_localctx, 116, RULE_objectProperty);
+    enterRule(_localctx, 110, RULE_objectProperty);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 631;
+      state = 600;
       identifier(0);
-      state = 632;
+      state = 601;
       match(TOKEN_COLON);
-      state = 633;
+      state = 602;
       expr();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -2321,33 +2221,33 @@ class dscriptParser extends Parser {
 
   MapLiteralContext mapLiteral() {
     dynamic _localctx = MapLiteralContext(context, state);
-    enterRule(_localctx, 118, RULE_mapLiteral);
+    enterRule(_localctx, 112, RULE_mapLiteral);
     int _la;
     try {
       enterOuterAlt(_localctx, 1);
-      state = 635;
+      state = 604;
       match(TOKEN_OPEN_BRACE);
-      state = 644;
+      state = 613;
       errorHandler.sync(this);
       _la = tokenStream.LA(1)!;
       if ((((_la) & ~0x3f) == 0 && ((1 << _la) & 576447558734316870) != 0) || ((((_la - 78)) & ~0x3f) == 0 && ((1 << (_la - 78)) & 63) != 0)) {
-        state = 636;
+        state = 605;
         mapEntry();
-        state = 641;
+        state = 610;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         while (_la == TOKEN_COMMA) {
-          state = 637;
+          state = 606;
           match(TOKEN_COMMA);
-          state = 638;
+          state = 607;
           mapEntry();
-          state = 643;
+          state = 612;
           errorHandler.sync(this);
           _la = tokenStream.LA(1)!;
         }
       }
 
-      state = 646;
+      state = 615;
       match(TOKEN_CLOSE_BRACE);
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -2361,14 +2261,14 @@ class dscriptParser extends Parser {
 
   MapEntryContext mapEntry() {
     dynamic _localctx = MapEntryContext(context, state);
-    enterRule(_localctx, 120, RULE_mapEntry);
+    enterRule(_localctx, 114, RULE_mapEntry);
     try {
       enterOuterAlt(_localctx, 1);
-      state = 648;
+      state = 617;
       _localctx.key = expr();
-      state = 649;
+      state = 618;
       match(TOKEN_COLON);
-      state = 650;
+      state = 619;
       _localctx.value = expr();
     } on RecognitionException catch (re) {
       _localctx.exception = re;
@@ -2382,52 +2282,52 @@ class dscriptParser extends Parser {
 
   BlockContext block() {
     dynamic _localctx = BlockContext(context, state);
-    enterRule(_localctx, 122, RULE_block);
+    enterRule(_localctx, 116, RULE_block);
     int _la;
     try {
-      state = 665;
+      state = 634;
       errorHandler.sync(this);
       switch (tokenStream.LA(1)!) {
       case TOKEN_OPEN_BRACE:
         enterOuterAlt(_localctx, 1);
-        state = 652;
+        state = 621;
         match(TOKEN_OPEN_BRACE);
-        state = 656;
+        state = 625;
         errorHandler.sync(this);
         _la = tokenStream.LA(1)!;
         while ((((_la) & ~0x3f) == 0 && ((1 << _la) & 8070437338678822214) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1 << (_la - 65)) & 520135) != 0)) {
-          state = 653;
+          state = 622;
           line();
-          state = 658;
+          state = 627;
           errorHandler.sync(this);
           _la = tokenStream.LA(1)!;
         }
-        state = 659;
+        state = 628;
         match(TOKEN_CLOSE_BRACE);
         break;
       case TOKEN_IF:
         enterOuterAlt(_localctx, 2);
-        state = 660;
+        state = 629;
         ifStmt();
         break;
       case TOKEN_WHILE:
         enterOuterAlt(_localctx, 3);
-        state = 661;
+        state = 630;
         whileStmt();
         break;
       case TOKEN_FOR:
         enterOuterAlt(_localctx, 4);
-        state = 662;
+        state = 631;
         forStmt();
         break;
       case TOKEN_TRY:
         enterOuterAlt(_localctx, 5);
-        state = 663;
+        state = 632;
         tryStmt();
         break;
       case TOKEN_CATCH:
         enterOuterAlt(_localctx, 6);
-        state = 664;
+        state = 633;
         catchBlock();
         break;
       default:
@@ -2446,7 +2346,7 @@ class dscriptParser extends Parser {
   @override
   bool sempred(RuleContext? _localctx, int ruleIndex, int predIndex) {
     switch (ruleIndex) {
-    case 55:
+    case 52:
       return _identifier_sempred(_localctx as IdentifierContext?, predIndex);
     }
     return true;
@@ -2460,7 +2360,7 @@ class dscriptParser extends Parser {
   }
 
   static const List<int> _serializedATN = [
-      4,1,86,668,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,
+      4,1,86,637,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,
       2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,
       14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,
       2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,
@@ -2468,237 +2368,226 @@ class dscriptParser extends Parser {
       7,34,2,35,7,35,2,36,7,36,2,37,7,37,2,38,7,38,2,39,7,39,2,40,7,40,2,
       41,7,41,2,42,7,42,2,43,7,43,2,44,7,44,2,45,7,45,2,46,7,46,2,47,7,47,
       2,48,7,48,2,49,7,49,2,50,7,50,2,51,7,51,2,52,7,52,2,53,7,53,2,54,7,
-      54,2,55,7,55,2,56,7,56,2,57,7,57,2,58,7,58,2,59,7,59,2,60,7,60,2,61,
-      7,61,1,0,3,0,126,8,0,1,0,5,0,129,8,0,10,0,12,0,132,9,0,1,0,5,0,135,
-      8,0,10,0,12,0,138,9,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,
-      150,8,1,1,2,1,2,1,2,1,2,1,3,1,3,1,3,1,3,1,4,1,4,1,4,1,4,1,5,1,5,1,
-      5,1,5,1,6,1,6,1,6,1,6,1,7,1,7,1,7,1,7,1,8,1,8,1,8,1,8,1,9,1,9,1,9,
-      1,9,1,10,1,10,1,10,1,10,5,10,188,8,10,10,10,12,10,191,9,10,1,10,1,
-      10,1,11,1,11,1,11,1,11,1,12,1,12,1,12,1,12,1,12,1,12,5,12,205,8,12,
-      10,12,12,12,208,9,12,1,12,1,12,1,12,5,12,213,8,12,10,12,12,12,216,
-      9,12,1,12,1,12,1,13,1,13,1,13,1,13,3,13,224,8,13,1,13,1,13,1,13,1,
-      14,1,14,1,14,1,14,3,14,233,8,14,1,14,1,14,1,14,1,14,1,14,1,15,1,15,
-      1,15,1,15,3,15,244,8,15,1,15,1,15,1,15,1,15,1,15,1,16,1,16,1,16,5,
-      16,254,8,16,10,16,12,16,257,9,16,1,17,1,17,1,17,1,18,1,18,3,18,264,
-      8,18,1,18,1,18,1,18,1,18,1,18,3,18,271,8,18,1,18,1,18,1,18,1,18,1,
-      18,1,18,1,18,3,18,280,8,18,3,18,282,8,18,1,19,1,19,1,19,1,19,1,19,
-      1,19,1,19,1,19,1,19,1,19,3,19,294,8,19,1,20,1,20,1,20,1,21,1,21,1,
-      21,1,21,1,21,1,21,3,21,305,8,21,1,22,1,22,1,22,3,22,310,8,22,1,23,
-      1,23,1,23,1,23,1,23,1,23,1,24,1,24,1,24,1,24,3,24,322,8,24,1,24,1,
-      24,1,24,1,24,1,24,1,24,1,24,1,24,1,24,3,24,333,8,24,1,24,1,24,1,24,
-      1,25,1,25,3,25,340,8,25,1,26,1,26,1,27,1,27,1,28,1,28,1,28,1,28,1,
-      29,1,29,1,29,1,29,1,29,1,29,1,30,1,30,3,30,358,8,30,1,30,1,30,1,30,
-      3,30,363,8,30,1,31,1,31,1,32,1,32,1,32,1,32,1,32,3,32,372,8,32,1,33,
-      1,33,1,33,1,33,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,
-      34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,3,34,398,8,34,1,35,
-      1,35,1,35,1,35,1,35,1,35,1,36,1,36,1,36,1,36,1,36,1,36,1,36,1,37,1,
-      37,1,37,1,37,1,37,1,37,1,37,1,37,1,37,1,38,1,38,1,38,1,38,1,38,1,38,
-      3,38,428,8,38,1,38,1,38,3,38,432,8,38,1,39,1,39,1,40,1,40,1,40,5,40,
-      439,8,40,10,40,12,40,442,9,40,1,41,1,41,1,41,5,41,447,8,41,10,41,12,
-      41,450,9,41,1,42,1,42,1,42,5,42,455,8,42,10,42,12,42,458,9,42,1,43,
-      1,43,1,43,5,43,463,8,43,10,43,12,43,466,9,43,1,44,1,44,1,44,5,44,471,
-      8,44,10,44,12,44,474,9,44,1,45,1,45,1,45,5,45,479,8,45,10,45,12,45,
-      482,9,45,1,46,1,46,1,46,3,46,487,8,46,1,47,1,47,3,47,491,8,47,1,48,
-      1,48,1,48,1,48,1,48,1,48,1,48,1,48,3,48,501,8,48,1,49,1,49,1,49,1,
-      49,1,50,1,50,1,50,3,50,510,8,50,1,50,1,50,1,51,1,51,1,51,5,51,517,
-      8,51,10,51,12,51,520,9,51,1,51,1,51,1,51,5,51,525,8,51,10,51,12,51,
-      528,9,51,1,51,1,51,1,51,5,51,533,8,51,10,51,12,51,536,9,51,1,51,1,
-      51,1,51,1,51,5,51,542,8,51,10,51,12,51,545,9,51,3,51,547,8,51,1,52,
-      1,52,1,52,1,52,1,53,1,53,1,54,1,54,1,54,1,54,1,54,1,54,1,54,1,54,3,
-      54,563,8,54,1,55,1,55,1,55,1,55,1,55,1,55,1,55,1,55,1,55,1,55,1,55,
-      1,55,1,55,1,55,1,55,1,55,1,55,3,55,582,8,55,1,55,1,55,3,55,586,8,55,
-      1,55,1,55,1,55,1,55,1,55,1,55,1,55,1,55,1,55,3,55,597,8,55,5,55,599,
-      8,55,10,55,12,55,602,9,55,1,56,1,56,1,56,1,56,5,56,608,8,56,10,56,
-      12,56,611,9,56,3,56,613,8,56,1,56,1,56,1,57,1,57,1,57,1,57,1,57,1,
-      57,5,57,623,8,57,10,57,12,57,626,9,57,3,57,628,8,57,1,57,1,57,1,58,
-      1,58,1,58,1,58,1,59,1,59,1,59,1,59,5,59,640,8,59,10,59,12,59,643,9,
-      59,3,59,645,8,59,1,59,1,59,1,60,1,60,1,60,1,60,1,61,1,61,5,61,655,
-      8,61,10,61,12,61,658,9,61,1,61,1,61,1,61,1,61,1,61,1,61,3,61,666,8,
-      61,1,61,0,1,110,62,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,
-      36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,
-      80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,
-      118,120,122,0,9,1,0,74,76,1,0,23,24,2,0,12,14,16,18,1,0,26,28,1,0,
-      30,31,1,0,1,2,1,0,3,5,3,0,1,2,25,25,29,29,1,0,40,41,713,0,125,1,0,
-      0,0,2,149,1,0,0,0,4,151,1,0,0,0,6,155,1,0,0,0,8,159,1,0,0,0,10,163,
-      1,0,0,0,12,167,1,0,0,0,14,171,1,0,0,0,16,175,1,0,0,0,18,179,1,0,0,
-      0,20,183,1,0,0,0,22,194,1,0,0,0,24,198,1,0,0,0,26,219,1,0,0,0,28,228,
-      1,0,0,0,30,239,1,0,0,0,32,250,1,0,0,0,34,258,1,0,0,0,36,281,1,0,0,
-      0,38,293,1,0,0,0,40,295,1,0,0,0,42,298,1,0,0,0,44,306,1,0,0,0,46,311,
-      1,0,0,0,48,317,1,0,0,0,50,337,1,0,0,0,52,341,1,0,0,0,54,343,1,0,0,
-      0,56,345,1,0,0,0,58,349,1,0,0,0,60,362,1,0,0,0,62,364,1,0,0,0,64,371,
-      1,0,0,0,66,373,1,0,0,0,68,397,1,0,0,0,70,399,1,0,0,0,72,405,1,0,0,
-      0,74,412,1,0,0,0,76,431,1,0,0,0,78,433,1,0,0,0,80,435,1,0,0,0,82,443,
-      1,0,0,0,84,451,1,0,0,0,86,459,1,0,0,0,88,467,1,0,0,0,90,475,1,0,0,
-      0,92,486,1,0,0,0,94,488,1,0,0,0,96,500,1,0,0,0,98,502,1,0,0,0,100,
-      506,1,0,0,0,102,546,1,0,0,0,104,548,1,0,0,0,106,552,1,0,0,0,108,562,
-      1,0,0,0,110,564,1,0,0,0,112,603,1,0,0,0,114,616,1,0,0,0,116,631,1,
-      0,0,0,118,635,1,0,0,0,120,648,1,0,0,0,122,665,1,0,0,0,124,126,3,4,
-      2,0,125,124,1,0,0,0,125,126,1,0,0,0,126,130,1,0,0,0,127,129,3,2,1,
-      0,128,127,1,0,0,0,129,132,1,0,0,0,130,128,1,0,0,0,130,131,1,0,0,0,
-      131,136,1,0,0,0,132,130,1,0,0,0,133,135,3,20,10,0,134,133,1,0,0,0,
-      135,138,1,0,0,0,136,134,1,0,0,0,136,137,1,0,0,0,137,139,1,0,0,0,138,
-      136,1,0,0,0,139,140,3,24,12,0,140,141,5,0,0,1,141,1,1,0,0,0,142,150,
-      3,18,9,0,143,150,3,8,4,0,144,150,3,6,3,0,145,150,3,10,5,0,146,150,
-      3,12,6,0,147,150,3,14,7,0,148,150,3,16,8,0,149,142,1,0,0,0,149,143,
-      1,0,0,0,149,144,1,0,0,0,149,145,1,0,0,0,149,146,1,0,0,0,149,147,1,
-      0,0,0,149,148,1,0,0,0,150,3,1,0,0,0,151,152,5,44,0,0,152,153,5,83,
-      0,0,153,154,5,22,0,0,154,5,1,0,0,0,155,156,5,45,0,0,156,157,5,83,0,
-      0,157,158,5,22,0,0,158,7,1,0,0,0,159,160,5,46,0,0,160,161,5,83,0,0,
-      161,162,5,22,0,0,162,9,1,0,0,0,163,164,5,47,0,0,164,165,5,77,0,0,165,
-      166,5,22,0,0,166,11,1,0,0,0,167,168,5,48,0,0,168,169,5,83,0,0,169,
-      170,5,22,0,0,170,13,1,0,0,0,171,172,5,49,0,0,172,173,5,83,0,0,173,
-      174,5,22,0,0,174,15,1,0,0,0,175,176,5,50,0,0,176,177,5,83,0,0,177,
-      178,5,22,0,0,178,17,1,0,0,0,179,180,5,51,0,0,180,181,5,83,0,0,181,
-      182,5,22,0,0,182,19,1,0,0,0,183,184,5,52,0,0,184,189,3,22,11,0,185,
-      186,5,21,0,0,186,188,3,22,11,0,187,185,1,0,0,0,188,191,1,0,0,0,189,
-      187,1,0,0,0,189,190,1,0,0,0,190,192,1,0,0,0,191,189,1,0,0,0,192,193,
-      5,22,0,0,193,21,1,0,0,0,194,195,3,110,55,0,195,196,5,20,0,0,196,197,
-      3,110,55,0,197,23,1,0,0,0,198,199,5,53,0,0,199,200,3,110,55,0,200,
-      206,5,8,0,0,201,202,3,76,38,0,202,203,5,22,0,0,203,205,1,0,0,0,204,
-      201,1,0,0,0,205,208,1,0,0,0,206,204,1,0,0,0,206,207,1,0,0,0,207,214,
-      1,0,0,0,208,206,1,0,0,0,209,213,3,26,13,0,210,213,3,28,14,0,211,213,
-      3,30,15,0,212,209,1,0,0,0,212,210,1,0,0,0,212,211,1,0,0,0,213,216,
-      1,0,0,0,214,212,1,0,0,0,214,215,1,0,0,0,215,217,1,0,0,0,216,214,1,
-      0,0,0,217,218,5,9,0,0,218,25,1,0,0,0,219,220,5,55,0,0,220,221,3,110,
-      55,0,221,223,5,6,0,0,222,224,3,32,16,0,223,222,1,0,0,0,223,224,1,0,
-      0,0,224,225,1,0,0,0,225,226,5,7,0,0,226,227,3,122,61,0,227,27,1,0,
-      0,0,228,229,5,54,0,0,229,230,3,110,55,0,230,232,5,6,0,0,231,233,3,
-      32,16,0,232,231,1,0,0,0,232,233,1,0,0,0,233,234,1,0,0,0,234,235,5,
-      7,0,0,235,236,5,32,0,0,236,237,3,36,18,0,237,238,3,122,61,0,238,29,
-      1,0,0,0,239,240,5,56,0,0,240,241,3,110,55,0,241,243,5,6,0,0,242,244,
-      3,32,16,0,243,242,1,0,0,0,243,244,1,0,0,0,244,245,1,0,0,0,245,246,
-      5,7,0,0,246,247,5,32,0,0,247,248,3,36,18,0,248,249,3,122,61,0,249,
-      31,1,0,0,0,250,255,3,34,17,0,251,252,5,21,0,0,252,254,3,34,17,0,253,
-      251,1,0,0,0,254,257,1,0,0,0,255,253,1,0,0,0,255,256,1,0,0,0,256,33,
-      1,0,0,0,257,255,1,0,0,0,258,259,3,36,18,0,259,260,3,110,55,0,260,35,
-      1,0,0,0,261,263,3,110,55,0,262,264,5,33,0,0,263,262,1,0,0,0,263,264,
-      1,0,0,0,264,282,1,0,0,0,265,266,5,57,0,0,266,267,5,13,0,0,267,268,
-      3,36,18,0,268,270,5,12,0,0,269,271,5,33,0,0,270,269,1,0,0,0,270,271,
-      1,0,0,0,271,282,1,0,0,0,272,273,5,58,0,0,273,274,5,13,0,0,274,275,
-      3,36,18,0,275,276,5,21,0,0,276,277,3,36,18,0,277,279,5,12,0,0,278,
-      280,5,33,0,0,279,278,1,0,0,0,279,280,1,0,0,0,280,282,1,0,0,0,281,261,
-      1,0,0,0,281,265,1,0,0,0,281,272,1,0,0,0,282,37,1,0,0,0,283,294,3,76,
-      38,0,284,294,3,64,32,0,285,294,3,50,25,0,286,294,3,52,26,0,287,294,
-      3,54,27,0,288,294,3,40,20,0,289,294,3,42,21,0,290,294,3,46,23,0,291,
-      294,3,48,24,0,292,294,3,56,28,0,293,283,1,0,0,0,293,284,1,0,0,0,293,
-      285,1,0,0,0,293,286,1,0,0,0,293,287,1,0,0,0,293,288,1,0,0,0,293,289,
-      1,0,0,0,293,290,1,0,0,0,293,291,1,0,0,0,293,292,1,0,0,0,294,39,1,0,
-      0,0,295,296,5,73,0,0,296,297,3,78,39,0,297,41,1,0,0,0,298,299,5,59,
-      0,0,299,300,5,6,0,0,300,301,3,78,39,0,301,302,5,7,0,0,302,304,3,122,
-      61,0,303,305,3,44,22,0,304,303,1,0,0,0,304,305,1,0,0,0,305,43,1,0,
-      0,0,306,309,5,60,0,0,307,310,3,42,21,0,308,310,3,122,61,0,309,307,
-      1,0,0,0,309,308,1,0,0,0,310,45,1,0,0,0,311,312,5,61,0,0,312,313,5,
-      6,0,0,313,314,3,78,39,0,314,315,5,7,0,0,315,316,3,122,61,0,316,47,
-      1,0,0,0,317,318,5,62,0,0,318,332,5,6,0,0,319,322,3,76,38,0,320,322,
-      5,82,0,0,321,319,1,0,0,0,321,320,1,0,0,0,322,323,1,0,0,0,323,324,5,
-      22,0,0,324,325,3,78,39,0,325,326,5,22,0,0,326,327,3,64,32,0,327,333,
-      1,0,0,0,328,329,3,76,38,0,329,330,5,63,0,0,330,331,3,78,39,0,331,333,
-      1,0,0,0,332,321,1,0,0,0,332,328,1,0,0,0,333,334,1,0,0,0,334,335,5,
-      7,0,0,335,336,3,122,61,0,336,49,1,0,0,0,337,339,5,65,0,0,338,340,3,
-      78,39,0,339,338,1,0,0,0,339,340,1,0,0,0,340,51,1,0,0,0,341,342,5,66,
-      0,0,342,53,1,0,0,0,343,344,5,67,0,0,344,55,1,0,0,0,345,346,5,71,0,
-      0,346,347,3,122,61,0,347,348,3,58,29,0,348,57,1,0,0,0,349,350,5,72,
-      0,0,350,351,5,6,0,0,351,352,3,110,55,0,352,353,5,7,0,0,353,354,3,122,
-      61,0,354,59,1,0,0,0,355,358,3,38,19,0,356,358,3,78,39,0,357,355,1,
-      0,0,0,357,356,1,0,0,0,358,359,1,0,0,0,359,360,5,22,0,0,360,363,1,0,
-      0,0,361,363,3,122,61,0,362,357,1,0,0,0,362,361,1,0,0,0,363,61,1,0,
-      0,0,364,365,7,0,0,0,365,63,1,0,0,0,366,372,3,66,33,0,367,372,3,68,
-      34,0,368,372,3,70,35,0,369,372,3,72,36,0,370,372,3,74,37,0,371,366,
-      1,0,0,0,371,367,1,0,0,0,371,368,1,0,0,0,371,369,1,0,0,0,371,370,1,
-      0,0,0,372,65,1,0,0,0,373,374,3,110,55,0,374,375,5,15,0,0,375,376,3,
-      78,39,0,376,67,1,0,0,0,377,378,3,110,55,0,378,379,5,35,0,0,379,380,
-      3,78,39,0,380,398,1,0,0,0,381,382,3,110,55,0,382,383,5,36,0,0,383,
-      384,3,78,39,0,384,398,1,0,0,0,385,386,3,110,55,0,386,387,5,37,0,0,
-      387,388,3,78,39,0,388,398,1,0,0,0,389,390,3,110,55,0,390,391,5,38,
-      0,0,391,392,3,78,39,0,392,398,1,0,0,0,393,394,3,110,55,0,394,395,5,
-      39,0,0,395,396,3,78,39,0,396,398,1,0,0,0,397,377,1,0,0,0,397,381,1,
-      0,0,0,397,385,1,0,0,0,397,389,1,0,0,0,397,393,1,0,0,0,398,69,1,0,0,
-      0,399,400,3,110,55,0,400,401,5,34,0,0,401,402,3,110,55,0,402,403,5,
-      15,0,0,403,404,3,78,39,0,404,71,1,0,0,0,405,406,3,110,55,0,406,407,
-      5,10,0,0,407,408,3,78,39,0,408,409,5,11,0,0,409,410,5,15,0,0,410,411,
-      3,78,39,0,411,73,1,0,0,0,412,413,3,110,55,0,413,414,5,10,0,0,414,415,
-      3,78,39,0,415,416,5,11,0,0,416,417,5,34,0,0,417,418,3,110,55,0,418,
-      419,5,15,0,0,419,420,3,78,39,0,420,75,1,0,0,0,421,422,3,62,31,0,422,
-      423,3,36,18,0,423,424,3,110,55,0,424,432,1,0,0,0,425,427,3,62,31,0,
-      426,428,3,36,18,0,427,426,1,0,0,0,427,428,1,0,0,0,428,429,1,0,0,0,
-      429,430,3,64,32,0,430,432,1,0,0,0,431,421,1,0,0,0,431,425,1,0,0,0,
-      432,77,1,0,0,0,433,434,3,80,40,0,434,79,1,0,0,0,435,440,3,82,41,0,
-      436,437,7,1,0,0,437,439,3,82,41,0,438,436,1,0,0,0,439,442,1,0,0,0,
-      440,438,1,0,0,0,440,441,1,0,0,0,441,81,1,0,0,0,442,440,1,0,0,0,443,
-      448,3,84,42,0,444,445,7,2,0,0,445,447,3,84,42,0,446,444,1,0,0,0,447,
-      450,1,0,0,0,448,446,1,0,0,0,448,449,1,0,0,0,449,83,1,0,0,0,450,448,
-      1,0,0,0,451,456,3,86,43,0,452,453,7,3,0,0,453,455,3,86,43,0,454,452,
-      1,0,0,0,455,458,1,0,0,0,456,454,1,0,0,0,456,457,1,0,0,0,457,85,1,0,
-      0,0,458,456,1,0,0,0,459,464,3,88,44,0,460,461,7,4,0,0,461,463,3,88,
-      44,0,462,460,1,0,0,0,463,466,1,0,0,0,464,462,1,0,0,0,464,465,1,0,0,
-      0,465,87,1,0,0,0,466,464,1,0,0,0,467,472,3,90,45,0,468,469,7,5,0,0,
-      469,471,3,90,45,0,470,468,1,0,0,0,471,474,1,0,0,0,472,470,1,0,0,0,
-      472,473,1,0,0,0,473,89,1,0,0,0,474,472,1,0,0,0,475,480,3,92,46,0,476,
-      477,7,6,0,0,477,479,3,92,46,0,478,476,1,0,0,0,479,482,1,0,0,0,480,
-      478,1,0,0,0,480,481,1,0,0,0,481,91,1,0,0,0,482,480,1,0,0,0,483,484,
-      7,7,0,0,484,487,3,92,46,0,485,487,3,94,47,0,486,483,1,0,0,0,486,485,
-      1,0,0,0,487,93,1,0,0,0,488,490,3,96,48,0,489,491,7,8,0,0,490,489,1,
-      0,0,0,490,491,1,0,0,0,491,95,1,0,0,0,492,493,5,6,0,0,493,494,3,78,
-      39,0,494,495,5,7,0,0,495,501,1,0,0,0,496,501,3,100,50,0,497,501,3,
-      98,49,0,498,501,3,108,54,0,499,501,3,110,55,0,500,492,1,0,0,0,500,
-      496,1,0,0,0,500,497,1,0,0,0,500,498,1,0,0,0,500,499,1,0,0,0,501,97,
-      1,0,0,0,502,503,3,110,55,0,503,504,5,20,0,0,504,505,3,100,50,0,505,
-      99,1,0,0,0,506,507,3,110,55,0,507,509,5,6,0,0,508,510,3,102,51,0,509,
-      508,1,0,0,0,509,510,1,0,0,0,510,511,1,0,0,0,511,512,5,7,0,0,512,101,
-      1,0,0,0,513,518,3,106,53,0,514,515,5,21,0,0,515,517,3,106,53,0,516,
-      514,1,0,0,0,517,520,1,0,0,0,518,516,1,0,0,0,518,519,1,0,0,0,519,547,
-      1,0,0,0,520,518,1,0,0,0,521,526,3,104,52,0,522,523,5,21,0,0,523,525,
-      3,104,52,0,524,522,1,0,0,0,525,528,1,0,0,0,526,524,1,0,0,0,526,527,
-      1,0,0,0,527,547,1,0,0,0,528,526,1,0,0,0,529,534,3,106,53,0,530,531,
-      5,21,0,0,531,533,3,106,53,0,532,530,1,0,0,0,533,536,1,0,0,0,534,532,
-      1,0,0,0,534,535,1,0,0,0,535,537,1,0,0,0,536,534,1,0,0,0,537,538,5,
-      21,0,0,538,543,3,104,52,0,539,540,5,21,0,0,540,542,3,104,52,0,541,
-      539,1,0,0,0,542,545,1,0,0,0,543,541,1,0,0,0,543,544,1,0,0,0,544,547,
-      1,0,0,0,545,543,1,0,0,0,546,513,1,0,0,0,546,521,1,0,0,0,546,529,1,
-      0,0,0,547,103,1,0,0,0,548,549,3,110,55,0,549,550,5,19,0,0,550,551,
-      3,78,39,0,551,105,1,0,0,0,552,553,3,78,39,0,553,107,1,0,0,0,554,563,
-      5,80,0,0,555,563,5,81,0,0,556,563,5,78,0,0,557,563,5,83,0,0,558,563,
-      5,79,0,0,559,563,3,112,56,0,560,563,3,118,59,0,561,563,3,114,57,0,
-      562,554,1,0,0,0,562,555,1,0,0,0,562,556,1,0,0,0,562,557,1,0,0,0,562,
-      558,1,0,0,0,562,559,1,0,0,0,562,560,1,0,0,0,562,561,1,0,0,0,563,109,
-      1,0,0,0,564,581,6,55,-1,0,565,582,5,82,0,0,566,582,5,45,0,0,567,582,
-      5,51,0,0,568,582,5,46,0,0,569,582,5,47,0,0,570,582,5,48,0,0,571,582,
-      5,49,0,0,572,582,5,50,0,0,573,582,5,52,0,0,574,582,5,53,0,0,575,582,
-      5,54,0,0,576,582,5,55,0,0,577,582,5,56,0,0,578,582,5,57,0,0,579,582,
-      5,58,0,0,580,582,5,44,0,0,581,565,1,0,0,0,581,566,1,0,0,0,581,567,
-      1,0,0,0,581,568,1,0,0,0,581,569,1,0,0,0,581,570,1,0,0,0,581,571,1,
-      0,0,0,581,572,1,0,0,0,581,573,1,0,0,0,581,574,1,0,0,0,581,575,1,0,
-      0,0,581,576,1,0,0,0,581,577,1,0,0,0,581,578,1,0,0,0,581,579,1,0,0,
-      0,581,580,1,0,0,0,582,585,1,0,0,0,583,586,5,25,0,0,584,586,5,33,0,
-      0,585,583,1,0,0,0,585,584,1,0,0,0,585,586,1,0,0,0,586,600,1,0,0,0,
-      587,588,10,1,0,0,588,589,5,34,0,0,589,599,3,110,55,2,590,591,10,2,
-      0,0,591,592,5,10,0,0,592,593,3,78,39,0,593,596,5,11,0,0,594,597,5,
-      25,0,0,595,597,5,33,0,0,596,594,1,0,0,0,596,595,1,0,0,0,596,597,1,
-      0,0,0,597,599,1,0,0,0,598,587,1,0,0,0,598,590,1,0,0,0,599,602,1,0,
-      0,0,600,598,1,0,0,0,600,601,1,0,0,0,601,111,1,0,0,0,602,600,1,0,0,
-      0,603,612,5,10,0,0,604,609,3,78,39,0,605,606,5,21,0,0,606,608,3,78,
-      39,0,607,605,1,0,0,0,608,611,1,0,0,0,609,607,1,0,0,0,609,610,1,0,0,
-      0,610,613,1,0,0,0,611,609,1,0,0,0,612,604,1,0,0,0,612,613,1,0,0,0,
-      613,614,1,0,0,0,614,615,5,11,0,0,615,113,1,0,0,0,616,617,5,42,0,0,
-      617,618,3,110,55,0,618,627,5,8,0,0,619,624,3,116,58,0,620,621,5,21,
-      0,0,621,623,3,116,58,0,622,620,1,0,0,0,623,626,1,0,0,0,624,622,1,0,
-      0,0,624,625,1,0,0,0,625,628,1,0,0,0,626,624,1,0,0,0,627,619,1,0,0,
-      0,627,628,1,0,0,0,628,629,1,0,0,0,629,630,5,9,0,0,630,115,1,0,0,0,
-      631,632,3,110,55,0,632,633,5,19,0,0,633,634,3,78,39,0,634,117,1,0,
-      0,0,635,644,5,8,0,0,636,641,3,120,60,0,637,638,5,21,0,0,638,640,3,
-      120,60,0,639,637,1,0,0,0,640,643,1,0,0,0,641,639,1,0,0,0,641,642,1,
-      0,0,0,642,645,1,0,0,0,643,641,1,0,0,0,644,636,1,0,0,0,644,645,1,0,
-      0,0,645,646,1,0,0,0,646,647,5,9,0,0,647,119,1,0,0,0,648,649,3,78,39,
-      0,649,650,5,19,0,0,650,651,3,78,39,0,651,121,1,0,0,0,652,656,5,8,0,
-      0,653,655,3,60,30,0,654,653,1,0,0,0,655,658,1,0,0,0,656,654,1,0,0,
-      0,656,657,1,0,0,0,657,659,1,0,0,0,658,656,1,0,0,0,659,666,5,9,0,0,
-      660,666,3,42,21,0,661,666,3,46,23,0,662,666,3,48,24,0,663,666,3,56,
-      28,0,664,666,3,58,29,0,665,652,1,0,0,0,665,660,1,0,0,0,665,661,1,0,
-      0,0,665,662,1,0,0,0,665,663,1,0,0,0,665,664,1,0,0,0,666,123,1,0,0,
-      0,57,125,130,136,149,189,206,212,214,223,232,243,255,263,270,279,281,
-      293,304,309,321,332,339,357,362,371,397,427,431,440,448,456,464,472,
-      480,486,490,500,509,518,526,534,543,546,562,581,585,596,598,600,609,
-      612,624,627,641,644,656,665
+      54,2,55,7,55,2,56,7,56,2,57,7,57,2,58,7,58,1,0,3,0,120,8,0,1,0,5,0,
+      123,8,0,10,0,12,0,126,9,0,1,0,5,0,129,8,0,10,0,12,0,132,9,0,1,0,1,
+      0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,144,8,1,1,2,1,2,1,2,1,2,1,3,
+      1,3,1,3,1,3,1,4,1,4,1,4,1,4,1,5,1,5,1,5,1,5,1,6,1,6,1,6,1,6,1,7,1,
+      7,1,7,1,7,1,8,1,8,1,8,1,8,1,9,1,9,1,9,1,9,1,10,1,10,1,10,1,10,5,10,
+      182,8,10,10,10,12,10,185,9,10,1,10,1,10,1,11,1,11,1,11,1,11,1,12,1,
+      12,1,12,1,12,1,12,1,12,5,12,199,8,12,10,12,12,12,202,9,12,1,12,1,12,
+      1,12,5,12,207,8,12,10,12,12,12,210,9,12,1,12,1,12,1,13,1,13,1,13,1,
+      13,3,13,218,8,13,1,13,1,13,1,13,1,14,1,14,1,14,1,14,3,14,227,8,14,
+      1,14,1,14,1,14,1,14,1,14,1,15,1,15,1,15,1,15,3,15,238,8,15,1,15,1,
+      15,1,15,1,15,1,15,1,16,1,16,1,16,5,16,248,8,16,10,16,12,16,251,9,16,
+      1,17,1,17,1,17,1,18,1,18,3,18,258,8,18,1,18,1,18,1,18,1,18,1,18,3,
+      18,265,8,18,1,18,1,18,1,18,1,18,1,18,1,18,1,18,3,18,274,8,18,3,18,
+      276,8,18,1,19,1,19,1,19,1,19,1,19,1,19,1,19,1,19,1,19,1,19,3,19,288,
+      8,19,1,20,1,20,1,20,1,21,1,21,1,21,1,21,1,21,1,21,3,21,299,8,21,1,
+      22,1,22,1,22,3,22,304,8,22,1,23,1,23,1,23,1,23,1,23,1,23,1,24,1,24,
+      1,24,1,24,3,24,316,8,24,1,24,1,24,1,24,1,24,1,24,1,24,1,24,1,24,1,
+      24,3,24,327,8,24,1,24,1,24,1,24,1,25,1,25,3,25,334,8,25,1,26,1,26,
+      1,27,1,27,1,28,1,28,1,28,1,28,1,29,1,29,1,29,1,29,1,29,1,29,1,30,1,
+      30,3,30,352,8,30,1,30,1,30,1,30,3,30,357,8,30,1,31,1,31,1,32,1,32,
+      3,32,363,8,32,1,33,1,33,1,33,1,33,1,34,1,34,1,34,1,34,1,34,1,34,1,
+      34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,1,34,
+      3,34,389,8,34,1,35,1,35,1,35,1,35,1,35,1,35,3,35,397,8,35,1,35,1,35,
+      3,35,401,8,35,1,36,1,36,1,37,1,37,1,37,5,37,408,8,37,10,37,12,37,411,
+      9,37,1,38,1,38,1,38,5,38,416,8,38,10,38,12,38,419,9,38,1,39,1,39,1,
+      39,5,39,424,8,39,10,39,12,39,427,9,39,1,40,1,40,1,40,5,40,432,8,40,
+      10,40,12,40,435,9,40,1,41,1,41,1,41,5,41,440,8,41,10,41,12,41,443,
+      9,41,1,42,1,42,1,42,5,42,448,8,42,10,42,12,42,451,9,42,1,43,1,43,1,
+      43,3,43,456,8,43,1,44,1,44,3,44,460,8,44,1,45,1,45,1,45,1,45,1,45,
+      1,45,1,45,1,45,3,45,470,8,45,1,46,1,46,1,46,1,46,1,47,1,47,1,47,3,
+      47,479,8,47,1,47,1,47,1,48,1,48,1,48,5,48,486,8,48,10,48,12,48,489,
+      9,48,1,48,1,48,1,48,5,48,494,8,48,10,48,12,48,497,9,48,1,48,1,48,1,
+      48,5,48,502,8,48,10,48,12,48,505,9,48,1,48,1,48,1,48,1,48,5,48,511,
+      8,48,10,48,12,48,514,9,48,3,48,516,8,48,1,49,1,49,1,49,1,49,1,50,1,
+      50,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,3,51,532,8,51,1,52,1,52,
+      1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,
+      52,1,52,3,52,551,8,52,1,52,1,52,3,52,555,8,52,1,52,1,52,1,52,1,52,
+      1,52,1,52,1,52,1,52,1,52,3,52,566,8,52,5,52,568,8,52,10,52,12,52,571,
+      9,52,1,53,1,53,1,53,1,53,5,53,577,8,53,10,53,12,53,580,9,53,3,53,582,
+      8,53,1,53,1,53,1,54,1,54,1,54,1,54,1,54,1,54,5,54,592,8,54,10,54,12,
+      54,595,9,54,3,54,597,8,54,1,54,1,54,1,55,1,55,1,55,1,55,1,56,1,56,
+      1,56,1,56,5,56,609,8,56,10,56,12,56,612,9,56,3,56,614,8,56,1,56,1,
+      56,1,57,1,57,1,57,1,57,1,58,1,58,5,58,624,8,58,10,58,12,58,627,9,58,
+      1,58,1,58,1,58,1,58,1,58,1,58,3,58,635,8,58,1,58,0,1,104,59,0,2,4,
+      6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,
+      52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,
+      96,98,100,102,104,106,108,110,112,114,116,0,9,1,0,74,76,1,0,23,24,
+      2,0,12,14,16,18,1,0,26,28,1,0,30,31,1,0,1,2,1,0,3,5,3,0,1,2,25,25,
+      29,29,1,0,40,41,682,0,119,1,0,0,0,2,143,1,0,0,0,4,145,1,0,0,0,6,149,
+      1,0,0,0,8,153,1,0,0,0,10,157,1,0,0,0,12,161,1,0,0,0,14,165,1,0,0,0,
+      16,169,1,0,0,0,18,173,1,0,0,0,20,177,1,0,0,0,22,188,1,0,0,0,24,192,
+      1,0,0,0,26,213,1,0,0,0,28,222,1,0,0,0,30,233,1,0,0,0,32,244,1,0,0,
+      0,34,252,1,0,0,0,36,275,1,0,0,0,38,287,1,0,0,0,40,289,1,0,0,0,42,292,
+      1,0,0,0,44,300,1,0,0,0,46,305,1,0,0,0,48,311,1,0,0,0,50,331,1,0,0,
+      0,52,335,1,0,0,0,54,337,1,0,0,0,56,339,1,0,0,0,58,343,1,0,0,0,60,356,
+      1,0,0,0,62,358,1,0,0,0,64,362,1,0,0,0,66,364,1,0,0,0,68,388,1,0,0,
+      0,70,400,1,0,0,0,72,402,1,0,0,0,74,404,1,0,0,0,76,412,1,0,0,0,78,420,
+      1,0,0,0,80,428,1,0,0,0,82,436,1,0,0,0,84,444,1,0,0,0,86,455,1,0,0,
+      0,88,457,1,0,0,0,90,469,1,0,0,0,92,471,1,0,0,0,94,475,1,0,0,0,96,515,
+      1,0,0,0,98,517,1,0,0,0,100,521,1,0,0,0,102,531,1,0,0,0,104,533,1,0,
+      0,0,106,572,1,0,0,0,108,585,1,0,0,0,110,600,1,0,0,0,112,604,1,0,0,
+      0,114,617,1,0,0,0,116,634,1,0,0,0,118,120,3,4,2,0,119,118,1,0,0,0,
+      119,120,1,0,0,0,120,124,1,0,0,0,121,123,3,2,1,0,122,121,1,0,0,0,123,
+      126,1,0,0,0,124,122,1,0,0,0,124,125,1,0,0,0,125,130,1,0,0,0,126,124,
+      1,0,0,0,127,129,3,20,10,0,128,127,1,0,0,0,129,132,1,0,0,0,130,128,
+      1,0,0,0,130,131,1,0,0,0,131,133,1,0,0,0,132,130,1,0,0,0,133,134,3,
+      24,12,0,134,135,5,0,0,1,135,1,1,0,0,0,136,144,3,18,9,0,137,144,3,8,
+      4,0,138,144,3,6,3,0,139,144,3,10,5,0,140,144,3,12,6,0,141,144,3,14,
+      7,0,142,144,3,16,8,0,143,136,1,0,0,0,143,137,1,0,0,0,143,138,1,0,0,
+      0,143,139,1,0,0,0,143,140,1,0,0,0,143,141,1,0,0,0,143,142,1,0,0,0,
+      144,3,1,0,0,0,145,146,5,44,0,0,146,147,5,83,0,0,147,148,5,22,0,0,148,
+      5,1,0,0,0,149,150,5,45,0,0,150,151,5,83,0,0,151,152,5,22,0,0,152,7,
+      1,0,0,0,153,154,5,46,0,0,154,155,5,83,0,0,155,156,5,22,0,0,156,9,1,
+      0,0,0,157,158,5,47,0,0,158,159,5,77,0,0,159,160,5,22,0,0,160,11,1,
+      0,0,0,161,162,5,48,0,0,162,163,5,83,0,0,163,164,5,22,0,0,164,13,1,
+      0,0,0,165,166,5,49,0,0,166,167,5,83,0,0,167,168,5,22,0,0,168,15,1,
+      0,0,0,169,170,5,50,0,0,170,171,5,83,0,0,171,172,5,22,0,0,172,17,1,
+      0,0,0,173,174,5,51,0,0,174,175,5,83,0,0,175,176,5,22,0,0,176,19,1,
+      0,0,0,177,178,5,52,0,0,178,183,3,22,11,0,179,180,5,21,0,0,180,182,
+      3,22,11,0,181,179,1,0,0,0,182,185,1,0,0,0,183,181,1,0,0,0,183,184,
+      1,0,0,0,184,186,1,0,0,0,185,183,1,0,0,0,186,187,5,22,0,0,187,21,1,
+      0,0,0,188,189,3,104,52,0,189,190,5,20,0,0,190,191,3,104,52,0,191,23,
+      1,0,0,0,192,193,5,53,0,0,193,194,3,104,52,0,194,200,5,8,0,0,195,196,
+      3,70,35,0,196,197,5,22,0,0,197,199,1,0,0,0,198,195,1,0,0,0,199,202,
+      1,0,0,0,200,198,1,0,0,0,200,201,1,0,0,0,201,208,1,0,0,0,202,200,1,
+      0,0,0,203,207,3,26,13,0,204,207,3,28,14,0,205,207,3,30,15,0,206,203,
+      1,0,0,0,206,204,1,0,0,0,206,205,1,0,0,0,207,210,1,0,0,0,208,206,1,
+      0,0,0,208,209,1,0,0,0,209,211,1,0,0,0,210,208,1,0,0,0,211,212,5,9,
+      0,0,212,25,1,0,0,0,213,214,5,55,0,0,214,215,3,104,52,0,215,217,5,6,
+      0,0,216,218,3,32,16,0,217,216,1,0,0,0,217,218,1,0,0,0,218,219,1,0,
+      0,0,219,220,5,7,0,0,220,221,3,116,58,0,221,27,1,0,0,0,222,223,5,54,
+      0,0,223,224,3,104,52,0,224,226,5,6,0,0,225,227,3,32,16,0,226,225,1,
+      0,0,0,226,227,1,0,0,0,227,228,1,0,0,0,228,229,5,7,0,0,229,230,5,32,
+      0,0,230,231,3,36,18,0,231,232,3,116,58,0,232,29,1,0,0,0,233,234,5,
+      56,0,0,234,235,3,104,52,0,235,237,5,6,0,0,236,238,3,32,16,0,237,236,
+      1,0,0,0,237,238,1,0,0,0,238,239,1,0,0,0,239,240,5,7,0,0,240,241,5,
+      32,0,0,241,242,3,36,18,0,242,243,3,116,58,0,243,31,1,0,0,0,244,249,
+      3,34,17,0,245,246,5,21,0,0,246,248,3,34,17,0,247,245,1,0,0,0,248,251,
+      1,0,0,0,249,247,1,0,0,0,249,250,1,0,0,0,250,33,1,0,0,0,251,249,1,0,
+      0,0,252,253,3,36,18,0,253,254,3,104,52,0,254,35,1,0,0,0,255,257,3,
+      104,52,0,256,258,5,33,0,0,257,256,1,0,0,0,257,258,1,0,0,0,258,276,
+      1,0,0,0,259,260,5,57,0,0,260,261,5,13,0,0,261,262,3,36,18,0,262,264,
+      5,12,0,0,263,265,5,33,0,0,264,263,1,0,0,0,264,265,1,0,0,0,265,276,
+      1,0,0,0,266,267,5,58,0,0,267,268,5,13,0,0,268,269,3,36,18,0,269,270,
+      5,21,0,0,270,271,3,36,18,0,271,273,5,12,0,0,272,274,5,33,0,0,273,272,
+      1,0,0,0,273,274,1,0,0,0,274,276,1,0,0,0,275,255,1,0,0,0,275,259,1,
+      0,0,0,275,266,1,0,0,0,276,37,1,0,0,0,277,288,3,70,35,0,278,288,3,64,
+      32,0,279,288,3,50,25,0,280,288,3,52,26,0,281,288,3,54,27,0,282,288,
+      3,40,20,0,283,288,3,42,21,0,284,288,3,46,23,0,285,288,3,48,24,0,286,
+      288,3,56,28,0,287,277,1,0,0,0,287,278,1,0,0,0,287,279,1,0,0,0,287,
+      280,1,0,0,0,287,281,1,0,0,0,287,282,1,0,0,0,287,283,1,0,0,0,287,284,
+      1,0,0,0,287,285,1,0,0,0,287,286,1,0,0,0,288,39,1,0,0,0,289,290,5,73,
+      0,0,290,291,3,72,36,0,291,41,1,0,0,0,292,293,5,59,0,0,293,294,5,6,
+      0,0,294,295,3,72,36,0,295,296,5,7,0,0,296,298,3,116,58,0,297,299,3,
+      44,22,0,298,297,1,0,0,0,298,299,1,0,0,0,299,43,1,0,0,0,300,303,5,60,
+      0,0,301,304,3,42,21,0,302,304,3,116,58,0,303,301,1,0,0,0,303,302,1,
+      0,0,0,304,45,1,0,0,0,305,306,5,61,0,0,306,307,5,6,0,0,307,308,3,72,
+      36,0,308,309,5,7,0,0,309,310,3,116,58,0,310,47,1,0,0,0,311,312,5,62,
+      0,0,312,326,5,6,0,0,313,316,3,70,35,0,314,316,5,82,0,0,315,313,1,0,
+      0,0,315,314,1,0,0,0,316,317,1,0,0,0,317,318,5,22,0,0,318,319,3,72,
+      36,0,319,320,5,22,0,0,320,321,3,64,32,0,321,327,1,0,0,0,322,323,3,
+      70,35,0,323,324,5,63,0,0,324,325,3,72,36,0,325,327,1,0,0,0,326,315,
+      1,0,0,0,326,322,1,0,0,0,327,328,1,0,0,0,328,329,5,7,0,0,329,330,3,
+      116,58,0,330,49,1,0,0,0,331,333,5,65,0,0,332,334,3,72,36,0,333,332,
+      1,0,0,0,333,334,1,0,0,0,334,51,1,0,0,0,335,336,5,66,0,0,336,53,1,0,
+      0,0,337,338,5,67,0,0,338,55,1,0,0,0,339,340,5,71,0,0,340,341,3,116,
+      58,0,341,342,3,58,29,0,342,57,1,0,0,0,343,344,5,72,0,0,344,345,5,6,
+      0,0,345,346,3,104,52,0,346,347,5,7,0,0,347,348,3,116,58,0,348,59,1,
+      0,0,0,349,352,3,38,19,0,350,352,3,72,36,0,351,349,1,0,0,0,351,350,
+      1,0,0,0,352,353,1,0,0,0,353,354,5,22,0,0,354,357,1,0,0,0,355,357,3,
+      116,58,0,356,351,1,0,0,0,356,355,1,0,0,0,357,61,1,0,0,0,358,359,7,
+      0,0,0,359,63,1,0,0,0,360,363,3,66,33,0,361,363,3,68,34,0,362,360,1,
+      0,0,0,362,361,1,0,0,0,363,65,1,0,0,0,364,365,3,104,52,0,365,366,5,
+      15,0,0,366,367,3,72,36,0,367,67,1,0,0,0,368,369,3,104,52,0,369,370,
+      5,35,0,0,370,371,3,72,36,0,371,389,1,0,0,0,372,373,3,104,52,0,373,
+      374,5,36,0,0,374,375,3,72,36,0,375,389,1,0,0,0,376,377,3,104,52,0,
+      377,378,5,37,0,0,378,379,3,72,36,0,379,389,1,0,0,0,380,381,3,104,52,
+      0,381,382,5,38,0,0,382,383,3,72,36,0,383,389,1,0,0,0,384,385,3,104,
+      52,0,385,386,5,39,0,0,386,387,3,72,36,0,387,389,1,0,0,0,388,368,1,
+      0,0,0,388,372,1,0,0,0,388,376,1,0,0,0,388,380,1,0,0,0,388,384,1,0,
+      0,0,389,69,1,0,0,0,390,391,3,62,31,0,391,392,3,36,18,0,392,393,3,104,
+      52,0,393,401,1,0,0,0,394,396,3,62,31,0,395,397,3,36,18,0,396,395,1,
+      0,0,0,396,397,1,0,0,0,397,398,1,0,0,0,398,399,3,64,32,0,399,401,1,
+      0,0,0,400,390,1,0,0,0,400,394,1,0,0,0,401,71,1,0,0,0,402,403,3,74,
+      37,0,403,73,1,0,0,0,404,409,3,76,38,0,405,406,7,1,0,0,406,408,3,76,
+      38,0,407,405,1,0,0,0,408,411,1,0,0,0,409,407,1,0,0,0,409,410,1,0,0,
+      0,410,75,1,0,0,0,411,409,1,0,0,0,412,417,3,78,39,0,413,414,7,2,0,0,
+      414,416,3,78,39,0,415,413,1,0,0,0,416,419,1,0,0,0,417,415,1,0,0,0,
+      417,418,1,0,0,0,418,77,1,0,0,0,419,417,1,0,0,0,420,425,3,80,40,0,421,
+      422,7,3,0,0,422,424,3,80,40,0,423,421,1,0,0,0,424,427,1,0,0,0,425,
+      423,1,0,0,0,425,426,1,0,0,0,426,79,1,0,0,0,427,425,1,0,0,0,428,433,
+      3,82,41,0,429,430,7,4,0,0,430,432,3,82,41,0,431,429,1,0,0,0,432,435,
+      1,0,0,0,433,431,1,0,0,0,433,434,1,0,0,0,434,81,1,0,0,0,435,433,1,0,
+      0,0,436,441,3,84,42,0,437,438,7,5,0,0,438,440,3,84,42,0,439,437,1,
+      0,0,0,440,443,1,0,0,0,441,439,1,0,0,0,441,442,1,0,0,0,442,83,1,0,0,
+      0,443,441,1,0,0,0,444,449,3,86,43,0,445,446,7,6,0,0,446,448,3,86,43,
+      0,447,445,1,0,0,0,448,451,1,0,0,0,449,447,1,0,0,0,449,450,1,0,0,0,
+      450,85,1,0,0,0,451,449,1,0,0,0,452,453,7,7,0,0,453,456,3,86,43,0,454,
+      456,3,88,44,0,455,452,1,0,0,0,455,454,1,0,0,0,456,87,1,0,0,0,457,459,
+      3,90,45,0,458,460,7,8,0,0,459,458,1,0,0,0,459,460,1,0,0,0,460,89,1,
+      0,0,0,461,462,5,6,0,0,462,463,3,72,36,0,463,464,5,7,0,0,464,470,1,
+      0,0,0,465,470,3,94,47,0,466,470,3,92,46,0,467,470,3,102,51,0,468,470,
+      3,104,52,0,469,461,1,0,0,0,469,465,1,0,0,0,469,466,1,0,0,0,469,467,
+      1,0,0,0,469,468,1,0,0,0,470,91,1,0,0,0,471,472,3,104,52,0,472,473,
+      5,20,0,0,473,474,3,94,47,0,474,93,1,0,0,0,475,476,3,104,52,0,476,478,
+      5,6,0,0,477,479,3,96,48,0,478,477,1,0,0,0,478,479,1,0,0,0,479,480,
+      1,0,0,0,480,481,5,7,0,0,481,95,1,0,0,0,482,487,3,100,50,0,483,484,
+      5,21,0,0,484,486,3,100,50,0,485,483,1,0,0,0,486,489,1,0,0,0,487,485,
+      1,0,0,0,487,488,1,0,0,0,488,516,1,0,0,0,489,487,1,0,0,0,490,495,3,
+      98,49,0,491,492,5,21,0,0,492,494,3,98,49,0,493,491,1,0,0,0,494,497,
+      1,0,0,0,495,493,1,0,0,0,495,496,1,0,0,0,496,516,1,0,0,0,497,495,1,
+      0,0,0,498,503,3,100,50,0,499,500,5,21,0,0,500,502,3,100,50,0,501,499,
+      1,0,0,0,502,505,1,0,0,0,503,501,1,0,0,0,503,504,1,0,0,0,504,506,1,
+      0,0,0,505,503,1,0,0,0,506,507,5,21,0,0,507,512,3,98,49,0,508,509,5,
+      21,0,0,509,511,3,98,49,0,510,508,1,0,0,0,511,514,1,0,0,0,512,510,1,
+      0,0,0,512,513,1,0,0,0,513,516,1,0,0,0,514,512,1,0,0,0,515,482,1,0,
+      0,0,515,490,1,0,0,0,515,498,1,0,0,0,516,97,1,0,0,0,517,518,3,104,52,
+      0,518,519,5,19,0,0,519,520,3,72,36,0,520,99,1,0,0,0,521,522,3,72,36,
+      0,522,101,1,0,0,0,523,532,5,80,0,0,524,532,5,81,0,0,525,532,5,78,0,
+      0,526,532,5,83,0,0,527,532,5,79,0,0,528,532,3,106,53,0,529,532,3,112,
+      56,0,530,532,3,108,54,0,531,523,1,0,0,0,531,524,1,0,0,0,531,525,1,
+      0,0,0,531,526,1,0,0,0,531,527,1,0,0,0,531,528,1,0,0,0,531,529,1,0,
+      0,0,531,530,1,0,0,0,532,103,1,0,0,0,533,550,6,52,-1,0,534,551,5,82,
+      0,0,535,551,5,45,0,0,536,551,5,51,0,0,537,551,5,46,0,0,538,551,5,47,
+      0,0,539,551,5,48,0,0,540,551,5,49,0,0,541,551,5,50,0,0,542,551,5,52,
+      0,0,543,551,5,53,0,0,544,551,5,54,0,0,545,551,5,55,0,0,546,551,5,56,
+      0,0,547,551,5,57,0,0,548,551,5,58,0,0,549,551,5,44,0,0,550,534,1,0,
+      0,0,550,535,1,0,0,0,550,536,1,0,0,0,550,537,1,0,0,0,550,538,1,0,0,
+      0,550,539,1,0,0,0,550,540,1,0,0,0,550,541,1,0,0,0,550,542,1,0,0,0,
+      550,543,1,0,0,0,550,544,1,0,0,0,550,545,1,0,0,0,550,546,1,0,0,0,550,
+      547,1,0,0,0,550,548,1,0,0,0,550,549,1,0,0,0,551,554,1,0,0,0,552,555,
+      5,25,0,0,553,555,5,33,0,0,554,552,1,0,0,0,554,553,1,0,0,0,554,555,
+      1,0,0,0,555,569,1,0,0,0,556,557,10,1,0,0,557,558,5,34,0,0,558,568,
+      3,104,52,2,559,560,10,2,0,0,560,561,5,10,0,0,561,562,3,72,36,0,562,
+      565,5,11,0,0,563,566,5,25,0,0,564,566,5,33,0,0,565,563,1,0,0,0,565,
+      564,1,0,0,0,565,566,1,0,0,0,566,568,1,0,0,0,567,556,1,0,0,0,567,559,
+      1,0,0,0,568,571,1,0,0,0,569,567,1,0,0,0,569,570,1,0,0,0,570,105,1,
+      0,0,0,571,569,1,0,0,0,572,581,5,10,0,0,573,578,3,72,36,0,574,575,5,
+      21,0,0,575,577,3,72,36,0,576,574,1,0,0,0,577,580,1,0,0,0,578,576,1,
+      0,0,0,578,579,1,0,0,0,579,582,1,0,0,0,580,578,1,0,0,0,581,573,1,0,
+      0,0,581,582,1,0,0,0,582,583,1,0,0,0,583,584,5,11,0,0,584,107,1,0,0,
+      0,585,586,5,42,0,0,586,587,3,104,52,0,587,596,5,8,0,0,588,593,3,110,
+      55,0,589,590,5,21,0,0,590,592,3,110,55,0,591,589,1,0,0,0,592,595,1,
+      0,0,0,593,591,1,0,0,0,593,594,1,0,0,0,594,597,1,0,0,0,595,593,1,0,
+      0,0,596,588,1,0,0,0,596,597,1,0,0,0,597,598,1,0,0,0,598,599,5,9,0,
+      0,599,109,1,0,0,0,600,601,3,104,52,0,601,602,5,19,0,0,602,603,3,72,
+      36,0,603,111,1,0,0,0,604,613,5,8,0,0,605,610,3,114,57,0,606,607,5,
+      21,0,0,607,609,3,114,57,0,608,606,1,0,0,0,609,612,1,0,0,0,610,608,
+      1,0,0,0,610,611,1,0,0,0,611,614,1,0,0,0,612,610,1,0,0,0,613,605,1,
+      0,0,0,613,614,1,0,0,0,614,615,1,0,0,0,615,616,5,9,0,0,616,113,1,0,
+      0,0,617,618,3,72,36,0,618,619,5,19,0,0,619,620,3,72,36,0,620,115,1,
+      0,0,0,621,625,5,8,0,0,622,624,3,60,30,0,623,622,1,0,0,0,624,627,1,
+      0,0,0,625,623,1,0,0,0,625,626,1,0,0,0,626,628,1,0,0,0,627,625,1,0,
+      0,0,628,635,5,9,0,0,629,635,3,42,21,0,630,635,3,46,23,0,631,635,3,
+      48,24,0,632,635,3,56,28,0,633,635,3,58,29,0,634,621,1,0,0,0,634,629,
+      1,0,0,0,634,630,1,0,0,0,634,631,1,0,0,0,634,632,1,0,0,0,634,633,1,
+      0,0,0,635,117,1,0,0,0,57,119,124,130,143,183,200,206,208,217,226,237,
+      249,257,264,273,275,287,298,303,315,326,333,351,356,362,388,396,400,
+      409,417,425,433,441,449,455,459,469,478,487,495,503,512,515,531,550,
+      554,565,567,569,578,581,593,596,610,613,625,634
   ];
 
   static final ATN _ATN =
@@ -3567,9 +3456,6 @@ class VarTypeContext extends ParserRuleContext {
 class AssignmentContext extends ParserRuleContext {
   SimpleAssignmentContext? simpleAssignment() => getRuleContext<SimpleAssignmentContext>(0);
   CompoundAssignmentContext? compoundAssignment() => getRuleContext<CompoundAssignmentContext>(0);
-  PropertyAssignmentContext? propertyAssignment() => getRuleContext<PropertyAssignmentContext>(0);
-  IndexAssignmentContext? indexAssignment() => getRuleContext<IndexAssignmentContext>(0);
-  IndexPropertyAssignmentContext? indexPropertyAssignment() => getRuleContext<IndexPropertyAssignmentContext>(0);
   AssignmentContext([ParserRuleContext? parent, int? invokingState]) : super(parent, invokingState);
   @override
   int get ruleIndex => RULE_assignment;
@@ -3640,91 +3526,6 @@ class CompoundAssignmentContext extends ParserRuleContext {
   T? accept<T>(ParseTreeVisitor<T> visitor) {
     if (visitor is dscriptVisitor<T>) {
      return visitor.visitCompoundAssignment(this);
-    } else {
-    	return visitor.visitChildren(this);
-    }
-  }
-}
-
-class PropertyAssignmentContext extends ParserRuleContext {
-  List<IdentifierContext> identifiers() => getRuleContexts<IdentifierContext>();
-  IdentifierContext? identifier(int i) => getRuleContext<IdentifierContext>(i);
-  TerminalNode? DOT() => getToken(dscriptParser.TOKEN_DOT, 0);
-  TerminalNode? ASSIGN() => getToken(dscriptParser.TOKEN_ASSIGN, 0);
-  ExprContext? expr() => getRuleContext<ExprContext>(0);
-  PropertyAssignmentContext([ParserRuleContext? parent, int? invokingState]) : super(parent, invokingState);
-  @override
-  int get ruleIndex => RULE_propertyAssignment;
-  @override
-  void enterRule(ParseTreeListener listener) {
-    if (listener is dscriptListener) listener.enterPropertyAssignment(this);
-  }
-  @override
-  void exitRule(ParseTreeListener listener) {
-    if (listener is dscriptListener) listener.exitPropertyAssignment(this);
-  }
-  @override
-  T? accept<T>(ParseTreeVisitor<T> visitor) {
-    if (visitor is dscriptVisitor<T>) {
-     return visitor.visitPropertyAssignment(this);
-    } else {
-    	return visitor.visitChildren(this);
-    }
-  }
-}
-
-class IndexAssignmentContext extends ParserRuleContext {
-  IdentifierContext? identifier() => getRuleContext<IdentifierContext>(0);
-  TerminalNode? OPEN_BRACKET() => getToken(dscriptParser.TOKEN_OPEN_BRACKET, 0);
-  List<ExprContext> exprs() => getRuleContexts<ExprContext>();
-  ExprContext? expr(int i) => getRuleContext<ExprContext>(i);
-  TerminalNode? CLOSE_BRACKET() => getToken(dscriptParser.TOKEN_CLOSE_BRACKET, 0);
-  TerminalNode? ASSIGN() => getToken(dscriptParser.TOKEN_ASSIGN, 0);
-  IndexAssignmentContext([ParserRuleContext? parent, int? invokingState]) : super(parent, invokingState);
-  @override
-  int get ruleIndex => RULE_indexAssignment;
-  @override
-  void enterRule(ParseTreeListener listener) {
-    if (listener is dscriptListener) listener.enterIndexAssignment(this);
-  }
-  @override
-  void exitRule(ParseTreeListener listener) {
-    if (listener is dscriptListener) listener.exitIndexAssignment(this);
-  }
-  @override
-  T? accept<T>(ParseTreeVisitor<T> visitor) {
-    if (visitor is dscriptVisitor<T>) {
-     return visitor.visitIndexAssignment(this);
-    } else {
-    	return visitor.visitChildren(this);
-    }
-  }
-}
-
-class IndexPropertyAssignmentContext extends ParserRuleContext {
-  List<IdentifierContext> identifiers() => getRuleContexts<IdentifierContext>();
-  IdentifierContext? identifier(int i) => getRuleContext<IdentifierContext>(i);
-  TerminalNode? OPEN_BRACKET() => getToken(dscriptParser.TOKEN_OPEN_BRACKET, 0);
-  List<ExprContext> exprs() => getRuleContexts<ExprContext>();
-  ExprContext? expr(int i) => getRuleContext<ExprContext>(i);
-  TerminalNode? CLOSE_BRACKET() => getToken(dscriptParser.TOKEN_CLOSE_BRACKET, 0);
-  TerminalNode? DOT() => getToken(dscriptParser.TOKEN_DOT, 0);
-  TerminalNode? ASSIGN() => getToken(dscriptParser.TOKEN_ASSIGN, 0);
-  IndexPropertyAssignmentContext([ParserRuleContext? parent, int? invokingState]) : super(parent, invokingState);
-  @override
-  int get ruleIndex => RULE_indexPropertyAssignment;
-  @override
-  void enterRule(ParseTreeListener listener) {
-    if (listener is dscriptListener) listener.enterIndexPropertyAssignment(this);
-  }
-  @override
-  void exitRule(ParseTreeListener listener) {
-    if (listener is dscriptListener) listener.exitIndexPropertyAssignment(this);
-  }
-  @override
-  T? accept<T>(ParseTreeVisitor<T> visitor) {
-    if (visitor is dscriptVisitor<T>) {
-     return visitor.visitIndexPropertyAssignment(this);
     } else {
     	return visitor.visitChildren(this);
     }

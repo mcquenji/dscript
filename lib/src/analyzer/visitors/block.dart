@@ -19,6 +19,11 @@ class BlockVisitor extends AnalysisVisitor {
     if (ctx.forStmt() != null) {
       return ctx.forStmt()!.accept(FlowVisitor(this));
     }
+
+    if (ctx.tryStmt() != null) {
+      return ctx.tryStmt()!.accept(FlowVisitor(this));
+    }
+
     for (final child in ctx.lines()) {
       child.accept(this);
     }
