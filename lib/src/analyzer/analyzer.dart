@@ -72,8 +72,9 @@ class Script {
 /// Returns a [Result] containing the [Script] if successful, or an [AnalysisReport] if errors are found.
 ResultDart<Script, AnalysisReport> analyze(
   CharStream code,
-  List<ContractSignature> contracts,
-) {
+  List<ContractSignature> contracts, {
+  bool ignoreWarnings = false,
+}) {
   final analyzer = Analyzer(contracts);
   final lexer = dscriptLexer(code);
   final tokens = CommonTokenStream(lexer);
@@ -83,6 +84,10 @@ ResultDart<Script, AnalysisReport> analyze(
   parser.addErrorListener(AnalyzerErrorListener(analyzer.errors));
   final tree = parser.script();
   analyzer.visitScript(tree);
+
+  if (ignoreWarnings) {
+    analyzer.errors.clearWarnings();
+  }
 
   if (analyzer.errors.hasErrors) {
     return analyzer.errors.toFailure();

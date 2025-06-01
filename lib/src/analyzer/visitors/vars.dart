@@ -180,10 +180,15 @@ class VarsVisitor extends AnalysisVisitor {
 
     if (scope.has(name)) {
       report(
-        SemanticError('Variable "$name" already defined', ctx: ctx),
+        RedefinitionError(name, ctx: ctx),
       );
     } else {
-      scope.set(name, resolvedType, isMutable);
+      scope.set(
+        name,
+        resolvedType,
+        isMutable,
+        constant: ctx.varType()?.CONST() != null,
+      );
     }
 
     if (type != null && initializer != null) {

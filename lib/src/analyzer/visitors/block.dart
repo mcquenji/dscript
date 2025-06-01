@@ -9,8 +9,23 @@ class BlockVisitor extends AnalysisVisitor {
   $Type? visitBlock(BlockContext ctx) {
     scope = TypeScope(scope);
 
-    for (final line in ctx.lines()) {
-      line.accept(this);
+    if (ctx.ifStmt() != null) {
+      return ctx.ifStmt()!.accept(FlowVisitor(this));
+    }
+
+    if (ctx.whileStmt() != null) {
+      return ctx.whileStmt()!.accept(FlowVisitor(this));
+    }
+    if (ctx.forStmt() != null) {
+      return ctx.forStmt()!.accept(FlowVisitor(this));
+    }
+
+    if (ctx.tryStmt() != null) {
+      return ctx.tryStmt()!.accept(FlowVisitor(this));
+    }
+
+    for (final child in ctx.lines()) {
+      child.accept(this);
     }
 
     scope = scope.pop();

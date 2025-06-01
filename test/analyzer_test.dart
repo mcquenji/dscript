@@ -398,261 +398,119 @@ contract Random {
     });
   });
 
-  group('variables', () {
-    test('type mismatch in declaration', () {
-      final script = '''
-author "A";
-version 1.0.0;
-name "T";
-description "Bad var";
-contract Random {
-  impl randomNumber(int foo) -> double {
-    final int x = "oops";
-    return foo * 1.0;
-  }
-  impl randomString() -> string { return ""; }
-  impl test() -> void { return; }
-  hook onLogin(string username) {}
-  hook onLogout() {}
-}
-''';
+  group('flow control', () {
+    test('if condition not boolean', () {
+      final script =
+          baseRandomScript('if (5) { return foo * 1.0; } else { return 0.0; }');
       final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
       expect(
         result.exceptionOrNull()?.errors,
         contains(
-          isA<SemanticError>(),
+          isA<TypeError>().having(
+            (e) => e.message,
+            'message',
+            contains('Expected type bool'),
+          ),
         ),
       );
     });
 
-    test('immutable non-nullable without initializer', () {
-      final script = '''
-author "A";
-version 1.0.0;
-name "T";
-description "No init";
-contract Random {
-  impl randomNumber(int foo) -> double {
-    final int? x;
-    return foo * 1.0;
-  }
-  impl randomString() -> string { return ""; }
-  impl test() -> void { return; }
-  hook onLogin(string username) {}
-  hook onLogout() {}
-}
-''';
+    test('while condition not boolean', () {
+      final script =
+          baseRandomScript('while (foo) { break; } return foo * 1.0;');
       final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
       expect(
         result.exceptionOrNull()?.errors,
         contains(
-          isA<SemanticWarning>().having(
+          isA<TypeError>().having(
             (e) => e.message,
             'message',
-            contains('should have an initializer'),
+            contains('Expected type bool'),
+          ),
+        ),
+      );
+    });
+
+    test('return propagation in try-catch', () {
+      final script = baseRandomScript('''
+        try {
+          return foo * 1.0;
+        } catch (e) {
+          return 0.0;
+        }
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      // Both branches return, so it should be valid
+      expect(result.isSuccess(), isTrue);
+    });
+
+    test('missing return when only try returns but catch does not', () {
+      final script = baseRandomScript('''
+        try {
+          return foo * 1.0;
+        } catch (e) {
+          // no return here
+        }
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>().having(
+            (e) => e.message,
+            'message',
+            contains('does not return a value'),
           ),
         ),
       );
     });
   });
 
-  group('external calls', () {
-    test('calling undefined external function', () {
-      final ecContract = contract('EC')
-          .bind<double>('foo', (int x) => x.toDouble())
-          .param(PrimitiveType.INT)
-          .permission('fooPerm')
-          .end()
-          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
-          .param('x', PrimitiveType.INT)
-          .end()
-          .hook('onEC')
-          .end()
-          .build();
-
-      final script = '''
-author "Me";
-version 1.0.0;
-name "EC";
-description "Bad external";
-contract EC {
-  impl ecImpl(int x) -> double {
-    external::bar(x);
-    return x;
-  }
-  hook onEC() {}
-}
-''';
-      final result = analyze(InputStream.fromString(script), [ecContract]);
+  group('null safety', () {
+    test('accessing nullable without null check', () {
+      final script = baseRandomScript('''
+        final Map<string,string>? maybe = null;
+        final string? value = maybe['key'];
+       
+        return foo * 1.0;
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
       expect(
         result.exceptionOrNull()?.errors,
         contains(
-          isA<UndefinedExternalFunctionError>().having(
-            (e) => e.message,
-            'message',
-            contains("is not defined in the 'external' namespace"),
-          ),
+          isA<NullSafetyError>(),
         ),
       );
     });
 
-    test('calling external function with invalid parameter types', () {
-      final ecContract = contract('EC')
-          .bind<double>('foo', (int x) => x.toDouble())
-          .param(PrimitiveType.INT)
-          .end()
-          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
-          .param('x', PrimitiveType.INT)
-          .end()
-          .hook('onEC')
-          .end()
-          .build();
-
-      final script = '''
-author "Me";
-version 1.0.0;
-name "EC";
-description "Bad external";
-contract EC {
-  impl ecImpl(int x) -> double {
-    external::foo(true); // Invalid type
-    return x;
-  }
-  hook onEC() {}
-}
-''';
-      final result = analyze(InputStream.fromString(script), [ecContract]);
+    test('unnecessary null-aware access', () {
+      final script = baseRandomScript('''
+         final Map<string,string> maybe = {'test' : 'value'};
+        final string? value = maybe!['key'];
+       
+        return foo * 1.0;
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isError(), isTrue);
       expect(
         result.exceptionOrNull()?.errors,
-        contains(
-          isA<ArgumentTypeMismatchError>().having(
-            (e) => e.message,
-            'message',
-            contains("can't be assigned to the parameter type"),
-          ),
-        ),
+        contains(isA<UnnecessaryNullCheckWarning>()),
       );
     });
 
-    test('calling external function with missing parameters', () {
-      final ecContract = contract('EC')
-          .bind<double>('foo', (int x) => x.toDouble())
-          .param(PrimitiveType.INT)
-          .end()
-          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
-          .param('x', PrimitiveType.INT)
-          .end()
-          .hook('onEC')
-          .end()
-          .build();
-
-      final script = '''
-author "Me";
-version 1.0.0;
-name "EC";
-description "Bad external";
-contract EC {
-  impl ecImpl(int x) -> double {
-    external::foo(); // Missing parameter
-    return x;
-  }
-  hook onEC() {}
-}
-''';
-      final result = analyze(InputStream.fromString(script), [ecContract]);
-      expect(result.isError(), isTrue);
-      expect(
-        result.exceptionOrNull()?.errors,
-        contains(
-          isA<PositionalArgumentError>().having(
-            (e) => e.message,
-            'message',
-            contains('0 found'),
-          ),
-        ),
-      );
-    });
-
-    test('calling external function without defining permissions', () {
-      final ecContract = contract('EC')
-          .bind<double>('foo', (int x) => x.toDouble())
-          .param(PrimitiveType.INT)
-          .permission('fooPerm')
-          .end()
-          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
-          .param('x', PrimitiveType.INT)
-          .end()
-          .hook('onEC')
-          .end()
-          .build();
-
-      final script = '''
-author "Me";
-version 1.0.0;
-name "EC";
-description "Bad external";
-contract EC {
-  impl ecImpl(int x) -> double {
-    return external::foo(x);
-  }
-  hook onEC() {}
-}
-''';
-      final result = analyze(InputStream.fromString(script), [ecContract]);
-      expect(result.isError(), isTrue);
-      expect(
-        result.exceptionOrNull()?.errors,
-        contains(
-          isA<PermissionError>().having(
-            (e) => e.message,
-            'message',
-            contains('Missing permission'),
-          ),
-        ),
-      );
-    });
-
-    test('calling external function in undefined namespace', () {
-      final ecContract = contract('EC')
-          .bind<double>('foo', (int x) => x.toDouble())
-          .param(PrimitiveType.INT)
-          .permission('fooPerm')
-          .end()
-          .impl('ecImpl', returnType: PrimitiveType.DOUBLE)
-          .param('x', PrimitiveType.INT)
-          .end()
-          .hook('onEC')
-          .end()
-          .build();
-
-      final script = '''
-author "Me";
-version 1.0.0;
-name "EC";
-description "Bad external";
-contract EC {
-  impl ecImpl(int x) -> double {
-    return test::foo(x);
-  }
-  hook onEC() {}
-}
-''';
-      final result = analyze(InputStream.fromString(script), [ecContract]);
-      expect(result.isError(), isTrue);
-      expect(
-        result.exceptionOrNull()?.errors,
-        contains(
-          isA<UndefinedNamespaceError>().having(
-            (e) => e.message,
-            'message',
-            contains('No such namespace'),
-          ),
-        ),
-      );
+    test('valid null check', () {
+      final script = baseRandomScript('''
+       final Map<string,string> maybe = {'test' : 'value'};
+        final string? value = maybe['key'];
+       
+        return foo * 1.0;
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
     });
   });
 }

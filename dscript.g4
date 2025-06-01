@@ -2,7 +2,7 @@ grammar dscript;
 
 // ------ GRAMMAR RULES ------ //
 
-script: metadata* permissions* contract EOF;
+script: schema? metadata* permissions* contract EOF;
 
 // Top-level metadata
 
@@ -15,6 +15,7 @@ metadata:
 	| repo
 	| website;
 
+schema: SCHEMA STRING SEMI;
 author: AUTHOR STRING SEMI;
 description: DESCRIPTION STRING SEMI;
 version: VERSION SEMVER SEMI;
@@ -30,7 +31,11 @@ permission:
 
 // The single contract
 contract:
-	CONTRACT identifier OPEN_BRACE (hook | impl | func)* CLOSE_BRACE;
+	CONTRACT identifier OPEN_BRACE (varDecl SEMI)* (
+		hook
+		| impl
+		| func
+	)* CLOSE_BRACE;
 
 // Hooks and impls
 hook: HOOK identifier OPEN_PAREN params? CLOSE_PAREN block;
@@ -60,8 +65,8 @@ stmt:
 	| ifStmt
 	| whileStmt
 	| forStmt
-	| tryStmt
-	| switchStmt;
+	| tryStmt;
+// switch postponed | switchStmt;
 
 throwStmt: THROW expr;
 
@@ -76,10 +81,9 @@ forStmt:
 returnStmt: RETURN expr?;
 breakStmt: BREAK;
 continueStmt: CONTINUE;
-switchStmt:
-	SWITCH OPEN_PAREN expr CLOSE_PAREN OPEN_BRACE caseStmt* defaultStmt? CLOSE_BRACE;
-caseStmt: CASE expr COLON block;
-defaultStmt: DEFAULT COLON block;
+// switch is postponed until further notice switchStmt: SWITCH OPEN_PAREN expr CLOSE_PAREN
+// OPEN_BRACE caseStmt* defaultStmt? CLOSE_BRACE; caseStmt: CASE (literal | identifier) COLON block;
+// defaultStmt: DEFAULT COLON block;
 /*
  * Try block for exception handling.
  */
@@ -93,12 +97,7 @@ line: (stmt | expr) SEMI | block;
 
 // Variable declarations & assignments
 varType: FINAL | CONST | VAR;
-assignment:
-	simpleAssignment
-	| compoundAssignment
-	| propertyAssignment
-	| indexAssignment
-	| indexPropertyAssignment;
+assignment: simpleAssignment | compoundAssignment;
 
 simpleAssignment: identifier ASSIGN expr;
 
@@ -109,13 +108,6 @@ compoundAssignment:
 	| identifier op = DIVIDE_ASSIGN expr
 	| identifier op = MOD_ASSIGN expr;
 
-propertyAssignment: identifier DOT identifier ASSIGN expr;
-
-indexAssignment:
-	identifier OPEN_BRACKET expr CLOSE_BRACKET ASSIGN expr;
-
-indexPropertyAssignment:
-	identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier ASSIGN expr;
 varDecl:
 	varType dataType identifier
 	| varType dataType? assignment;
@@ -156,28 +148,16 @@ multiplicativeExpr:
 
 unaryExpr:
 	op = (PLUS | MINUS | NOT | BIT_NOT) unaryExpr
-	| primaryExpr
-	| identifier PLUS_PLUS
-	| identifier MINUS_MINUS
-	| identifier DOT identifier PLUS_PLUS
-	| identifier DOT identifier MINUS_MINUS
-	| identifier OPEN_BRACKET expr CLOSE_BRACKET PLUS_PLUS
-	| identifier OPEN_BRACKET expr CLOSE_BRACKET MINUS_MINUS
-	| identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier PLUS_PLUS
-	| identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier MINUS_MINUS;
+	| suffixExpr;
+
+suffixExpr: primaryExpr op = (PLUS_PLUS | MINUS_MINUS)?;
 
 primaryExpr:
 	OPEN_PAREN expr CLOSE_PAREN
 	| functionCall
 	| externalFunctionCall
 	| literal
-	| identifier
-	// Key/Index access (e.g., array[index])
-	| identifier OPEN_BRACKET expr CLOSE_BRACKET
-	// Key/Index access with property (e.g., array[index].property)
-	| identifier OPEN_BRACKET expr CLOSE_BRACKET DOT identifier
-	// Object property access (e.g., object.property)
-	| identifier DOT identifier;
+	| identifier;
 
 externalFunctionCall:
 	namespace = identifier DOUBLE_COLON functionCall;
@@ -207,21 +187,31 @@ literal:
 	| objectLiteral;
 
 identifier:
-	IDENT
-	| AUTHOR
-	| NAME
-	| DESCRIPTION
-	| VERSION
-	| LICENSE
-	| REPO
-	| WEBSITE
-	| PERMISSIONS
-	| CONTRACT
-	| IMPL
-	| HOOK
-	| FUNC
-	| LIST
-	| MAP;
+	(
+		ident = IDENT
+		| ident = AUTHOR
+		| ident = NAME
+		| ident = DESCRIPTION
+		| ident = VERSION
+		| ident = LICENSE
+		| ident = REPO
+		| ident = WEBSITE
+		| ident = PERMISSIONS
+		| ident = CONTRACT
+		| ident = IMPL
+		| ident = HOOK
+		| ident = FUNC
+		| ident = LIST
+		| ident = MAP
+		| ident = SCHEMA
+	) (nullAware = NOT | allowNull = Q)?
+	// Indexing an identifier
+	| indexIdent = identifier OPEN_BRACKET index = expr CLOSE_BRACKET (
+		nullAware = NOT
+		| allowNull = Q
+	)?
+	// Accessing a property of an identifier
+	| objIdent = identifier DOT property = identifier;
 
 arrayLiteral: OPEN_BRACKET (expr (COMMA expr)*)? CLOSE_BRACKET;
 objectLiteral:
@@ -242,7 +232,7 @@ block: (OPEN_BRACE line* CLOSE_BRACE)
 	| ifStmt
 	| whileStmt
 	| forStmt
-	| switchStmt
+	//| switchStmt
 	| tryStmt
 	| catchBlock;
 
@@ -294,6 +284,12 @@ AT: '@';
 DOLLAR: '$';
 
 // Keywords
+
+/*
+ * Schema keyword declaring the script's schema it's following.
+ */
+SCHEMA: 'schema';
+
 /*
  * Metadata keyword declaring the script's author.
  */

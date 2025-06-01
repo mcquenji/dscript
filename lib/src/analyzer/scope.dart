@@ -12,20 +12,29 @@ class TypeScope {
   /// If this scope has returned a value, this will be set to the type of the returned value.
   $Type? returned;
 
-  /// Same as [Scope] but only stores the types of variables and not their values.
-  TypeScope(this._parent, {$Type? returnType})
-      : returnType = returnType ?? _parent?.returnType;
+  /// If this scope is a fork of another scope for branching,
+  /// this will be true.
+  final bool isFork;
 
-  final Map<String, $Type> _types =
-      Scope().variables.map((name, v) => MapEntry(name, v.value.type));
+  /// Same as [Scope] but only stores the types of variables and not their values.
+  TypeScope(this._parent, {$Type? returnType, this.isFork = false})
+      : returnType = returnType ?? _parent?.returnType,
+        _types = _parent == null
+            ? Scope().variables.map((name, v) => MapEntry(name, v.value.type))
+            : <String, $Type>{};
+
+  final Map<String, $Type> _types;
 
   /// List of mutable variables in this scope.
   final List<String> _mutables = [];
 
+  /// List of constants in this scope.
+  final List<String> _constants = [];
+
   /// Sets the type of a variable in this scope.
   ///
   /// Throws an [AnalyzerMessage] if the variable is already defined in this scope.
-  void set(String name, $Type type, bool mutable) {
+  void set(String name, $Type type, bool mutable, {bool constant = false}) {
     if (type == PrimitiveType.VOID) {
       throw ArgumentError.value(
         type,
@@ -43,6 +52,10 @@ class TypeScope {
     if (mutable) {
       _mutables.add(name);
     }
+
+    if (constant) {
+      _constants.add(name);
+    }
   }
 
   /// Marks the scope as having returned a value.
@@ -57,10 +70,14 @@ class TypeScope {
     }
 
     returned = type;
-    // TODO: figure out how to propagate to the parent scope for branches.
-    // When we propagate from within an if statement and mark the parent scope as returned,
-    // this does not ensure that the function actually returns a value in all branches.
-    _parent?.markReturned(type);
+
+    // Only propagate the returned type to the parent scope if this is not a fork.
+    // If this is a fork, we don't want to propagate the returned type to the parent
+    // because this scope is a possible branch of a function and we thus can't assume
+    // that the parent scope has returned a value as well.
+    if (!isFork) {
+      _parent?.markReturned(type);
+    }
   }
 
   /// Returns true if a variable is defined directly in this scope.
@@ -92,6 +109,17 @@ class TypeScope {
     throw StateError('Variable $name not defined');
   }
 
+  /// Checks if a variable is constant in this scope.
+  bool constant(String name) {
+    if (_types.containsKey(name)) {
+      return _constants.contains(name);
+    } else if (_parent != null) {
+      return _parent.constant(name);
+    }
+
+    throw StateError('Variable $name not defined');
+  }
+
   /// Gets the type of a variable in this scope.
   $Type? get(String name) {
     if (_types.containsKey(name)) {
@@ -111,5 +139,10 @@ class TypeScope {
   /// Returns the root scope of this scope.
   TypeScope get root {
     return _parent?.root ?? this;
+  }
+
+  /// Creates a child scope of this scope.
+  TypeScope fork() {
+    return TypeScope(this, returnType: returnType, isFork: true);
   }
 }

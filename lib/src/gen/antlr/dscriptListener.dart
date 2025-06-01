@@ -21,6 +21,13 @@ abstract class dscriptListener extends ParseTreeListener {
   /// [ctx] the parse tree
   void exitMetadata(MetadataContext ctx);
 
+  /// Enter a parse tree produced by [dscriptParser.schema].
+  /// [ctx] the parse tree
+  void enterSchema(SchemaContext ctx);
+  /// Exit a parse tree produced by [dscriptParser.schema].
+  /// [ctx] the parse tree
+  void exitSchema(SchemaContext ctx);
+
   /// Enter a parse tree produced by [dscriptParser.author].
   /// [ctx] the parse tree
   void enterAuthor(AuthorContext ctx);
@@ -196,27 +203,6 @@ abstract class dscriptListener extends ParseTreeListener {
   /// [ctx] the parse tree
   void exitContinueStmt(ContinueStmtContext ctx);
 
-  /// Enter a parse tree produced by [dscriptParser.switchStmt].
-  /// [ctx] the parse tree
-  void enterSwitchStmt(SwitchStmtContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.switchStmt].
-  /// [ctx] the parse tree
-  void exitSwitchStmt(SwitchStmtContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.caseStmt].
-  /// [ctx] the parse tree
-  void enterCaseStmt(CaseStmtContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.caseStmt].
-  /// [ctx] the parse tree
-  void exitCaseStmt(CaseStmtContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.defaultStmt].
-  /// [ctx] the parse tree
-  void enterDefaultStmt(DefaultStmtContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.defaultStmt].
-  /// [ctx] the parse tree
-  void exitDefaultStmt(DefaultStmtContext ctx);
-
   /// Enter a parse tree produced by [dscriptParser.tryStmt].
   /// [ctx] the parse tree
   void enterTryStmt(TryStmtContext ctx);
@@ -265,27 +251,6 @@ abstract class dscriptListener extends ParseTreeListener {
   /// Exit a parse tree produced by [dscriptParser.compoundAssignment].
   /// [ctx] the parse tree
   void exitCompoundAssignment(CompoundAssignmentContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.propertyAssignment].
-  /// [ctx] the parse tree
-  void enterPropertyAssignment(PropertyAssignmentContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.propertyAssignment].
-  /// [ctx] the parse tree
-  void exitPropertyAssignment(PropertyAssignmentContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.indexAssignment].
-  /// [ctx] the parse tree
-  void enterIndexAssignment(IndexAssignmentContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.indexAssignment].
-  /// [ctx] the parse tree
-  void exitIndexAssignment(IndexAssignmentContext ctx);
-
-  /// Enter a parse tree produced by [dscriptParser.indexPropertyAssignment].
-  /// [ctx] the parse tree
-  void enterIndexPropertyAssignment(IndexPropertyAssignmentContext ctx);
-  /// Exit a parse tree produced by [dscriptParser.indexPropertyAssignment].
-  /// [ctx] the parse tree
-  void exitIndexPropertyAssignment(IndexPropertyAssignmentContext ctx);
 
   /// Enter a parse tree produced by [dscriptParser.varDecl].
   /// [ctx] the parse tree
@@ -349,6 +314,13 @@ abstract class dscriptListener extends ParseTreeListener {
   /// Exit a parse tree produced by [dscriptParser.unaryExpr].
   /// [ctx] the parse tree
   void exitUnaryExpr(UnaryExprContext ctx);
+
+  /// Enter a parse tree produced by [dscriptParser.suffixExpr].
+  /// [ctx] the parse tree
+  void enterSuffixExpr(SuffixExprContext ctx);
+  /// Exit a parse tree produced by [dscriptParser.suffixExpr].
+  /// [ctx] the parse tree
+  void exitSuffixExpr(SuffixExprContext ctx);
 
   /// Enter a parse tree produced by [dscriptParser.primaryExpr].
   /// [ctx] the parse tree

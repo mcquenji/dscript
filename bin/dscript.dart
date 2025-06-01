@@ -37,7 +37,10 @@ void main(List<String> arguments) async {
           .describe('A test implementation that does nothing.')
           .end()
           .hook('onLogin')
-          .param('username', PrimitiveType.STRING)
+          .param(
+            'user',
+            const Struct(name: 'User'),
+          )
           .describe(
             'Event emitted when a user logs in.',
           )
@@ -54,8 +57,13 @@ void main(List<String> arguments) async {
           )
           .permission('math')
           .end()
+          .struct('User')
+          .field('name', PrimitiveType.STRING)
+          .field('id', PrimitiveType.INT)
+          .end()
           .build(),
     ],
+    // ignoreWarnings: true,
   ).getOrThrow();
 
   print('Author: ${script.author}');

@@ -28,6 +28,14 @@ class dscriptBaseListener implements dscriptListener {
 
   /// The default implementation does nothing.
   @override
+  void enterSchema(SchemaContext ctx) {}
+
+  /// The default implementation does nothing.
+  @override
+  void exitSchema(SchemaContext ctx) {}
+
+  /// The default implementation does nothing.
+  @override
   void enterAuthor(AuthorContext ctx) {}
 
   /// The default implementation does nothing.
@@ -228,30 +236,6 @@ class dscriptBaseListener implements dscriptListener {
 
   /// The default implementation does nothing.
   @override
-  void enterSwitchStmt(SwitchStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitSwitchStmt(SwitchStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterCaseStmt(CaseStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitCaseStmt(CaseStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterDefaultStmt(DefaultStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitDefaultStmt(DefaultStmtContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
   void enterTryStmt(TryStmtContext ctx) {}
 
   /// The default implementation does nothing.
@@ -305,30 +289,6 @@ class dscriptBaseListener implements dscriptListener {
   /// The default implementation does nothing.
   @override
   void exitCompoundAssignment(CompoundAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterPropertyAssignment(PropertyAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitPropertyAssignment(PropertyAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterIndexAssignment(IndexAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitIndexAssignment(IndexAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void enterIndexPropertyAssignment(IndexPropertyAssignmentContext ctx) {}
-
-  /// The default implementation does nothing.
-  @override
-  void exitIndexPropertyAssignment(IndexPropertyAssignmentContext ctx) {}
 
   /// The default implementation does nothing.
   @override
@@ -401,6 +361,14 @@ class dscriptBaseListener implements dscriptListener {
   /// The default implementation does nothing.
   @override
   void exitUnaryExpr(UnaryExprContext ctx) {}
+
+  /// The default implementation does nothing.
+  @override
+  void enterSuffixExpr(SuffixExprContext ctx) {}
+
+  /// The default implementation does nothing.
+  @override
+  void exitSuffixExpr(SuffixExprContext ctx) {}
 
   /// The default implementation does nothing.
   @override

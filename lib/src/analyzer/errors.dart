@@ -76,7 +76,10 @@ class AnalysisReport extends AnalyzerMessage {
 
   @override
   String toString() {
-    return 'AnalysisReport: ${errors.length} errors found:\n${errors.map((e) => ' - $e').join('\n')}';
+    final errorCount = errors.where((e) => e.severity == 1).length;
+    final warningCount = errors.where((e) => e.severity == 2).length;
+
+    return 'AnalysisReport: $errorCount errors found, $warningCount warnings found:\n${errors.map((e) => ' - $e').join('\n')}';
   }
 
   /// Reports an [AnalyzerMessage].
@@ -103,6 +106,11 @@ class AnalysisReport extends AnalyzerMessage {
 
   /// Returns true if this report contains any errors.
   bool get hasErrors => errors.isNotEmpty;
+
+  /// Clears all warnings from the report.
+  void clearWarnings() {
+    errors.removeWhere((e) => e.severity == 2);
+  }
 }
 
 // #region Semantics
@@ -119,6 +127,20 @@ class SemanticWarning extends AnalyzerMessage {
 
   /// The statement that caused the warning.
   final ParserRuleContext? ctx;
+}
+
+/// An unnecessary null check warning.
+class UnnecessaryNullCheckWarning extends SemanticWarning {
+  /// The operator that was used in the null check, either '?' or '!'.
+  final String op;
+
+  /// An unnecessary null check warning.
+  UnnecessaryNullCheckWarning(this.op, {required super.ctx})
+      : super(
+          op == '?'
+              ? "The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try removing the operator '?'."
+              : "The '!' will have no effect because the receiver can't be null. Try removing the '!' operator.",
+        );
 }
 
 // #endregion
@@ -177,6 +199,25 @@ class UndefinedExternalFunctionError extends UndefinedError {
       "The function '$name' is not defined in the '$namespace' namespace.";
 }
 
+/// An error thrown when a value is accessed without null safety checks,
+/// but the value is potentially null.
+class NullSafetyError extends SemanticError {
+  /// The name of the value that is potentially null.
+  final String? valueName;
+
+  /// The name of the property that is being accessed.
+  final String? propertyName;
+
+  /// An error thrown when a value is accessed without null safety checks,
+  /// but the value is potentially null.
+  NullSafetyError(
+      {required this.propertyName, required this.valueName, required super.ctx})
+      : assert(propertyName != null || valueName != null),
+        super(
+          "${propertyName != null ? 'The property' : 'The value'} '${propertyName ?? valueName!}' can't be unconditionally accessed because the receiver can be 'null'. Try making the access conditional (using '?.') or adding a null check to the target ('!').",
+        );
+}
+
 /// An error thrown when an external function is called without the required permission.
 class PermissionError extends SemanticError {
   /// The name of the function that requires the permission.
@@ -232,6 +273,19 @@ class InferenceError extends SemanticError {
       : super(
           message ?? 'Cannot infer type for statement: ${ctx?.text}',
         );
+}
+
+/// An error thrown when an operation is not supported for a given type.
+class OperationError extends SemanticError {
+  /// The operation that caused the error.
+  final String operation;
+
+  /// The type for which the operation is not supported.
+  final $Type type;
+
+  /// An error thrown when an operation is not supported for a given type.
+  OperationError(this.operation, this.type, {required super.ctx})
+      : super("The operation '$operation' is not supported for type '$type'.");
 }
 
 /// Thrown when too many or too little positional arguments are passed to a function.

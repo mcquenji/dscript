@@ -1,15 +1,20 @@
+import 'dart:async';
+
 import 'package:dscript/src/permissions.dart';
 import 'package:dscript/src/runtime/exceptions.dart';
 import 'package:dscript/src/stdlib/stdlib.dart';
 import 'package:dscript/src/runtime/values.dart';
 import 'package:dscript/src/types.dart';
 
-/// A binding from the DSL to a Dart function.
+/// A binding that connects a Dart function to the dscript runtime.
 class RuntimeBinding<T> {
   /// The name of the binding.
   final String name;
 
   /// The function associated with this binding.
+  ///
+  /// It is expected to return a value of type FutureOr<[T]>.
+  /// The accepted parameters must match [namedParams] and [positionalParams].
   final Function function;
 
   /// A map of parameter names to their expected types.
@@ -29,7 +34,7 @@ class RuntimeBinding<T> {
   /// The return type of the function as a dsl type.
   $Type get returnType => $Type.from(T.toString());
 
-  /// A binding from the DSL to a Dart function.
+  /// Creates a new [RuntimeBinding] instance.
   const RuntimeBinding({
     required this.name,
     required this.function,
@@ -40,8 +45,8 @@ class RuntimeBinding<T> {
   });
 
   /// Calls the bound function with the provided arguments.
-  T call(List<RuntimeValue> positionalArgs,
-      {Map<Symbol, RuntimeValue> namedArgs = const {}}) {
+  Future<T> call(List<RuntimeValue> positionalArgs,
+      {Map<Symbol, RuntimeValue> namedArgs = const {}}) async {
     // Check if all named parameters are provided
     for (final entry in namedParams.entries) {
       final param = entry.key;
@@ -92,7 +97,7 @@ class RuntimeBinding<T> {
       positionalArgs[i] = positionalArgs[i].cast(positionalParams[i]);
     }
 
-    final result = Function.apply(
+    final result = await Function.apply(
         function,
         positionalArgs.map((arg) => arg.value).toList(),
         namedArgs.map(

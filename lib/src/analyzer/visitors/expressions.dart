@@ -186,19 +186,159 @@ class ExprVisitor extends AnalysisVisitor {
 
   @override
   $Type? visitIdentifier(IdentifierContext ctx) {
-    final type = scope.get(ctx.text);
+    if (ctx.indexIdent != null) {
+      // this is an indexed identifier, like `array[0]` or `map['key']`
+      final type = ctx.indexIdent!.accept(this);
+
+      final index = ctx.index?.accept(this);
+
+      if (index == null) {
+        report(InferenceError(ctx: ctx));
+        return const InvalidType();
+      }
+
+      if (type == null) {
+        return report(InferenceError(ctx: ctx));
+      }
+
+      if (type.nullable &&
+          ctx.indexIdent!.nullAware == null &&
+          ctx.indexIdent!.allowNull == null) {
+        // if the type is nullable and the index is not null-aware, we return a nullable type
+        report(
+          NullSafetyError(
+            valueName: ctx.indexIdent!.text,
+            propertyName: null,
+            ctx: ctx,
+          ),
+        );
+      }
+
+      final nullable = !(ctx.nullAware != null || !type.nullable);
+
+      if (type is ListType) {
+        if (index != PrimitiveType.INT) {
+          report(
+            TypeError(
+              PrimitiveType.INT,
+              index,
+              ctx: ctx,
+            ),
+          );
+        }
+        return type.elementType.asNullable(nullable);
+      }
+
+      if (type is MapType) {
+        if (!index.canCast(type.keyType)) {
+          report(
+            TypeError(
+              type.keyType,
+              index,
+              ctx: ctx,
+            ),
+          );
+        }
+        return type.valueType.asNullable(nullable);
+      }
+
+      return report(
+        SemanticError(
+          "Cannot index type '$type'",
+          ctx: ctx,
+        ),
+      );
+    }
+
+    if (ctx.objIdent != null) {
+      // we're accessing a property of an object, like `obj.prop`
+
+      final rawType = ctx.objIdent!.accept(this);
+      final objType = rawType?.lookup(contract.structs);
+
+      if (objType == null) {
+        return report(
+          SemanticError(
+            "Cannot access properties of type '$rawType'",
+            ctx: ctx,
+          ),
+        );
+      }
+
+      bool nullable = objType.nullable && ctx.objIdent!.nullAware == null;
+
+      final propName = ctx.property!.ident!.text!;
+      var propType = objType.fields[propName];
+
+      if (propType == null) {
+        return report(
+          SemanticError(
+            "Object '${objType.name}' has no property '$propName'",
+            ctx: ctx,
+          ),
+        );
+      }
+
+      if (objType.nullable &&
+          ctx.objIdent!.nullAware == null &&
+          ctx.objIdent!.allowNull == null) {
+        // if the object is nullable and the access is not null-aware, we report an error
+        report(
+          NullSafetyError(
+            propertyName: propName,
+            valueName: null,
+            ctx: ctx,
+          ),
+        );
+      }
+
+      if (ctx.property!.nullAware != null) {
+        nullable = false;
+      }
+
+      // if the property or the object is nullable, we return a nullable type
+      propType = propType.asNullable(nullable);
+
+      // check for unnecessary null-aware access
+      if (!propType.nullable &&
+          (ctx.property!.nullAware != null ||
+              ctx.property!.allowNull != null)) {
+        report(
+          UnnecessaryNullCheckWarning(
+            ctx.property!.nullAware?.text ?? ctx.property!.allowNull!.text!,
+            ctx: ctx,
+          ),
+        );
+      }
+
+      return propType;
+    }
+
+    final type = scope.get(ctx.ident!.text!);
 
     if (type == null) {
       report(
-        SemanticError(
-          'Undefined identifier: "${ctx.text}"',
+        UndefinedError(
+          ctx.ident!.text!,
           ctx: ctx,
         ),
       );
       return const InvalidType();
     }
 
-    return type;
+    // check for unnecessary null-aware access
+    if (!type.nullable && (ctx.nullAware != null || ctx.allowNull != null)) {
+      report(
+        UnnecessaryNullCheckWarning(
+          ctx.nullAware?.text ?? ctx.allowNull!.text!,
+          ctx: ctx,
+        ),
+      );
+    }
+
+    final nonNullable = ctx.nullAware != null || !type.nullable;
+
+    return type.asNullable(!nonNullable);
   }
 
   @override
@@ -355,12 +495,11 @@ class ExprVisitor extends AnalysisVisitor {
 
   @override
   $Type? visitObjectLiteral(ObjectLiteralContext ctx) {
-    final type =
-        $Type.from(ctx.identifier()!.text).lookup(contract.structs) as Struct?;
+    final type = $Type.from(ctx.identifier()!.text).lookup(contract.structs);
 
     if (type == null) {
       report(
-        SemanticError('Unknown type: "${ctx.identifier()!.text}"', ctx: ctx),
+        SemanticError("Unknown type: '${ctx.identifier()!.text}'", ctx: ctx),
       );
       return const InvalidType();
     }
@@ -376,7 +515,7 @@ class ExprVisitor extends AnalysisVisitor {
       if (expected == null) {
         report(
           SemanticError(
-            'Object "${type.name}" has no field "$name"',
+            "Object '${type.name}' has no field '$name'",
             ctx: field,
           ),
         );
@@ -406,7 +545,7 @@ class ExprVisitor extends AnalysisVisitor {
       if (!properties.contains(field.key) && !field.value.nullable) {
         report(
           SemanticError(
-            'Missing required field "${field.key}"',
+            "Missing required field '${field.key}'",
             ctx: ctx,
           ),
         );
@@ -513,5 +652,113 @@ class ExprVisitor extends AnalysisVisitor {
     }
 
     return MapType(keyType: keyType, valueType: valueType);
+  }
+
+  @override
+  $Type? visitUnaryExpr(UnaryExprContext ctx) {
+    final op = ctx.op;
+    final expr = ctx.unaryExpr()?.accept(this);
+    final suffix = ctx.suffixExpr()?.accept(this);
+
+    if (op == null) {
+      return suffix;
+    }
+
+    if (expr == null) {
+      return report(InferenceError(ctx: ctx));
+    }
+
+    switch (op.type) {
+      case dscriptLexer.TOKEN_PLUS:
+      case dscriptLexer.TOKEN_MINUS:
+        if (expr == PrimitiveType.INT || expr == PrimitiveType.DOUBLE) {
+          return expr;
+        }
+        return report(
+          OperationError(op.text!, expr, ctx: ctx),
+        );
+      case dscriptLexer.TOKEN_NOT:
+        if (expr == PrimitiveType.BOOL) {
+          return PrimitiveType.BOOL;
+        }
+        return report(
+          OperationError(op.text!, expr, ctx: ctx),
+        );
+      case dscriptLexer.TOKEN_BIT_NOT:
+        if (expr == PrimitiveType.INT) {
+          return PrimitiveType.INT;
+        }
+        return report(
+          OperationError(op.text!, expr, ctx: ctx),
+        );
+
+      default:
+        return report(
+          SemanticError('Unknown unary operator: "${op.text}"', ctx: ctx),
+        );
+    }
+  }
+
+  @override
+  $Type? visitSuffixExpr(SuffixExprContext ctx) {
+    final expr = ctx.primaryExpr()?.accept(this);
+
+    if (expr == null) {
+      return report(InferenceError(ctx: ctx));
+    }
+
+    if (ctx.op == null) {
+      // This is just a primary expression, like `42` or `myVar`
+      return expr;
+    }
+
+    if (expr == PrimitiveType.INT || expr == PrimitiveType.DOUBLE) {
+      return expr;
+    }
+
+    return report(OperationError(ctx.op!.text!, expr, ctx: ctx));
+  }
+
+  @override
+  $Type? visitPrimaryExpr(PrimaryExprContext ctx) {
+    if (ctx.CLOSE_PAREN() != null) {
+      // This is a parenthesized expression, like `(1 + 2)`
+      final inner = ctx.expr()?.accept(this);
+      if (inner == null) {
+        return report(InferenceError(ctx: ctx));
+      }
+      return inner;
+    }
+
+    if (ctx.literal() != null) {
+      // This is a literal, like `42` or `"hello"`
+      return ctx.literal()!.accept(this);
+    }
+
+    if (ctx.identifier() != null) {
+      // This is an identifier, like `myVar`
+      return ctx.identifier()!.accept(this);
+    }
+    if (ctx.externalFunctionCall() != null) {
+      // This is an external function call, like `std::randomNumber(42)`
+      return ctx.externalFunctionCall()!.accept(this);
+    }
+
+    if (ctx.functionCall() != null) {
+      // This is a function call, like `myFunc(1, 2)`
+      return ctx.functionCall()!.accept(this);
+    }
+
+    return report(InferenceError(ctx: ctx));
+  }
+
+  @override
+  $Type? visitFunctionCall(FunctionCallContext ctx) {
+    return report(
+      SemanticError(
+        'Internal function calls are not supported yet.',
+        ctx: ctx,
+      ),
+    );
   }
 }

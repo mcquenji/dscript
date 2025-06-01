@@ -1,0 +1,27 @@
+ 
+on:
+  workflow_run:
+    workflows: ["Unit Tests"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+ 
+jobs: 
+    report:
+      name: Report Test Results
+      runs-on: ubuntu-latest
+      steps:
+        - name: 💬 Report Results
+          uses: dorny/test-reporter@v2.1.0
+          with:
+            artifact: test-results
+            name: 🧪 Unit Tests
+            path: test-results.json
+            reporter: dart-json
+            fail-on-empty: true
+            fail-on-error: true
+            
