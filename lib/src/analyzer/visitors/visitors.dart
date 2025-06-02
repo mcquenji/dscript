@@ -22,7 +22,7 @@ extension on TerminalNode {
 }
 
 /// Base class for all [dscriptBaseVisitor]s that perform static analysis
-/// on a DScript script.
+/// on a Dscript script.
 abstract class AnalysisVisitor extends dscriptBaseVisitor<$Type> {
   /// {@template AnalysisVisitor.report}
   /// The report of analysis errors found during the visit.
@@ -98,11 +98,11 @@ abstract class AnalysisVisitor extends dscriptBaseVisitor<$Type> {
   final AnalysisVisitor? _parent;
 
   /// Base class for all [dscriptBaseVisitor]s that perform static analysis
-  /// on a DScript script.
+  /// on a Dscript script.
   AnalysisVisitor._(this._contracts) : _parent = null;
 
   /// Base class for all [dscriptBaseVisitor]s that perform static analysis
-  /// on a DScript script.
+  /// on a Dscript script.
   AnalysisVisitor(this._parent) : _contracts = _parent?._contracts ?? [];
 
   /// Reports an [AnalyzerMessage] to the report.
@@ -233,7 +233,7 @@ abstract class AnalysisVisitor extends dscriptBaseVisitor<$Type> {
   }
 }
 
-/// Analyzes a DScript script for errors and validates it against the provided contract signatures.
+/// Analyzes a Dscript script for errors and validates it against the provided contract signatures.
 class Analyzer extends AnalysisVisitor {
   /// Creates an [Analyzer] with the given [contracts].
   Analyzer(super.contracts) : super._();
