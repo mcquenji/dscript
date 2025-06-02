@@ -200,7 +200,26 @@ sealed class $Type extends Signature {
     }
   }
 
-  /// Converts the type to a map.
+  /// Looks up a placeholder struct by its name in the provided [types] and [Struct.defaults] list.
+  ///
+  /// Returns the struct if found, otherwise returns null.
+  ///
+  /// This is used to allow for defining hooks or impls that return or take in a struct
+  /// without having to redifne it everywhere.
+  ///
+  /// ```dart
+  /// contract('Random')
+  /// .hook('onLogin')
+  /// .param(
+  /// 'user',
+  /// const Struct.shallow('User'), // this will be looked up
+  /// )
+  /// .struct('User') // this will be found by the lookup having all the fields defined
+  /// .field('name', PrimitiveType.STRING)
+  /// .field('id', PrimitiveType.INT)
+  /// .end()
+  /// .build();
+  /// ```
   Struct? lookup(List<Struct> types) {
     for (final type in types) {
       if (type.name == name) {
