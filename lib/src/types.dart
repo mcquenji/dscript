@@ -128,7 +128,7 @@ class ImplementationSignature extends FunctionSignature {
         );
 }
 
-/// Represents a type in the DScript language.
+/// Represents a type in the Dscript language.
 sealed class $Type extends Signature {
   /// The name of the type.
   final String name;
@@ -318,7 +318,7 @@ sealed class $Type extends Signature {
 }
 
 /// Represents a primitive type (e.g., int, string, etc.).
-/// This class is used to represent basic data types in the DScript language.
+/// This class is used to represent basic data types in the Dscript language.
 class PrimitiveType extends $Type {
   /// Represents a primitive type (e.g., int, string, etc.).
   const PrimitiveType._({
@@ -413,7 +413,7 @@ class MapType extends $Type {
   final $Type valueType;
 
   /// Represents a Map type (e.g., Map<String, int>).
-  /// This class is used to represent key-value pairs in the DScript language.
+  /// This class is used to represent key-value pairs in the Dscript language.
   const MapType({
     required this.keyType,
     required this.valueType,
@@ -593,7 +593,7 @@ class Struct extends $Type {
     return other == const DynamicType();
   }
 
-  /// Stdandard error struct used in DScript.
+  /// Stdandard error struct used in Dscript.
   static final error = Struct(
     name: 'Error',
     fields: {

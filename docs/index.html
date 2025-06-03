@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
+  <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css" title="docsify-darklight-theme" type="text/css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    #edit-link {
+      font-size: 0.9em;
+      text-decoration: underline;
+    }
+
+    .docsify-copy-code-button {
+      background-color: transparent !important;
+
+      border: 1px solid var(--accent) !important;
+      border-radius: 10px !important;
+      padding: 0 !important;
+      height: 30px !important;
+      width: 30px !important;
+      margin: 25px 10px 0 0 !important;
+    }
+
+    .docsify-copy-code-button .label,
+    .docsify-copy-code-button .error,
+    .docsify-copy-code-button .success {
+      color: var(--accent);
+    }
+
+
+    section.cover p,
+    section.cover li {
+      color: var(--coverTextColor) !important;
+    }
+
+    section.cover .cover-main>p:last-child a {
+      border-color: var(--coverBtn) !important;
+      color: var(--coverTextColor) !important;
+
+    }
+
+    section.cover .cover-main>p:last-child a:last-child {
+      background-color: var(--coverBtn) !important;
+      color: var(--coverTextColor) !important;
+    }
+
+    body>section>div.cover-main>p:nth-child(1)>img {
+      filter: drop-shadow(-0.5px -0.5px 0px rgba(0, 0, 0, 0.226)) drop-shadow(1px -0.5px 0px rgba(0, 0, 0, 0.226)) drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.226)) drop-shadow(-0.5px 1px 0px rgba(0, 0, 0, 0.226)) !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script>
+    var num = 0;
+
+    mermaid.initialize({ startOnLoad: false });
+    window.$docsify = {
+      search: 'auto',
+      auto2top: true,
+      name: 'Dscript',
+      repo: 'https://github.com/mcquenji/dscript',
+      coverpage: true,
+      loadSidebar: true,
+      subMaxLevel: 3,
+      copyCode: {
+        buttonText: '<i class="fa-solid fa-clipboard"></i>',
+        errorText: 'Error',
+        successText: 'Copied!',
+      },
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md'
+      },
+      plugins: [
+        function (hook, vm) {
+          hook.beforeEach(function (html) {
+            url =
+              'https://github.com/mcquenji/dscript/blob/main/docs/' +
+              vm.route.file;
+            var editHtml = '<a href="' + url + '" id=edit-link><i class="fa-solid fa-pencil"></i> Edit Document</a>\n';
+            return (
+              editHtml +
+              html +
+              '\n\n----\n\n' +
+              '<a href="https://docsify.js.org" target="_blank" style="color: inherit; font-weight: normal; text-decoration: none;">Powered by docsify</a>'
+            );
+          })
+        },
+      ],
+      pagination: {
+        crossChapter: true,
+      },
+      markdown: {
+        renderer: {
+          code: function (code, lang) {
+            if (lang === "mermaid") {
+              return (
+                '<div class="mermaid">' + mermaid.render('mermaid-svg-' + num++, code) + "</div>"
+              );
+            }
+            return this.origin.code.apply(this, arguments);
+          }
+        },
+      }, darklightTheme: {
+        siteFont: "PT Sans",
+        defaultTheme: 'dark',
+        codeFontFamily: 'Roboto Mono, Monaco, courier, monospace',
+        bodyFontSize: '17px',
+        dark: {
+          accent: '#1b94d5',
+          toogleBackground: '#ffffff',
+          background: '#091a28',
+          textColor: '#b4b4b4',
+          codeTextColor: '#ffffff',
+          codeBackgroundColor: '#0e2233',
+          borderColor: '#0d2538',
+          blockQuoteColor: '#858585',
+          highlightColor: '#d22778',
+          sidebarSublink: '#b4b4b4',
+          codeTypeColor: '#ffffff',
+          coverBackground: 'linear-gradient(135deg, #01345D 0%, #186D93 100%)',
+          toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/sun.svg)',
+          coverTextColor: '#ffffff',
+          coverBtn: '#1b94d5',
+
+        },
+        light: {
+          accent: '#1b94d5',
+          toogleBackground: '#091a28',
+          background: '#ffffff',
+          textColor: '#34495e',
+          codeTextColor: '#525252',
+          codeBackgroundColor: '#f8f8f8',
+          borderColor: 'rgba(0, 0, 0, 0.07)',
+          blockQuoteColor: '#858585',
+          highlightColor: '#d22778',
+          sidebarSublink: '#b4b4b4',
+          codeTypeColor: '#091a28',
+          coverBackground: 'linear-gradient(135deg, #01579B 0%, #29B6F6 100%)',
+          toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/moon.svg)',
+          coverTextColor: '#ffffff',
+          coverBtn: '#01579b',
+        }
+      },
+    }
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-dart.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js" type="text/javascript">
+  </script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+</body>
+
+</html>

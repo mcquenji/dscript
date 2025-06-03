@@ -1,4 +1,4 @@
-# <img src="icon.svg" alt="Dscript" width="28"/> Dscript
+# <img src="https://raw.githubusercontent.com/mcquenji/dscript/refs/heads/main/icon.svg" alt="Dscript" width="28"/> Dscript
 
 A lightweight [Domain-Specific Language (DSL)](https://en.wikipedia.org/wiki/Domain-specific_language) for Dart designed to simplify writing and integrating plugins/extensions into Flutter and Dart applications. It offers strong interop between DSL constructs and Dart code, a static permission system, and a contract-based plugin model.
 
@@ -19,12 +19,12 @@ To build the ANTLR grammar, run the following command:
 antlr4 -Dlanguage=Dart dscript.g4 -o lib/src/gen/antlr -Werror -visitor       
 ```
 
-## Contributing
+# Contributing
 
 Contributions welcome! Please open issues or pull requests on the [GitHub repository](https://github.com/mcquenji/dscript).
 
 ---
 
-## License
+# License
 
 This project is licensed under the [MIT License](LICENSE).
