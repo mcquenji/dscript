@@ -9,8 +9,12 @@ version 1.0.0;
 name "Plugin";
 description "One line";
 ```
+?> You can declare `description` multiple times. This will append the contents of each statement as a newline
 
 `license`, `website` and `repo` are optional.
+
+!> Aside from `description` each statement may only be declared once.
+
 
 ## Permissions
 ```
