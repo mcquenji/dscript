@@ -13,8 +13,6 @@ Dscript’s built-in functions live under several namespaces.  The host automati
 
 Below is a brief overview of each:
 
----
-
 ## 1. `math::` namespace
 
 | Function         | Signature                 | Description                                          |
@@ -42,8 +40,6 @@ Below is a brief overview of each:
 
 > **Note**: All functions implicitly convert `int` → `double` when necessary.  E.g. `math::floor(3.2)` returns `3` (an `int`), but `math::pow(2, 3.5)` → `11.313708…` (`double`).
 
----
-
 ## 2. `string::` namespace
 
 | Function               | Signature                | Description                              |
@@ -57,8 +53,6 @@ Below is a brief overview of each:
 | `split(string s, string sep)` | `(string, string) -> List<string>` | Split by separator                        |
 | `replace(string s, string from, string to)` | `(string, string, string) -> string` | Replace all occurrences                   |
 
----
-
 ## 3. `list::` namespace
 
 | Function             | Signature                   | Description                               |
@@ -68,8 +62,6 @@ Below is a brief overview of each:
 | `pop(List<T> lst)`   | `List<*>` → `*`             | Remove & return last element              |
 | `get(List<T> lst, int i)` | `(List<*>, int) -> *`      | Indexed access (`list[0]` equivalent)     |
 | `slice(List<T> lst, int start, int end?)` | `(List<*>, int, int?) -> List<*>` | Sublist                                       |
-
----
 
 ## 4. `map::` namespace
 
@@ -82,8 +74,6 @@ Below is a brief overview of each:
 | `keys(Map<K,V> m)`  | `Map<*,*>` → `List<*>`       | List of keys                             |
 | `values(Map<K,V> m)` | `Map<*,*>` → `List<*>`      | List of values                           |
 
----
-
 ## 5. `log::` namespace
 
 | Function                | Signature                                | Description                                      |
@@ -95,8 +85,6 @@ Below is a brief overview of each:
 | `verbose(string msg)`   | `string` → `void`                        | Log at VERBOSE level                             |
 | `fatal(string msg)`     | `string` → `void`                        | Log at FATAL level                               |
 | `critical(string msg)`  | `string` → `void`                        | Log at CRITICAL level                            |
-
----
 
 ## 6. `fs::` namespace (filesystem)
 

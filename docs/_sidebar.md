@@ -1,8 +1,7 @@
-- [Home](README.md)
-- Using the Language
-  - [Introduction](using-language/introduction.md)
-  - [Writing Scripts](using-language/writing-scripts.md)
-  - [Standard Library](using-language/standard-library.md)
+- [About](README.md)
+- Language Reference
+  - [Introduction](language-ref/introduction.md)
+  - [Standard Library](language-ref/standard-library.md)
 - Contracts & Dart
   - [Defining Contracts](contracts-dart/defining-contracts.md)
   - [Loading & Executing](contracts-dart/loading-and-executing.md)

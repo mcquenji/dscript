@@ -28,8 +28,6 @@ contract MyPlugin {
 }
 ```
 
----
-
 ## 1. Steps in Dart
 
 1. **Create the binding**
@@ -84,8 +82,6 @@ contract MyPlugin {
    final int userCount = resultVal.value as int;
    ```
 
----
-
 ## 2. Permissions for Host Bindings
 
 - If you call `.permission("user::read")` in Dart, your Dscript script **must** declare:
@@ -97,8 +93,6 @@ contract MyPlugin {
   - Otherwise you’ll get a static `PermissionError` during analysis.
 
 - The host (Dart) can also enforce additional permissions at runtime if desired.
-
----
 
 ## 3. Named & Positional Parameters
 
@@ -140,8 +134,6 @@ contract MyPlugin {
   }
   ```
 
----
-
 ## 4. Structs in Host Bindings
 
 If your Dart function expects a custom struct, you can pass/receive it via a generated wrapper:
@@ -167,4 +159,3 @@ impl getUser() -> User {
   return external::getUserData(@User { name: "Alice", id: 42 });
 }
 ```
-

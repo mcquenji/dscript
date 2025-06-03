@@ -91,8 +91,6 @@ final authContract   = contract("Auth")
 
 Then pass them as a `List<ContractSignature>` to your analyzer/runtime.
 
----
-
 ## 4. Putting It Together
 
 ```dart
@@ -120,5 +118,3 @@ void main() {
   //    see Loading & Executing below.
 }
 ```
-
-
