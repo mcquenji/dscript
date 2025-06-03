@@ -17,11 +17,15 @@ The names after `external::` are defined by the host, not by the language. At an
 When registering an external function the host maps a permission to one or more Dart callbacks. The permission name does not need to match the function name:
 
 ```dart
-registerExternal(
-  name: 'uploadFile',
-  permissions: ['storage', 'network'],
-  callback: uploadFileImpl,
-);
+final contract = contract('foo')
+  .bind<void>('uploadFile', (String path) async {// do something} )
+  .param(PrimitiveType.STRING)
+  .describe(
+    "Uploads a file to the user's cloud storage",
+  )
+  .permission('storage')
+  .permission('network')
+  .end();
 ```
 
 Here the `uploadFile` function requires both `storage` and `network` permissions. Another function could reuse either permission or introduce new ones.
