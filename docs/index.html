@@ -3,15 +3,18 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Document</title>
+  <title>Dscript</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
-  <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css" title="docsify-darklight-theme" type="text/css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
+  <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
   <style>
     #edit-link {
       font-size: 0.9em;
@@ -55,15 +58,33 @@
     body>section>div.cover-main>p:nth-child(1)>img {
       filter: drop-shadow(-0.5px -0.5px 0px rgba(0, 0, 0, 0.226)) drop-shadow(1px -0.5px 0px rgba(0, 0, 0, 0.226)) drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.226)) drop-shadow(-0.5px 1px 0px rgba(0, 0, 0, 0.226)) !important;
     }
+
+    html[style*="color-scheme: dark"] .mermaid {
+      filter: invert(0.88);
+    }
   </style>
 </head>
 
 <body>
   <div id="app"></div>
-  <script>
-    var num = 0;
 
-    mermaid.initialize({ startOnLoad: false });
+  <script type="module">
+    import elkLayouts from 'https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0/dist/mermaid-layout-elk.esm.min.mjs';
+
+
+    mermaid.registerLayoutLoaders(elkLayouts);
+    mermaid.initialize({
+      startOnLoad: false,
+    });
+
+    window.initMermaid();
+  </script>
+
+  <script>
+    let svgCounter = 0;
+
+
+
     window.$docsify = {
       search: 'auto',
       auto2top: true,
@@ -103,9 +124,19 @@
         renderer: {
           code: function (code, lang) {
             if (lang === "mermaid") {
-              return (
-                '<div class="mermaid">' + mermaid.render('mermaid-svg-' + num++, code) + "</div>"
-              );
+              const svgName = `mermaid-svg-${svgCounter++}`;
+              const MERMAID_CONTAINER_ID = `${svgName}-container`;
+              mermaid.render(svgName, code).then(({ svg }) => {
+                const containerElement = document.querySelector(
+                  `#${MERMAID_CONTAINER_ID}`
+                );
+                if (containerElement) {
+                  containerElement.innerHTML = svg;
+                } else {
+                  console.error(`Error: #${MERMAID_CONTAINER_ID} not found`);
+                }
+              });
+              return `<div class="mermaid" id="${MERMAID_CONTAINER_ID}"></div>`;
             }
             return this.origin.code.apply(this, arguments);
           }
@@ -131,6 +162,7 @@
           toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/sun.svg)',
           coverTextColor: '#ffffff',
           coverBtn: '#1b94d5',
+          mermaidTheme: 'dark',
 
         },
         light: {
@@ -149,6 +181,7 @@
           toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/moon.svg)',
           coverTextColor: '#ffffff',
           coverBtn: '#01579b',
+          mermaidTheme: 'default',
         }
       },
     }
