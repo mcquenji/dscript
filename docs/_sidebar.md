@@ -6,5 +6,6 @@
 - Host Integration
   - [Defining Contracts](host/contracts.md)
   - [External Functions](host/external-functions.md)
+  - [Custom Objects](host/custom-objects.md)
   - [Analyzing Scripts](host/analyzer.md)
   - [Runtime Support](host/runtime.md)
