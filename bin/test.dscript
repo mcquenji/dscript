@@ -17,16 +17,20 @@ contract Random {
   const bar = 5;
 
   impl randomNumber(int foo) -> double {
-    log::info(string::from(5 + bar));
 
 
-    if(5 == foo) {
-      return 1.0;
-    }else if(5 < foo && foo < 10) {
-      return 4 *bar;
-    }else {
-      return external::double(math::floor(foo * pi));
-    }
+    //log::info(string::from(5 + bar));
+//
+//
+    //if(5 == foo) {
+    //  return 1.0;
+    //}else if(5 < foo && foo < 10) {
+    //  return 4 *bar;
+    //}else {
+    //  return external::double(math::floor(foo * pi));
+    //}
+
+    return foo * bar + 1.0;
   }
 
 

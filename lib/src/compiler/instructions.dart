@@ -3,6 +3,8 @@
 
 import 'dart:typed_data';
 
+import 'package:equatable/equatable.dart';
+
 /// Stores the top value from the stack into a variable in the specified scope.
 /// The values after this instruction are:
 /// 1. The number of scopes to pop off the stack to find the variable (0 for the current scope, 1 for the parent scope, etc.).
@@ -83,13 +85,16 @@ const INSTRUCTION_PUSH_NULL = 0x15;
 const INSTRUCTION_NEG = 0x16;
 
 /// A function compiled to bytecode.
-class BytecodeFunction {
+class BytecodeFunction extends Equatable {
   /// The flat list of opcodes and operands.
-  final Uint32List code;
+  final Uint32List buffer;
 
-  /// Constant pool referenced by [code].
+  /// Constant pool referenced by [buffer].
   final List<Object?> constants;
 
-  /// Creates a compiled function with [code] and [constants].
-  const BytecodeFunction(this.code, this.constants);
+  /// Creates a compiled function with [buffer] and [constants].
+  const BytecodeFunction(this.buffer, this.constants);
+
+  @override
+  List<Object?> get props => [buffer, constants];
 }

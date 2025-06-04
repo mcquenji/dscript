@@ -10,7 +10,7 @@ class NaiveCompiler extends DscriptCompiler {
   // Default compiler for Dscript scripts.
   ///
   /// This compiler fully trusts that the input script is valid and does not perform any error checking.
-  NaiveCompiler() : super();
+  NaiveCompiler(super.globals) : super();
 
   @override
   visitAdditiveExpr(AdditiveExprContext ctx) {
@@ -153,7 +153,7 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitIdentifier(IdentifierContext ctx) {
-    final name = ctx.text ?? '';
+    final name = ctx.text;
     final loc = of(name);
     final diff = currentFrame - loc.frame;
     emit(INSTRUCTION_READ, diff, loc.index);
@@ -168,7 +168,6 @@ class NaiveCompiler extends DscriptCompiler {
   @override
   visitImpl(ImplContext ctx) {
     frame();
-
     ctx.params()?.accept(this);
 
     ctx.block()?.accept(this);
@@ -178,8 +177,7 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitLicense(LicenseContext ctx) {
-    // TODO: implement visitLicense
-    throw UnimplementedError();
+    // no-op
   }
 
   @override
@@ -436,8 +434,22 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitVarDecl(VarDeclContext ctx) {
-    // TODO: implement visitVarDecl
-    throw UnimplementedError();
+    final name = ctx.identifier()?.text ??
+        ctx.assignment()?.simpleAssignment()?.identifier()?.text;
+
+    if (name == null) {
+      throw StateError('Variable declaration without name');
+    }
+
+    final initializer = ctx.assignment()?.simpleAssignment()?.expr();
+
+    if (initializer != null) {
+      initializer.accept(this);
+    } else {
+      emit(INSTRUCTION_PUSH_NULL);
+    }
+
+    push(name);
   }
 
   @override

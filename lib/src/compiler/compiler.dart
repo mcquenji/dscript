@@ -2,13 +2,15 @@ import 'dart:typed_data';
 
 import 'package:dscript/src/analyzer/analyzer.dart';
 import 'package:dscript/src/compiler/visitor.dart';
+import 'package:dscript/src/gen/antlr/dscriptParser.dart';
 import 'package:dscript/src/permissions.dart';
 import 'package:dscript/src/gen/antlr/dscriptBaseVisitor.dart';
+import 'package:equatable/equatable.dart';
 
 import 'instructions.dart';
 
 /// Result of compiling a script.
-class CompiledScript {
+class CompiledScript extends Equatable {
   /// Bytecode for each implementation.
   final Map<String, BytecodeFunction> implementations;
 
@@ -24,6 +26,9 @@ class CompiledScript {
     required this.hooks,
     required this.permissions,
   });
+
+  @override
+  List<Object?> get props => [implementations, hooks, permissions];
 }
 
 /// Compiles an analyzed [script] into a [CompiledScript].
@@ -32,13 +37,13 @@ CompiledScript compileScript(Script script) {
   final hooks = <String, BytecodeFunction>{};
 
   for (final entry in script.implementations.entries) {
-    final visitor = NaiveCompiler();
+    final visitor = NaiveCompiler(script.globals);
     entry.value.accept(visitor);
     impls[entry.key] = visitor.build();
   }
 
   for (final entry in script.hooks.entries) {
-    final visitor = NaiveCompiler();
+    final visitor = NaiveCompiler(script.globals);
     entry.value.accept(visitor);
     hooks[entry.key] = visitor.build();
   }
@@ -52,10 +57,17 @@ CompiledScript compileScript(Script script) {
 
 /// Base class for compiling Dscript code into bytecode.
 abstract class DscriptCompiler extends dscriptBaseVisitor<void> {
+  /// Base class for compiling Dscript code into bytecode.
+  DscriptCompiler(List<VarDeclContext> globals) {
+    for (final global in globals) {
+      global.accept(this);
+    }
+  }
+
   /// Builds the compiled bytecode function.
   BytecodeFunction build() {
     return BytecodeFunction(
-      code,
+      buffer,
       constants,
     );
   }
@@ -64,7 +76,7 @@ abstract class DscriptCompiler extends dscriptBaseVisitor<void> {
   final List<Object?> constants = [];
 
   /// The code buffer for the compiled function.
-  final List<int> _code = [];
+  final List<int> _buffer = [];
 
   final List<List<String>> _stackFrames = [
     [],
@@ -98,7 +110,6 @@ abstract class DscriptCompiler extends dscriptBaseVisitor<void> {
     final frameIndex = _stackFrames.length - 1;
     _stackFrames.last.add(name);
     final variableIndex = _stackFrames.last.length - 1;
-
     return (frame: frameIndex, index: variableIndex);
   }
 
@@ -123,17 +134,17 @@ abstract class DscriptCompiler extends dscriptBaseVisitor<void> {
     int? arg4,
     int? arg5,
   ]) {
-    if (arg1 != null) _code.add(arg1);
-    if (arg2 != null) _code.add(arg2);
-    if (arg3 != null) _code.add(arg3);
-    if (arg4 != null) _code.add(arg4);
-    if (arg5 != null) _code.add(arg5);
+    _buffer.add(instruction);
 
-    _code.add(instruction);
+    if (arg1 != null) _buffer.add(arg1);
+    if (arg2 != null) _buffer.add(arg2);
+    if (arg3 != null) _buffer.add(arg3);
+    if (arg4 != null) _buffer.add(arg4);
+    if (arg5 != null) _buffer.add(arg5);
   }
 
   /// The instruction buffer.
-  Uint32List get code => Uint32List.fromList(_code);
+  Uint32List get buffer => Uint32List.fromList(_buffer);
 }
 
 /// Represents a frame index in the stack.

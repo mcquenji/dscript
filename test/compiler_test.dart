@@ -67,7 +67,7 @@ contract Random {
     expect(result.isSuccess(), isTrue);
     final compiled = compileScript(result.getOrThrow());
     final fn = compiled.implementations['randomNumber']!;
-    expect(fn.code.toList(), [
+    expect(fn.buffer.toList(), [
       0,
       0,
       INSTRUCTION_READ,
