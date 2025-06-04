@@ -70,6 +70,9 @@ abstract class DscriptCompiler extends dscriptBaseVisitor<void> {
     [],
   ];
 
+  /// Index of the current stack frame.
+  int get currentFrame => _stackFrames.length - 1;
+
   /// Adds a constant to the pool and returns its index.
   int addConstant(Object? value) {
     final index = constants.length;

@@ -1,3 +1,4 @@
+import 'package:antlr4/antlr4.dart';
 import 'package:dscript/dscript.dart';
 import 'package:dscript/src/compiler/instructions.dart';
 import 'package:dscript/src/gen/antlr/dscriptParser.dart';
@@ -13,10 +14,18 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitAdditiveExpr(AdditiveExprContext ctx) {
-    ctx.left?.accept(this);
-    ctx.right?.accept(this);
-
-    emit(INSTRUCTION_ADD);
+    final exprs = ctx.multiplicativeExprs();
+    exprs[0].accept(this);
+    final tokens = ctx.children!.whereType<TerminalNode>().toList();
+    for (var i = 1; i < exprs.length; i++) {
+      exprs[i].accept(this);
+      final op = tokens[i - 1].symbol.type;
+      if (op == dscriptParser.TOKEN_PLUS) {
+        emit(INSTRUCTION_ADD);
+      } else {
+        emit(INSTRUCTION_SUB);
+      }
+    }
   }
 
   @override
@@ -44,14 +53,14 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitBitwiseExpr(BitwiseExprContext ctx) {
-    // TODO: implement visitBitwiseExpr
-    throw UnimplementedError();
+    return super.visitChildren(ctx);
   }
 
   @override
   visitBlock(BlockContext ctx) {
-    // TODO: implement visitBlock
-    throw UnimplementedError();
+    for (final line in ctx.lines()) {
+      line.accept(this);
+    }
   }
 
   @override
@@ -104,8 +113,7 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitExpr(ExprContext ctx) {
-    // TODO: implement visitExpr
-    throw UnimplementedError();
+    ctx.logicalExpr()?.accept(this);
   }
 
   @override
@@ -145,8 +153,10 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitIdentifier(IdentifierContext ctx) {
-    // TODO: implement visitIdentifier
-    throw UnimplementedError();
+    final name = ctx.text ?? '';
+    final loc = of(name);
+    final diff = currentFrame - loc.frame;
+    emit(INSTRUCTION_READ, diff, loc.index);
   }
 
   @override
@@ -174,20 +184,49 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitLine(LineContext ctx) {
-    // TODO: implement visitLine
-    throw UnimplementedError();
+    if (ctx.stmt() != null) {
+      ctx.stmt()!.accept(this);
+    } else if (ctx.expr() != null) {
+      ctx.expr()!.accept(this);
+    } else if (ctx.block() != null) {
+      ctx.block()!.accept(this);
+    }
   }
 
   @override
   visitLiteral(LiteralContext ctx) {
-    // TODO: implement visitLiteral
-    throw UnimplementedError();
+    Object? value;
+    if (ctx.INT() != null) {
+      value = int.parse(ctx.INT()!.text!);
+    } else if (ctx.DOUBLE() != null) {
+      value = double.parse(ctx.DOUBLE()!.text!);
+    } else if (ctx.STRING() != null) {
+      final text = ctx.STRING()!.text!;
+      value = text.substring(1, text.length - 1);
+    } else if (ctx.BOOL() != null) {
+      value = ctx.BOOL()!.text == 'true';
+    } else if (ctx.NULL() != null) {
+      emit(INSTRUCTION_PUSH_NULL);
+      return;
+    }
+    final idx = addConstant(value);
+    emit(INSTRUCTION_PUSH_CONSTANT, idx);
   }
 
   @override
   visitLogicalExpr(LogicalExprContext ctx) {
-    // TODO: implement visitLogicalExpr
-    throw UnimplementedError();
+    final exprs = ctx.relationalExprs();
+    exprs[0].accept(this);
+    final tokens = ctx.children!.whereType<TerminalNode>().toList();
+    for (var i = 1; i < exprs.length; i++) {
+      exprs[i].accept(this);
+      final op = tokens[i - 1].symbol.type;
+      if (op == dscriptParser.TOKEN_AND) {
+        emit(INSTRUCTION_AND);
+      } else {
+        emit(INSTRUCTION_OR);
+      }
+    }
   }
 
   @override
@@ -210,8 +249,20 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitMultiplicativeExpr(MultiplicativeExprContext ctx) {
-    // TODO: implement visitMultiplicativeExpr
-    throw UnimplementedError();
+    final exprs = ctx.unaryExprs();
+    exprs[0].accept(this);
+    final tokens = ctx.children!.whereType<TerminalNode>().toList();
+    for (var i = 1; i < exprs.length; i++) {
+      exprs[i].accept(this);
+      final op = tokens[i - 1].symbol.type;
+      if (op == dscriptParser.TOKEN_MULTIPLY) {
+        emit(INSTRUCTION_MUL);
+      } else if (op == dscriptParser.TOKEN_DIVIDE) {
+        emit(INSTRUCTION_DIV);
+      } else {
+        emit(INSTRUCTION_MOD);
+      }
+    }
   }
 
   @override
@@ -271,14 +322,44 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitPrimaryExpr(PrimaryExprContext ctx) {
-    // TODO: implement visitPrimaryExpr
-    throw UnimplementedError();
+    if (ctx.literal() != null) {
+      ctx.literal()!.accept(this);
+    } else if (ctx.identifier() != null) {
+      ctx.identifier()!.accept(this);
+    } else if (ctx.expr() != null) {
+      ctx.expr()!.accept(this);
+    }
   }
 
   @override
   visitRelationalExpr(RelationalExprContext ctx) {
-    // TODO: implement visitRelationalExpr
-    throw UnimplementedError();
+    final exprs = ctx.bitwiseExprs();
+    exprs[0].accept(this);
+    final tokens = ctx.children!.whereType<TerminalNode>().toList();
+    for (var i = 1; i < exprs.length; i++) {
+      exprs[i].accept(this);
+      final op = tokens[i - 1].symbol.type;
+      switch (op) {
+        case dscriptParser.TOKEN_EQ:
+          emit(INSTRUCTION_EQ);
+          break;
+        case dscriptParser.TOKEN_NE:
+          emit(INSTRUCTION_NEQ);
+          break;
+        case dscriptParser.TOKEN_LT:
+          emit(INSTRUCTION_LT);
+          break;
+        case dscriptParser.TOKEN_GT:
+          emit(INSTRUCTION_GT);
+          break;
+        case dscriptParser.TOKEN_LTE:
+          emit(INSTRUCTION_LTE);
+          break;
+        case dscriptParser.TOKEN_GTE:
+          emit(INSTRUCTION_GTE);
+          break;
+      }
+    }
   }
 
   @override
@@ -289,8 +370,8 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitReturnStmt(ReturnStmtContext ctx) {
-    // TODO: implement visitReturnStmt
-    throw UnimplementedError();
+    ctx.expr()?.accept(this);
+    emit(INSTRUCTION_RETURN);
   }
 
   @override
@@ -307,8 +388,7 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitShiftExpr(ShiftExprContext ctx) {
-    // TODO: implement visitShiftExpr
-    throw UnimplementedError();
+    return super.visitChildren(ctx);
   }
 
   @override
@@ -319,14 +399,12 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitStmt(StmtContext ctx) {
-    // TODO: implement visitStmt
-    throw UnimplementedError();
+    ctx.returnStmt()?.accept(this);
   }
 
   @override
   visitSuffixExpr(SuffixExprContext ctx) {
-    // TODO: implement visitSuffixExpr
-    throw UnimplementedError();
+    ctx.primaryExpr()?.accept(this);
   }
 
   @override
@@ -343,8 +421,17 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitUnaryExpr(UnaryExprContext ctx) {
-    // TODO: implement visitUnaryExpr
-    throw UnimplementedError();
+    if (ctx.suffixExpr() != null) {
+      ctx.suffixExpr()!.accept(this);
+    } else if (ctx.unaryExpr() != null) {
+      ctx.unaryExpr()!.accept(this);
+      final op = ctx.op?.type;
+      if (op == dscriptParser.TOKEN_MINUS) {
+        emit(INSTRUCTION_NEG);
+      } else if (op == dscriptParser.TOKEN_NOT) {
+        emit(INSTRUCTION_NOT);
+      }
+    }
   }
 
   @override
