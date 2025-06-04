@@ -1,13 +1,11 @@
 import 'dart:typed_data';
 
-import 'package:antlr4/antlr4.dart';
 import 'package:dscript/src/analyzer/analyzer.dart';
+import 'package:dscript/src/compiler/visitor.dart';
 import 'package:dscript/src/permissions.dart';
 import 'package:dscript/src/gen/antlr/dscriptBaseVisitor.dart';
-import 'package:dscript/src/gen/antlr/dscriptLexer.dart';
-import 'package:dscript/src/gen/antlr/dscriptParser.dart';
 
-import 'instruction.dart';
+import 'instructions.dart';
 
 /// Result of compiling a script.
 class CompiledScript {
@@ -34,13 +32,13 @@ CompiledScript compileScript(Script script) {
   final hooks = <String, BytecodeFunction>{};
 
   for (final entry in script.implementations.entries) {
-    final visitor = _CompileVisitor();
+    final visitor = NaiveCompiler();
     entry.value.accept(visitor);
     impls[entry.key] = visitor.build();
   }
 
   for (final entry in script.hooks.entries) {
-    final visitor = _CompileVisitor();
+    final visitor = NaiveCompiler();
     entry.value.accept(visitor);
     hooks[entry.key] = visitor.build();
   }
@@ -52,118 +50,90 @@ CompiledScript compileScript(Script script) {
   );
 }
 
-class _CompileVisitor extends dscriptBaseVisitor<void> {
-  final List<int> _code = [];
-  final List<Object?> _constants = [];
-  final Map<Object?, int> _constMap = {};
-
+/// Base class for compiling Dscript code into bytecode.
+abstract class DscriptCompiler extends dscriptBaseVisitor<void> {
+  /// Builds the compiled bytecode function.
   BytecodeFunction build() {
     return BytecodeFunction(
-      Uint32List.fromList(_code),
-      List.unmodifiable(_constants),
+      code,
+      constants,
     );
   }
 
-  int _addConst(Object? value) {
-    final existing = _constMap[value];
-    if (existing != null) return existing;
-    final index = _constants.length;
-    _constants.add(value);
-    _constMap[value] = index;
+  /// The current constant pool.
+  final List<Object?> constants = [];
+
+  /// The code buffer for the compiled function.
+  final List<int> _code = [];
+
+  final List<List<String>> _stackFrames = [
+    [],
+  ];
+
+  /// Adds a constant to the pool and returns its index.
+  int addConstant(Object? value) {
+    final index = constants.length;
+    constants.add(value);
     return index;
   }
 
-  void _emit(OpCode op, [int? operand]) {
-    _code.add(op.index);
-    if (operand != null) _code.add(operand);
+  /// Pushes a new stack frame onto the stack.
+  void frame() {
+    _stackFrames.add([]);
   }
 
-  @override
-  void visitReturnStmt(ReturnStmtContext ctx) {
-    ctx.expr()?.accept(this);
-    _emit(OpCode.ret);
+  /// Pops the top stack frame from the stack.
+  void pop() {
+    // do not pop
+    if (_stackFrames.isNotEmpty && _stackFrames.length > 1) {
+      _stackFrames.removeLast();
+    }
   }
 
-  @override
-  void visitAdditiveExpr(AdditiveExprContext ctx) {
-    final exprs = ctx.multiplicativeExprs();
-    exprs[0].accept(this);
-    final ops = ctx.children!.whereType<TerminalNode>().toList();
-    for (var i = 1; i < exprs.length; i++) {
-      exprs[i].accept(this);
-      final op = ops[i - 1].symbol.type;
-      if (op == dscriptLexer.TOKEN_PLUS) {
-        _emit(OpCode.add);
-      } else {
-        _emit(OpCode.sub);
+  /// Returns a [FrameIndex] for a new variable [name] in the current stack frame.
+  FrameIndex push(String name) {
+    final frameIndex = _stackFrames.length - 1;
+    _stackFrames.last.add(name);
+    final variableIndex = _stackFrames.last.length - 1;
+
+    return (frame: frameIndex, index: variableIndex);
+  }
+
+  /// Returns a [FrameIndex] for the given variable [name].
+  FrameIndex of(String name) {
+    for (var i = _stackFrames.length - 1; i >= 0; i--) {
+      final frame = _stackFrames[i];
+      final index = frame.indexOf(name);
+      if (index != -1) {
+        return (frame: i, index: index);
       }
     }
+    throw ArgumentError('Variable "$name" not found in stack frames.');
   }
 
-  @override
-  void visitMultiplicativeExpr(MultiplicativeExprContext ctx) {
-    final exprs = ctx.unaryExprs();
-    exprs[0].accept(this);
-    final ops = ctx.children!.whereType<TerminalNode>().toList();
-    for (var i = 1; i < exprs.length; i++) {
-      exprs[i].accept(this);
-      final op = ops[i - 1].symbol.type;
-      if (op == dscriptLexer.TOKEN_MULTIPLY) {
-        _emit(OpCode.mul);
-      } else if (op == dscriptLexer.TOKEN_DIVIDE) {
-        _emit(OpCode.div);
-      } else {
-        // modulo not supported yet
-      }
-    }
+  /// Adds an [instruction] to the buffer with the given arguments.
+  void emit(
+    int instruction, [
+    int? arg1,
+    int? arg2,
+    int? arg3,
+    int? arg4,
+    int? arg5,
+  ]) {
+    if (arg1 != null) _code.add(arg1);
+    if (arg2 != null) _code.add(arg2);
+    if (arg3 != null) _code.add(arg3);
+    if (arg4 != null) _code.add(arg4);
+    if (arg5 != null) _code.add(arg5);
+
+    _code.add(instruction);
   }
 
-  @override
-  void visitUnaryExpr(UnaryExprContext ctx) {
-    if (ctx.suffixExpr() != null) {
-      ctx.suffixExpr()!.accept(this);
-    } else if (ctx.unaryExpr() != null) {
-      ctx.unaryExpr()!.accept(this);
-      final op = ctx.op?.type;
-      if (op == dscriptLexer.TOKEN_MINUS) {
-        _emit(OpCode.neg);
-      }
-    }
-  }
-
-  @override
-  void visitSuffixExpr(SuffixExprContext ctx) {
-    ctx.primaryExpr()?.accept(this);
-  }
-
-  @override
-  void visitPrimaryExpr(PrimaryExprContext ctx) {
-    if (ctx.literal() != null) {
-      ctx.literal()!.accept(this);
-    } else if (ctx.identifier() != null) {
-      final id = _addConst(ctx.identifier()!.text);
-      _emit(OpCode.loadVar, id);
-    } else if (ctx.expr() != null) {
-      ctx.expr()!.accept(this);
-    }
-  }
-
-  @override
-  void visitLiteral(LiteralContext ctx) {
-    Object? value;
-    if (ctx.INT() != null) {
-      value = int.parse(ctx.INT()!.text!);
-    } else if (ctx.DOUBLE() != null) {
-      value = double.parse(ctx.DOUBLE()!.text!);
-    } else if (ctx.STRING() != null) {
-      final text = ctx.STRING()!.text!;
-      value = text.substring(1, text.length - 1);
-    } else if (ctx.BOOL() != null) {
-      value = ctx.BOOL()!.text == 'true';
-    } else if (ctx.NULL() != null) {
-      value = null;
-    }
-    final idx = _addConst(value);
-    _emit(OpCode.pushConst, idx);
-  }
+  /// The instruction buffer.
+  Uint32List get code => Uint32List.fromList(_code);
 }
+
+/// Represents a frame index in the stack.
+/// It is a tuple of two integers: the frame index and the variable index within that frame.
+/// This is used to track the position of variables in the stack frames during compilation.
+typedef FrameIndex = ({int frame, int index});
