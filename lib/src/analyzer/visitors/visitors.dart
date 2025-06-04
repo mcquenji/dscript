@@ -95,6 +95,11 @@ abstract class AnalysisVisitor extends dscriptBaseVisitor<$Type> {
   /// {@endtemplate}
   final List<ScriptPermission> _permissions = [];
 
+  /// {@template AnalysisVisitor.globals}
+  /// Global variables defined in the contract.
+  /// {@endtemplate}
+  final List<VarDeclContext> _globals = [];
+
   final AnalysisVisitor? _parent;
 
   /// Base class for all [dscriptBaseVisitor]s that perform static analysis
@@ -128,6 +133,9 @@ abstract class AnalysisVisitor extends dscriptBaseVisitor<$Type> {
       );
     }
   }
+
+  /// {@macro AnalysisVisitor.globals}
+  List<VarDeclContext> get globals => _inherit((v) => v._globals);
 
   /// {@macro AnalysisVisitor.scope}
   TypeScope get scope => _inherit((v) => v._scope);

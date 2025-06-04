@@ -145,4 +145,7 @@ class TypeScope {
   TypeScope fork() {
     return TypeScope(this, returnType: returnType, isFork: true);
   }
+
+  /// `true` if this scope is the root scope.
+  bool get isRoot => _parent == null;
 }

@@ -62,11 +62,20 @@
     html[style*="color-scheme: dark"] .mermaid {
       filter: invert(0.88);
     }
+
+    div.mermaid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 5em;
+      margin-bottom: 5em;
+    }
   </style>
 </head>
 
 <body>
   <div id="app"></div>
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
 
   <script type="module">
     import elkLayouts from 'https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0/dist/mermaid-layout-elk.esm.min.mjs';
@@ -77,12 +86,68 @@
       startOnLoad: false,
     });
 
-    window.initMermaid();
   </script>
 
   <script>
-    let svgCounter = 0;
+    Prism.languages['dscript'] = {
+      // Comments
+      'comment': {
+        pattern: /\/\/\/?.*/,
+        greedy: true
+      },
+      // Strings
+      'string': {
+        pattern: /"(?:[^"\\\r\n]|\\.)*"|'(?:[^'\\\r\n]|\\.)*'/,
+        greedy: true
+      },
+      // Top-of-file metadata keywords (only when at start of a line)
+      'metadata-keyword': {
+        pattern: /^[ \t]*(?:name|author|description|website|repo|version)\b/m,
+        alias: 'keyword'
+      },
+      // Keywords (only standalone, not part of larger identifiers)
+      'keyword': {
+        pattern: /(?<![A-Za-z0-9_:.])\b(?:schema|permissions|contract|impl|hook|func|List|Map|if|else|while|for|in|do|return|break|continue|switch|case|default|try|catch|throw|final|const|var)\b(?![A-Za-z0-9_])/,
+        greedy: true
+      },
+      'boolean': /(?<![A-Za-z0-9_])\b(?:true|false)\b(?![A-Za-z0-9_])/,
+      'null': /(?<![A-Za-z0-9_])\bnull\b(?![A-Za-z0-9_])/,
+      // Type/Struct names (start with uppercase)
+      'class-name': {
+        pattern: /\b[A-Z][A-Za-z0-9_]*\b/,
+        greedy: true
+      },
+      // Property keys / named parameters (before a colon)
+      'property': {
+        pattern: /[A-Za-z_][A-Za-z0-9_]*(?=\s*:)/,
+        alias: 'attr-name'
+      },
+      // Numbers
+      'number': /\b\d+\.\d+\b|\b\d+\b/,
+      // Namespaced identifiers (module/permission qualifiers mark)
+      'namespace': {
+        pattern: /\b[A-Za-z_][A-Za-z0-9_]*(?=::)/,
+        alias: 'namespace',
+        inside: {
+          'punctuation': /::/
+        }
+      },
+      // Function definitions (after 'func' or 'impl')
+      'function-definition': {
+        pattern: /(?<=\b(?:func|impl)\s)[A-Za-z_][A-Za-z0-9_]*/,
+        alias: 'function'
+      },
+      // Arrow operator
+      'arrow': /->/,
+      // Operators
+      'operator': /(?:\+\+|--|\|\||&&|==|!=|>=|<=|\+=|-=|\*=|\/=|%=|<<|>>|[+\-*/%&|^~!=<>?:])/,
+      // Punctuation
+      'punctuation': /[{}\[\];(),.:]/
+    };
 
+
+
+    let svgCounter = 0;
 
 
     window.$docsify = {
@@ -186,9 +251,8 @@
       },
     }
   </script>
-  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-dart.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>

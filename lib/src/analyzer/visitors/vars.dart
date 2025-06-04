@@ -201,6 +201,18 @@ class VarsVisitor extends AnalysisVisitor {
       );
     }
 
+    if (scope.isRoot) {
+      globals.add(ctx);
+      if (ctx.varType()?.CONST() == null) {
+        report(
+          SemanticError(
+            'Global variables may only be constant',
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
     return resolvedType;
   }
 }
