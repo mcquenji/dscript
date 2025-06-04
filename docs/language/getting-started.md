@@ -15,4 +15,13 @@ contract Demo {
 }
 ```
 
-The analyzer checks that the script implements a contract known to the host. The example above expects the host to provide a contract named `Demo` with an implementation called `greet`.
+The analyzer checks that the script implements a contract known to the host. The example above expects the host to provide a contract named `Demo` with an implementation called `greet` like this:
+
+```dart
+final demo = contract('Demo')
+  .impl('greet', returnType: PrimitiveType.VOID)
+  .param('who', PrimitiveType.STRING)
+  .describe("Greets someone")
+  .end()
+  .build();
+```

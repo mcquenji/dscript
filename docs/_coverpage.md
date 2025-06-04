@@ -8,4 +8,4 @@
 - Contract-based plugin model
 
 [<i class="fa-brands fa-github"></i> GitHub](https://github.com/mcquenji/dscript)
-[Getting Started](/language-ref/introduction)
+[Getting Started](/README)
