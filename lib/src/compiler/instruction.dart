@@ -1,19 +1,6 @@
-/// Instruction set for the stack based runtime.
-///
-/// Each [Instruction] consists of an [OpCode] and
-/// an optional operand.
-class Instruction {
-  /// The operation code.
-  final OpCode op;
+import 'dart:typed_data';
 
-  /// Optional operand for the instruction.
-  final Object? operand;
-
-  /// Creates an [Instruction] with the given [op] and optional [operand].
-  const Instruction(this.op, [this.operand]);
-}
-
-/// Supported stack based operations.
+/// Supported stack based operations for the runtime.
 enum OpCode {
   pushConst,
   loadVar,
@@ -23,4 +10,16 @@ enum OpCode {
   div,
   neg,
   ret,
+}
+
+/// A function compiled to bytecode.
+class BytecodeFunction {
+  /// The flat list of opcodes and operands.
+  final Uint32List code;
+
+  /// Constant pool referenced by [code].
+  final List<Object?> constants;
+
+  /// Creates a compiled function with [code] and [constants].
+  const BytecodeFunction(this.code, this.constants);
 }

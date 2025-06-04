@@ -67,11 +67,17 @@ contract Random {
     final result = analyze(InputStream.fromString(script), [randomContract]);
     expect(result.isSuccess(), isTrue);
     final compiled = compileScript(result.getOrThrow());
-    final instr = compiled.implementations['randomNumber']!;
-    expect(instr.length, 4);
-    expect(instr[0].op, OpCode.loadVar);
-    expect(instr[1].op, OpCode.pushConst);
-    expect(instr[2].op, OpCode.mul);
-    expect(instr[3].op, OpCode.ret);
+    final fn = compiled.implementations['randomNumber']!;
+    expect(fn.code, [
+      OpCode.loadVar.index,
+      0,
+      OpCode.pushConst.index,
+      1,
+      OpCode.mul.index,
+      OpCode.ret.index,
+    ]);
+    expect(fn.constants[0], 'foo');
+    expect(fn.constants[1], 2.0);
+    expect(compiled.permissions, isEmpty);
   });
 }
