@@ -79,6 +79,9 @@ const INSTRUCTION_PUSH_CONSTANT = 0x14;
 /// Pushes a null value onto the stack.
 const INSTRUCTION_PUSH_NULL = 0x15;
 
+/// Negates the top numeric value on the stack and pushes the result.
+const INSTRUCTION_NEG = 0x16;
+
 /// A function compiled to bytecode.
 class BytecodeFunction {
   /// The flat list of opcodes and operands.
