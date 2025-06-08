@@ -66,7 +66,7 @@ class VarsVisitor extends AnalysisVisitor {
       );
     }
 
-    if (scope.mutable(name)) {
+    if (!scope.mutable(name)) {
       return report(
         SemanticError('Cannot assign to immutable variable: "$name"', ctx: ctx),
       );

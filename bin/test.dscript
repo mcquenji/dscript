@@ -17,7 +17,10 @@ contract Random {
   const bar = 5;
 
   impl randomNumber(int foo) -> double {
-      final test = [1, 2, 3, 4, 5];
+      final test = @User {
+        name: "TestUser",
+        id : 12345
+      };
 
       return 1.0;
 

@@ -118,6 +118,15 @@ const INSTRUCTION_DEC = 0x1F;
 /// Throws an exception with the message specified by the top value on the stack.
 const INSTRUCTION_THROW = 0x20;
 
+/// Instantiates a struct from a map on the stack.
+///
+/// Pops:
+///   1. A type‐name constant (index into the constant pool),
+///   2. A Map<String, dynamic>
+/// Then looks up that struct in the host’s contract and constructs it,
+/// setting each declared field to `map[fieldName]` (or null/error if missing).
+const INSTRUCTION_STRUCT_FROM_MAP = 0x21;
+
 /// A function compiled to bytecode.
 class BytecodeFunction extends Equatable {
   /// The flat list of opcodes and operands.

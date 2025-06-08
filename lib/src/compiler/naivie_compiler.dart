@@ -53,9 +53,11 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitBlock(BlockContext ctx) {
+    frame();
     for (final line in ctx.children ?? ctx.lines()) {
       line.accept(this);
     }
+    pop();
   }
 
   @override
@@ -280,14 +282,29 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitObjectLiteral(ObjectLiteralContext ctx) {
-    // TODO: implement visitObjectLiteral
-    throw UnimplementedError();
+    final type = ctx.identifier()!.text;
+    final properties = ctx.objectPropertys();
+    final count = properties.length;
+
+    for (final property in properties) {
+      property.accept(this);
+    }
+
+    emit(INSTRUCTION_MAP, count);
+    emit(INSTRUCTION_STRUCT_FROM_MAP, addConstant(type));
   }
 
   @override
   visitObjectProperty(ObjectPropertyContext ctx) {
-    // TODO: implement visitObjectProperty
-    throw UnimplementedError();
+    final name = ctx.identifier()!.text;
+
+    // Push the property name as a constant
+    final idx = addConstant(name);
+    emit(INSTRUCTION_PUSH_CONSTANT, idx);
+
+    // Accept the expression for the property value
+    // to push it onto the stack
+    ctx.expr()?.accept(this);
   }
 
   @override
@@ -462,8 +479,6 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitVarDecl(VarDeclContext ctx) {
-    print('Visiting variable declaration: ${ctx.text}');
-
     final name = ctx.identifier()?.text ??
         ctx.assignment()?.simpleAssignment()?.identifier()?.text;
 
