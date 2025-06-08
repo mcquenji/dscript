@@ -5,13 +5,13 @@ part of 'compiler.dart';
 
 /// Stores the top value from the stack into a variable in the specified scope.
 /// The values after this instruction are:
-/// 1. The number of scopes to pop off the stack to find the variable (0 for the current scope, 1 for the parent scope, etc.).
+/// 1. The index of of the scope to store the variable in (0 for root scope, 1 for the first child scope, etc.).
 /// 2. The index of the variable within that scope.
 const INSTRUCTION_STORE = 0x00;
 
 /// Reads a variable from the specified scope and pushes it onto the stack.
 /// The values after this instruction are:
-/// 1. The number of scopes to pop off the stack to find the variable (0 for the current scope, 1 for the parent scope, etc.).
+/// 1. The index of the scope to read the variable from (0 for root scope, 1 for the first child scope, etc.).
 /// 2. The index of the variable within that scope.
 const INSTRUCTION_READ = 0x01;
 
@@ -73,6 +73,7 @@ const INSTRUCTION_JUMP_IF_FALSE = 0x12;
 const INSTRUCTION_RETURN = 0x13;
 
 /// Pushes a constant value onto the stack.
+///
 /// The value after this instruction is the index of the constant in the constant pool.
 const INSTRUCTION_PUSH_CONSTANT = 0x14;
 
@@ -81,6 +82,41 @@ const INSTRUCTION_PUSH_NULL = 0x15;
 
 /// Negates the top numeric value on the stack and pushes the result.
 const INSTRUCTION_NEG = 0x16;
+
+/// Creates a new array and pushes it onto the stack.
+///
+/// The value after this instruction is the number of elements to pop from the stack to fill the array.
+const INSTRUCTION_ARRAY = 0x17;
+
+/// Creates a new map and pushes it onto the stack.
+///
+/// The value after this instruction is the number of entries pairs to pop from the stack to fill the map.
+/// Each entry pair consists of a key and a value, so the number of values popped is twice this number.
+const INSTRUCTION_MAP = 0x18;
+
+/// Shifts the top value on the stack to the left by the number of bits specified by the second top value, and pushes the result onto the stack.
+const INSTRUCTION_SHL = 0x19;
+
+/// Shifts the top value on the stack to the right by the number of bits specified by the second top value, and pushes the result onto the stack.
+const INSTRUCTION_SHR = 0x1A;
+
+/// Performs a bitwise AND operation on the top two values from the stack and pushes the result onto the stack.
+const INSTRUCTION_BITWISE_AND = 0x1B;
+
+/// Performs a bitwise OR operation on the top two values from the stack and pushes the result onto the stack.
+const INSTRUCTION_BITWISE_OR = 0x1C;
+
+/// Performs a bitwise XOR operation on the top two values from the stack and pushes the result onto the stack.
+const INSTRUCTION_BITWISE_XOR = 0x1D;
+
+/// Increments the top numeric value on the stack by one and pushes the result onto the stack.
+const INSTRUCTION_INC = 0x1E;
+
+/// Decrements the top numeric value on the stack by one and pushes the result onto the stack.
+const INSTRUCTION_DEC = 0x1F;
+
+/// Throws an exception with the message specified by the top value on the stack.
+const INSTRUCTION_THROW = 0x20;
 
 /// A function compiled to bytecode.
 class BytecodeFunction extends Equatable {

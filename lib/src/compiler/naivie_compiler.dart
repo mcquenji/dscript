@@ -32,8 +32,12 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitArrayLiteral(ArrayLiteralContext ctx) {
-    // TODO: implement visitArrayLiteral
-    throw UnimplementedError();
+    final elements = ctx.exprs();
+    final count = elements.length;
+    for (final element in elements) {
+      element.accept(this);
+    }
+    emit(INSTRUCTION_ARRAY, count);
   }
 
   @override
@@ -68,8 +72,34 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitCompoundAssignment(CompoundAssignmentContext ctx) {
-    // TODO: implement visitCompoundAssignment
-    throw UnimplementedError();
+    final name = ctx.identifier()!.text;
+    final loc = of(name);
+
+    emit(INSTRUCTION_READ, loc.frame, loc.index);
+    ctx.expr()?.accept(this);
+    final op = ctx.op?.type;
+
+    switch (op) {
+      case dscriptParser.TOKEN_PLUS_ASSIGN:
+        emit(INSTRUCTION_ADD);
+        break;
+      case dscriptParser.TOKEN_MINUS_ASSIGN:
+        emit(INSTRUCTION_SUB);
+        break;
+      case dscriptParser.TOKEN_MULTIPLY_ASSIGN:
+        emit(INSTRUCTION_MUL);
+        break;
+      case dscriptParser.TOKEN_DIVIDE_ASSIGN:
+        emit(INSTRUCTION_DIV);
+        break;
+      case dscriptParser.TOKEN_MOD_ASSIGN:
+        emit(INSTRUCTION_MOD);
+        break;
+      default:
+        throw StateError('Unknown compound assignment operator: $op');
+    }
+    // Store the result back into the variable
+    emit(INSTRUCTION_STORE, loc.frame, loc.index);
   }
 
   @override
@@ -80,8 +110,8 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitElseStmt(ElseStmtContext ctx) {
-    // TODO: implement visitElseStmt
-    throw UnimplementedError();
+    ctx.ifStmt()?.accept(this);
+    ctx.block()?.accept(this);
   }
 
   @override
@@ -128,8 +158,7 @@ class NaiveCompiler extends DscriptCompiler {
   visitIdentifier(IdentifierContext ctx) {
     final name = ctx.text;
     final loc = of(name);
-    final diff = currentFrame - loc.frame;
-    emit(INSTRUCTION_READ, diff, loc.index);
+    emit(INSTRUCTION_READ, loc.frame, loc.index);
   }
 
   @override
@@ -141,6 +170,8 @@ class NaiveCompiler extends DscriptCompiler {
     ctx.block()?.accept(this);
 
     finalizeJump(idx);
+
+    ctx.elseStmt()?.accept(this);
   }
 
   @override
@@ -166,6 +197,17 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitLiteral(LiteralContext ctx) {
+    if (ctx.objectLiteral() != null) {
+      ctx.objectLiteral()!.accept(this);
+      return;
+    } else if (ctx.arrayLiteral() != null) {
+      ctx.arrayLiteral()!.accept(this);
+      return;
+    } else if (ctx.mapLiteral() != null) {
+      ctx.mapLiteral()!.accept(this);
+      return;
+    }
+
     Object? value;
     if (ctx.INT() != null) {
       value = int.parse(ctx.INT()!.text!);
@@ -186,54 +228,48 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitLogicalExpr(LogicalExprContext ctx) {
-    final exprs = ctx.relationalExprs();
-    exprs[0].accept(this);
-    final tokens = ctx.children!.whereType<TerminalNode>().toList();
-    for (var i = 1; i < exprs.length; i++) {
-      exprs[i].accept(this);
-      final op = tokens[i - 1].symbol.type;
-      if (op == dscriptParser.TOKEN_AND) {
-        emit(INSTRUCTION_AND);
-      } else {
-        emit(INSTRUCTION_OR);
+    binop(ctx.left, ctx.right, ctx.op?.type, (op) {
+      switch (op) {
+        case dscriptParser.TOKEN_AND:
+          return INSTRUCTION_AND;
+        case dscriptParser.TOKEN_OR:
+          return INSTRUCTION_OR;
+        default:
+          throw StateError('Unknown logical operator: $op');
       }
-    }
+    });
   }
 
   @override
   visitMapEntry(MapEntryContext ctx) {
-    // TODO: implement visitMapEntry
-    throw UnimplementedError();
+    ctx.key?.accept(this);
+    ctx.value?.accept(this);
   }
 
   @override
   visitMapLiteral(MapLiteralContext ctx) {
-    // TODO: implement visitMapLiteral
-    throw UnimplementedError();
-  }
-
-  @override
-  visitMetadata(MetadataContext ctx) {
-    // TODO: implement visitMetadata
-    throw UnimplementedError();
+    final entries = ctx.mapEntrys();
+    final count = entries.length;
+    for (final entry in entries) {
+      entry.accept(this);
+    }
+    emit(INSTRUCTION_MAP, count);
   }
 
   @override
   visitMultiplicativeExpr(MultiplicativeExprContext ctx) {
-    final exprs = ctx.unaryExprs();
-    exprs[0].accept(this);
-    final tokens = ctx.children!.whereType<TerminalNode>().toList();
-    for (var i = 1; i < exprs.length; i++) {
-      exprs[i].accept(this);
-      final op = tokens[i - 1].symbol.type;
-      if (op == dscriptParser.TOKEN_MULTIPLY) {
-        emit(INSTRUCTION_MUL);
-      } else if (op == dscriptParser.TOKEN_DIVIDE) {
-        emit(INSTRUCTION_DIV);
-      } else {
-        emit(INSTRUCTION_MOD);
+    binop(ctx.left, ctx.right, ctx.op?.type, (op) {
+      switch (op) {
+        case dscriptParser.TOKEN_MULTIPLY:
+          return INSTRUCTION_MUL;
+        case dscriptParser.TOKEN_DIVIDE:
+          return INSTRUCTION_DIV;
+        case dscriptParser.TOKEN_MOD:
+          return INSTRUCTION_MOD;
+        default:
+          throw StateError('Unknown multiplicative operator: $op');
       }
-    }
+    });
   }
 
   @override
@@ -292,33 +328,42 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitRelationalExpr(RelationalExprContext ctx) {
-    final exprs = ctx.bitwiseExprs();
-    exprs[0].accept(this);
-    final tokens = ctx.children!.whereType<TerminalNode>().toList();
-    for (var i = 1; i < exprs.length; i++) {
-      exprs[i].accept(this);
-      final op = tokens[i - 1].symbol.type;
+    binop(ctx.left, ctx.right, ctx.op?.type, (op) {
       switch (op) {
-        case dscriptParser.TOKEN_EQ:
-          emit(INSTRUCTION_EQ);
-          break;
-        case dscriptParser.TOKEN_NE:
-          emit(INSTRUCTION_NEQ);
-          break;
         case dscriptParser.TOKEN_LT:
-          emit(INSTRUCTION_LT);
-          break;
+          return INSTRUCTION_LT;
         case dscriptParser.TOKEN_GT:
-          emit(INSTRUCTION_GT);
-          break;
+          return INSTRUCTION_GT;
         case dscriptParser.TOKEN_LTE:
-          emit(INSTRUCTION_LTE);
-          break;
+          return INSTRUCTION_LTE;
         case dscriptParser.TOKEN_GTE:
-          emit(INSTRUCTION_GTE);
-          break;
+          return INSTRUCTION_GTE;
+        case dscriptParser.TOKEN_EQ:
+          return INSTRUCTION_EQ;
+        case dscriptParser.TOKEN_NE:
+          return INSTRUCTION_NEQ;
+        default:
+          throw StateError('Unknown relational operator: $op');
       }
+    });
+  }
+
+  /// Helper method to handle binary operations.
+  /// It accepts two expressions, an operator, and a function that returns the corresponding instruction.
+  /// If the right expression is null, it simply returns without emitting any additional instructions aside from the left expression.
+  void binop(
+    ParserRuleContext? left,
+    ParserRuleContext? right,
+    int? op,
+    int Function(int) instruction,
+  ) {
+    left!.accept(this);
+    if (right == null || op == null) {
+      // If there's no right expression or operator, we just return after processing the left expression.
+      return;
     }
+    right.accept(this);
+    emit(instruction(op));
   }
 
   @override
@@ -328,42 +373,70 @@ class NaiveCompiler extends DscriptCompiler {
   }
 
   @override
-  visitSchema(SchemaContext ctx) {
-    // TODO: implement visitSchema
-    throw UnimplementedError();
-  }
-
-  @override
-  visitScript(ScriptContext ctx) {
-    // TODO: implement visitScript
-    throw UnimplementedError();
-  }
-
-  @override
   visitShiftExpr(ShiftExprContext ctx) {
-    return super.visitChildren(ctx);
+    binop(ctx.left, ctx.right, ctx.op?.type, (op) {
+      switch (op) {
+        case dscriptParser.TOKEN_BIT_LEFT_SHIFT:
+          return INSTRUCTION_SHL;
+        case dscriptParser.TOKEN_BIT_RIGHT_SHIFT:
+          return INSTRUCTION_SHR;
+        default:
+          throw StateError('Unknown shift operator: $op');
+      }
+    });
   }
 
   @override
   visitSimpleAssignment(SimpleAssignmentContext ctx) {
-    // TODO: implement visitSimpleAssignment
-    throw UnimplementedError();
+    final name = ctx.identifier()!.text;
+
+    final loc = of(name);
+    ctx.expr()?.accept(this);
+
+    // Store the value in the variable
+    emit(INSTRUCTION_STORE, loc.frame, loc.index);
   }
 
   @override
   visitStmt(StmtContext ctx) {
     ctx.returnStmt()?.accept(this);
+    ctx.varDecl()?.accept(this);
+    ctx.ifStmt()?.accept(this);
+    ctx.forStmt()?.accept(this);
+    ctx.whileStmt()?.accept(this);
+    ctx.breakStmt()?.accept(this);
+    ctx.continueStmt()?.accept(this);
+    ctx.throwStmt()?.accept(this);
+    ctx.tryStmt()?.accept(this);
+    ctx.throwStmt()?.accept(this);
   }
 
   @override
   visitSuffixExpr(SuffixExprContext ctx) {
     ctx.primaryExpr()?.accept(this);
+
+    final op = ctx.op?.type;
+
+    if (op == null) {
+      return;
+    }
+
+    switch (op) {
+      case dscriptParser.TOKEN_PLUS_PLUS:
+        emit(INSTRUCTION_INC);
+        break;
+      case dscriptParser.TOKEN_MINUS_MINUS:
+        emit(INSTRUCTION_DEC);
+        break;
+      default:
+        throw StateError('Unknown suffix operator: $op');
+    }
   }
 
   @override
   visitThrowStmt(ThrowStmtContext ctx) {
-    // TODO: implement visitThrowStmt
-    throw UnimplementedError();
+    ctx.expr()?.accept(this);
+    emit(INSTRUCTION_THROW);
   }
 
   @override
@@ -389,6 +462,8 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitVarDecl(VarDeclContext ctx) {
+    print('Visiting variable declaration: ${ctx.text}');
+
     final name = ctx.identifier()?.text ??
         ctx.assignment()?.simpleAssignment()?.identifier()?.text;
 
@@ -404,14 +479,15 @@ class NaiveCompiler extends DscriptCompiler {
       emit(INSTRUCTION_PUSH_NULL);
     }
 
-    push(name);
+    final loc = push(name);
+
+    // Store the value in the variable
+    emit(INSTRUCTION_STORE, loc.frame, loc.index);
   }
 
+  /// No-op for variable type declarations.
   @override
-  visitVarType(VarTypeContext ctx) {
-    // TODO: implement visitVarType
-    throw UnimplementedError();
-  }
+  visitVarType(VarTypeContext ctx) {}
 
   @override
   visitWhileStmt(WhileStmtContext ctx) {

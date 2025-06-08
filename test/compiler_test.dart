@@ -13,7 +13,7 @@ void main() {
     final fn = compiled.implementations['randomNumber']!;
     expect(fn.buffer.toList(), [
       INSTRUCTION_READ,
-      0,
+      1,
       0,
       INSTRUCTION_PUSH_CONSTANT,
       0,

@@ -17,21 +17,27 @@ contract Random {
   const bar = 5;
 
   impl randomNumber(int foo) -> double {
+      final test = [1, 2, 3, 4, 5];
+
+      return 1.0;
 
 
     //log::info(string::from(5 + bar));
 //
 //
-    if(5 == foo) {
-      return 1.0;
-    }
+    ///if(5 == foo) {
+    ///}else if(foo > 5) {
+    ///  return 2.0 * bar;
+    ///}else{
+    ///      return foo * bar + 1.0;
+///
+    ///}
     //else if(5 < foo && foo < 10) {
     //  return 4 *bar;
     //}else {
     //  return external::double(math::floor(foo * pi));
     //}
 
-    return foo * bar + 1.0;
   }
 
 
@@ -80,22 +86,22 @@ contract Random {
 
     // return math::floor(1.5);
 
-    log::info("User logged in: " + user.name);
+    //log::info("User logged in: " + user.name);
 
-    final User? test = @User {
-      name: "TestUser",
-      id : 12345
-    };
-
-  
-
-    final  map = {"key1": user};
-    final array = [1, 2, 3, 4, 5];
-
-    log::info("Map: " + map["key1"].name);
-
-    final int x = array[1]!;
-    final string name = test!.name;
+    //final User? test = @User {
+    //  name: "TestUser",
+    //  id : 12345
+    //};
+//
+  //
+//
+    //final  map = {"key1": user};
+    //final array = [1, 2, 3, 4, 5];
+//
+    //log::info("Map: " + map["key1"].name);
+//
+    //final int x = array[1]!;
+    //final string name = test!.name;
   }
 
 }

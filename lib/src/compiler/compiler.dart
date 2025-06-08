@@ -213,6 +213,10 @@ abstract class DscriptCompiler extends dscriptVisitor<void> {
   @override
   visitName(NameContext ctx) {}
 
+  /// No-op. The compiler does not care about metadata.
+  @override
+  void visitMetadata(MetadataContext ctx) {}
+
   /// No-op. The compiler does not care about the contract itself.
   @override
   visitContract(ContractContext ctx) {}
@@ -220,6 +224,15 @@ abstract class DscriptCompiler extends dscriptVisitor<void> {
   /// No-op. The compiler does not care about data types.
   @override
   visitDataType(DataTypeContext ctx) {}
+
+  /// No-op.
+  @override
+  visitSchema(SchemaContext ctx) {}
+
+  /// No-op.
+  @override
+  visitScript(ScriptContext ctx) {}
+
   //#endregion
 }
 
