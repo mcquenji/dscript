@@ -22,9 +22,10 @@ contract Random {
     //log::info(string::from(5 + bar));
 //
 //
-    //if(5 == foo) {
-    //  return 1.0;
-    //}else if(5 < foo && foo < 10) {
+    if(5 == foo) {
+      return 1.0;
+    }
+    //else if(5 < foo && foo < 10) {
     //  return 4 *bar;
     //}else {
     //  return external::double(math::floor(foo * pi));
@@ -36,18 +37,20 @@ contract Random {
 
   impl randomString() -> string 
   {
-    while(true) {
-      log::info("Generating random string...");
-      break;
-    }
+  //  while(true) {
+  //    log::info("Generating random string...");
+  //    break;
+  //  }
+//
+  //   try {
+  //    log::info("test");
+  //    return 'test';
+  //  } catch (e) {
+  //    log::error("Error", error: e);
+  //    return e.message;
+  //  }
 
-     try {
-      log::info("test");
-      return 'test';
-    } catch (e) {
-      log::error("Error", error: e);
-      return e.message;
-    }
+  return "RandomString";
   }
 
   impl test() -> void {

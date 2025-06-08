@@ -1,9 +1,7 @@
 // I like constants better in all caps :)
 // ignore_for_file: constant_identifier_names
 
-import 'dart:typed_data';
-
-import 'package:equatable/equatable.dart';
+part of 'compiler.dart';
 
 /// Stores the top value from the stack into a variable in the specified scope.
 /// The values after this instruction are:

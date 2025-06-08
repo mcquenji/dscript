@@ -73,6 +73,6 @@ void main(List<String> arguments) async {
 
   final bytecode = compileScript(script);
   print(
-    '$bytecode',
+    '${bytecode.implementations['randomNumber']}',
   );
 }

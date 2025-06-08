@@ -2,72 +2,9 @@ import 'package:test/test.dart';
 import 'package:antlr4/antlr4.dart';
 import 'package:dscript/dscript.dart';
 
+import 'shared.dart';
+
 void main() {
-  // The canonical Random contract signature used for most tests.
-  final randomContract = ContractSignature(
-    name: 'Random',
-    implementations: [
-      ImplementationSignature(
-        name: 'randomNumber',
-        namedParameters: [
-          const ParameterSignature(name: 'foo', type: PrimitiveType.INT)
-        ],
-        returnType: PrimitiveType.DOUBLE,
-      ),
-      ImplementationSignature(
-        name: 'randomString',
-        namedParameters: [],
-        returnType: PrimitiveType.STRING,
-      ),
-      ImplementationSignature(
-        name: 'test',
-        namedParameters: [],
-        returnType: PrimitiveType.VOID,
-      ),
-    ],
-    hooks: [
-      HookSignature(
-        name: 'onLogin',
-        namedParameters: [
-          const ParameterSignature(name: 'username', type: PrimitiveType.STRING)
-        ],
-      ),
-      HookSignature(name: 'onLogout', namedParameters: []),
-    ],
-    bindings: ExternalBindings(),
-  );
-
-  // Helper to create a full script with a customized body for randomNumber.
-  String baseRandomScript(String body) => '''
-author "McQuenji";
-version 0.0.1;
-name "TestScript";
-description "Test Script";
-license "MIT";
-website "https://example.com";
-repo "https://github.com/mcquenji/dscript";
-permissions fs::read, fs::write;
-permissions http::client, http::server;
-
-contract Random {
-  impl randomNumber(int foo) -> double {
-    $body
-  }
-  impl randomString() -> string {
-    return "STR";
-  }
-  impl test() -> void {
-    return;
-  }
-  hook onLogin(string username) {
-    return;
-  }
-  hook onLogout() {
-    return;
-  }
-}
-''';
-
   group('bindings', () {
     test('valid stdlib call', () {
       final script = baseRandomScript('math::floor(3.7); return foo * 1.0;');

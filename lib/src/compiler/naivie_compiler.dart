@@ -1,7 +1,4 @@
-import 'package:antlr4/antlr4.dart';
-import 'package:dscript/dscript.dart';
-import 'package:dscript/src/compiler/instructions.dart';
-import 'package:dscript/src/gen/antlr/dscriptParser.dart';
+part of 'compiler.dart';
 
 /// Default compiler for Dscript scripts.
 ///
@@ -41,14 +38,8 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitAssignment(AssignmentContext ctx) {
-    // TODO: implement visitAssignment
-    throw UnimplementedError();
-  }
-
-  @override
-  visitAuthor(AuthorContext ctx) {
-    // TODO: implement visitAuthor
-    throw UnimplementedError();
+    ctx.compoundAssignment()?.accept(this);
+    ctx.simpleAssignment()?.accept(this);
   }
 
   @override
@@ -58,7 +49,7 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitBlock(BlockContext ctx) {
-    for (final line in ctx.lines()) {
+    for (final line in ctx.children ?? ctx.lines()) {
       line.accept(this);
     }
   }
@@ -84,24 +75,6 @@ class NaiveCompiler extends DscriptCompiler {
   @override
   visitContinueStmt(ContinueStmtContext ctx) {
     // TODO: implement visitContinueStmt
-    throw UnimplementedError();
-  }
-
-  @override
-  visitContract(ContractContext ctx) {
-    // TODO: implement visitContract
-    throw UnimplementedError();
-  }
-
-  @override
-  visitDataType(DataTypeContext ctx) {
-    // TODO: implement visitDataType
-    throw UnimplementedError();
-  }
-
-  @override
-  visitDescription(DescriptionContext ctx) {
-    // TODO: implement visitDescription
     throw UnimplementedError();
   }
 
@@ -161,8 +134,13 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitIfStmt(IfStmtContext ctx) {
-    // TODO: implement visitIfStmt
-    throw UnimplementedError();
+    ctx.expr()?.accept(this);
+
+    final idx = prepareJump(INSTRUCTION_JUMP_IF_FALSE);
+
+    ctx.block()?.accept(this);
+
+    finalizeJump(idx);
   }
 
   @override
@@ -173,11 +151,6 @@ class NaiveCompiler extends DscriptCompiler {
     ctx.block()?.accept(this);
 
     pop();
-  }
-
-  @override
-  visitLicense(LicenseContext ctx) {
-    // no-op
   }
 
   @override
@@ -264,12 +237,6 @@ class NaiveCompiler extends DscriptCompiler {
   }
 
   @override
-  visitName(NameContext ctx) {
-    // TODO: implement visitName
-    throw UnimplementedError();
-  }
-
-  @override
   visitNamedArg(NamedArgContext ctx) {
     // TODO: implement visitNamedArg
     throw UnimplementedError();
@@ -303,12 +270,6 @@ class NaiveCompiler extends DscriptCompiler {
   @override
   visitPermission(PermissionContext ctx) {
     // TODO: implement visitPermission
-    throw UnimplementedError();
-  }
-
-  @override
-  visitPermissions(PermissionsContext ctx) {
-    // TODO: implement visitPermissions
     throw UnimplementedError();
   }
 
@@ -358,12 +319,6 @@ class NaiveCompiler extends DscriptCompiler {
           break;
       }
     }
-  }
-
-  @override
-  visitRepo(RepoContext ctx) {
-    // TODO: implement visitRepo
-    throw UnimplementedError();
   }
 
   @override
@@ -455,18 +410,6 @@ class NaiveCompiler extends DscriptCompiler {
   @override
   visitVarType(VarTypeContext ctx) {
     // TODO: implement visitVarType
-    throw UnimplementedError();
-  }
-
-  @override
-  visitVersion(VersionContext ctx) {
-    // TODO: implement visitVersion
-    throw UnimplementedError();
-  }
-
-  @override
-  visitWebsite(WebsiteContext ctx) {
-    // TODO: implement visitWebsite
     throw UnimplementedError();
   }
 
