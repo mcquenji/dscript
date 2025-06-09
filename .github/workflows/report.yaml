@@ -24,4 +24,6 @@ jobs:
             reporter: dart-json
             fail-on-empty: true
             fail-on-error: true
+            max-annotations: 50
+            
             
