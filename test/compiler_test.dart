@@ -12,13 +12,13 @@ void main() {
     final compiled = compileScript(result.getOrThrow());
     final fn = compiled.implementations['randomNumber']!;
     expect(fn.buffer.toList(), [
-      INSTRUCTION_READ,
+      Instruction.read,
       1,
       0,
-      INSTRUCTION_PUSH_CONSTANT,
+      Instruction.pushConstant,
       0,
-      INSTRUCTION_MUL,
-      INSTRUCTION_RETURN,
+      Instruction.mul,
+      Instruction.ret,
     ]);
     expect(fn.constants[0], 2.0);
     expect(compiled.permissions, isEmpty);

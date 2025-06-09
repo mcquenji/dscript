@@ -18,9 +18,9 @@ class NaiveCompiler extends DscriptCompiler {
       exprs[i].accept(this);
       final op = tokens[i - 1].symbol.type;
       if (op == dscriptParser.TOKEN_PLUS) {
-        emit(INSTRUCTION_ADD);
+        emit(Instruction.add);
       } else {
-        emit(INSTRUCTION_SUB);
+        emit(Instruction.sub);
       }
     }
   }
@@ -37,7 +37,7 @@ class NaiveCompiler extends DscriptCompiler {
     for (final element in elements) {
       element.accept(this);
     }
-    emit(INSTRUCTION_ARRAY, count);
+    emit(Instruction.array, count);
   }
 
   @override
@@ -77,31 +77,31 @@ class NaiveCompiler extends DscriptCompiler {
     final name = ctx.identifier()!.text;
     final loc = of(name);
 
-    emit(INSTRUCTION_READ, loc.frame, loc.index);
+    emit(Instruction.read, loc.frame, loc.index);
     ctx.expr()?.accept(this);
     final op = ctx.op?.type;
 
     switch (op) {
       case dscriptParser.TOKEN_PLUS_ASSIGN:
-        emit(INSTRUCTION_ADD);
+        emit(Instruction.add);
         break;
       case dscriptParser.TOKEN_MINUS_ASSIGN:
-        emit(INSTRUCTION_SUB);
+        emit(Instruction.sub);
         break;
       case dscriptParser.TOKEN_MULTIPLY_ASSIGN:
-        emit(INSTRUCTION_MUL);
+        emit(Instruction.mul);
         break;
       case dscriptParser.TOKEN_DIVIDE_ASSIGN:
-        emit(INSTRUCTION_DIV);
+        emit(Instruction.div);
         break;
       case dscriptParser.TOKEN_MOD_ASSIGN:
-        emit(INSTRUCTION_MOD);
+        emit(Instruction.mod);
         break;
       default:
         throw StateError('Unknown compound assignment operator: $op');
     }
     // Store the result back into the variable
-    emit(INSTRUCTION_STORE, loc.frame, loc.index);
+    emit(Instruction.store, loc.frame, loc.index);
   }
 
   @override
@@ -160,14 +160,14 @@ class NaiveCompiler extends DscriptCompiler {
   visitIdentifier(IdentifierContext ctx) {
     final name = ctx.text;
     final loc = of(name);
-    emit(INSTRUCTION_READ, loc.frame, loc.index);
+    emit(Instruction.read, loc.frame, loc.index);
   }
 
   @override
   visitIfStmt(IfStmtContext ctx) {
     ctx.expr()?.accept(this);
 
-    final idx = prepareJump(INSTRUCTION_JUMP_IF_FALSE);
+    final idx = prepareJump(Instruction.jumpIfFalse);
 
     ctx.block()?.accept(this);
 
@@ -221,11 +221,11 @@ class NaiveCompiler extends DscriptCompiler {
     } else if (ctx.BOOL() != null) {
       value = ctx.BOOL()!.text == 'true';
     } else if (ctx.NULL() != null) {
-      emit(INSTRUCTION_PUSH_NULL);
+      emit(Instruction.pushNull);
       return;
     }
     final idx = addConstant(value);
-    emit(INSTRUCTION_PUSH_CONSTANT, idx);
+    emit(Instruction.pushConstant, idx);
   }
 
   @override
@@ -233,9 +233,9 @@ class NaiveCompiler extends DscriptCompiler {
     binop(ctx.left, ctx.right, ctx.op?.type, (op) {
       switch (op) {
         case dscriptParser.TOKEN_AND:
-          return INSTRUCTION_AND;
+          return Instruction.and;
         case dscriptParser.TOKEN_OR:
-          return INSTRUCTION_OR;
+          return Instruction.or;
         default:
           throw StateError('Unknown logical operator: $op');
       }
@@ -255,7 +255,7 @@ class NaiveCompiler extends DscriptCompiler {
     for (final entry in entries) {
       entry.accept(this);
     }
-    emit(INSTRUCTION_MAP, count);
+    emit(Instruction.map, count);
   }
 
   @override
@@ -263,11 +263,11 @@ class NaiveCompiler extends DscriptCompiler {
     binop(ctx.left, ctx.right, ctx.op?.type, (op) {
       switch (op) {
         case dscriptParser.TOKEN_MULTIPLY:
-          return INSTRUCTION_MUL;
+          return Instruction.mul;
         case dscriptParser.TOKEN_DIVIDE:
-          return INSTRUCTION_DIV;
+          return Instruction.div;
         case dscriptParser.TOKEN_MOD:
-          return INSTRUCTION_MOD;
+          return Instruction.mod;
         default:
           throw StateError('Unknown multiplicative operator: $op');
       }
@@ -290,8 +290,8 @@ class NaiveCompiler extends DscriptCompiler {
       property.accept(this);
     }
 
-    emit(INSTRUCTION_MAP, count);
-    emit(INSTRUCTION_STRUCT_FROM_MAP, addConstant(type));
+    emit(Instruction.map, count);
+    emit(Instruction.structFromMap, addConstant(type));
   }
 
   @override
@@ -300,7 +300,7 @@ class NaiveCompiler extends DscriptCompiler {
 
     // Push the property name as a constant
     final idx = addConstant(name);
-    emit(INSTRUCTION_PUSH_CONSTANT, idx);
+    emit(Instruction.pushConstant, idx);
 
     // Accept the expression for the property value
     // to push it onto the stack
@@ -318,12 +318,6 @@ class NaiveCompiler extends DscriptCompiler {
     for (final param in ctx.params()) {
       param.accept(this);
     }
-  }
-
-  @override
-  visitPermission(PermissionContext ctx) {
-    // TODO: implement visitPermission
-    throw UnimplementedError();
   }
 
   @override
@@ -348,17 +342,17 @@ class NaiveCompiler extends DscriptCompiler {
     binop(ctx.left, ctx.right, ctx.op?.type, (op) {
       switch (op) {
         case dscriptParser.TOKEN_LT:
-          return INSTRUCTION_LT;
+          return Instruction.lt;
         case dscriptParser.TOKEN_GT:
-          return INSTRUCTION_GT;
+          return Instruction.gt;
         case dscriptParser.TOKEN_LTE:
-          return INSTRUCTION_LTE;
+          return Instruction.lte;
         case dscriptParser.TOKEN_GTE:
-          return INSTRUCTION_GTE;
+          return Instruction.gte;
         case dscriptParser.TOKEN_EQ:
-          return INSTRUCTION_EQ;
+          return Instruction.eq;
         case dscriptParser.TOKEN_NE:
-          return INSTRUCTION_NEQ;
+          return Instruction.neq;
         default:
           throw StateError('Unknown relational operator: $op');
       }
@@ -366,7 +360,7 @@ class NaiveCompiler extends DscriptCompiler {
   }
 
   /// Helper method to handle binary operations.
-  /// It accepts two expressions, an operator, and a function that returns the corresponding instruction.
+  /// It accepts two expressions, an operator, and a function that returns the corresponding instruction based on the operator.
   /// If the right expression is null, it simply returns without emitting any additional instructions aside from the left expression.
   void binop(
     ParserRuleContext? left,
@@ -386,7 +380,7 @@ class NaiveCompiler extends DscriptCompiler {
   @override
   visitReturnStmt(ReturnStmtContext ctx) {
     ctx.expr()?.accept(this);
-    emit(INSTRUCTION_RETURN);
+    emit(Instruction.ret);
   }
 
   @override
@@ -394,9 +388,9 @@ class NaiveCompiler extends DscriptCompiler {
     binop(ctx.left, ctx.right, ctx.op?.type, (op) {
       switch (op) {
         case dscriptParser.TOKEN_BIT_LEFT_SHIFT:
-          return INSTRUCTION_SHL;
+          return Instruction.shl;
         case dscriptParser.TOKEN_BIT_RIGHT_SHIFT:
-          return INSTRUCTION_SHR;
+          return Instruction.shr;
         default:
           throw StateError('Unknown shift operator: $op');
       }
@@ -411,7 +405,7 @@ class NaiveCompiler extends DscriptCompiler {
     ctx.expr()?.accept(this);
 
     // Store the value in the variable
-    emit(INSTRUCTION_STORE, loc.frame, loc.index);
+    emit(Instruction.store, loc.frame, loc.index);
   }
 
   @override
@@ -440,10 +434,10 @@ class NaiveCompiler extends DscriptCompiler {
 
     switch (op) {
       case dscriptParser.TOKEN_PLUS_PLUS:
-        emit(INSTRUCTION_INC);
+        emit(Instruction.inc);
         break;
       case dscriptParser.TOKEN_MINUS_MINUS:
-        emit(INSTRUCTION_DEC);
+        emit(Instruction.dec);
         break;
       default:
         throw StateError('Unknown suffix operator: $op');
@@ -453,7 +447,7 @@ class NaiveCompiler extends DscriptCompiler {
   @override
   visitThrowStmt(ThrowStmtContext ctx) {
     ctx.expr()?.accept(this);
-    emit(INSTRUCTION_THROW);
+    emit(Instruction.throw_);
   }
 
   @override
@@ -470,9 +464,9 @@ class NaiveCompiler extends DscriptCompiler {
       ctx.unaryExpr()!.accept(this);
       final op = ctx.op?.type;
       if (op == dscriptParser.TOKEN_MINUS) {
-        emit(INSTRUCTION_NEG);
+        emit(Instruction.neg);
       } else if (op == dscriptParser.TOKEN_NOT) {
-        emit(INSTRUCTION_NOT);
+        emit(Instruction.not);
       }
     }
   }
@@ -491,13 +485,13 @@ class NaiveCompiler extends DscriptCompiler {
     if (initializer != null) {
       initializer.accept(this);
     } else {
-      emit(INSTRUCTION_PUSH_NULL);
+      emit(Instruction.pushNull);
     }
 
     final loc = push(name);
 
     // Store the value in the variable
-    emit(INSTRUCTION_STORE, loc.frame, loc.index);
+    emit(Instruction.store, loc.frame, loc.index);
   }
 
   /// No-op for variable type declarations.
