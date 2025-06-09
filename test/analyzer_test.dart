@@ -449,5 +449,198 @@ contract Random {
       final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isSuccess(), isTrue);
     });
+
+    test(
+        'assigning element to non-nullable array without null check throws error',
+        () {
+      final script = baseRandomScript('''
+        final List<int> arr = [1, 2, 3];
+        
+        final int value = arr[0];
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<AssignmentError>(),
+        ),
+      );
+    });
+
+    test('assigning element to nullable array with null check', () {
+      final script = baseRandomScript('''
+        final arr = [1, 2, 3];
+        
+        final int value = arr[0]!;
+
+        return 1.0;
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+  });
+
+  group('structs', () {
+    test('valid struct instantiation', () {
+      final script = baseRandomScript(
+        'final User u = @User { name: "TestUser", id: 42 }; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+
+    test('accessing struct property', () {
+      final script = baseRandomScript(
+        'final User u = @User { name: "Alice", id: 7 }; final string name = u.name; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+
+    test('setting struct property', () {
+      final script = baseRandomScript(
+        'final User u = @User { name: "Bob", id: 3 }; u.name = "Eve"; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+
+      expect(result.isSuccess(), isTrue);
+    });
+
+    test('missing required struct field throws', () {
+      final script = baseRandomScript(
+        'final User u = @User { id: 5 }; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<SemanticError>()),
+      );
+    });
+
+    test('struct field type mismatch throws', () {
+      final script = baseRandomScript(
+        'final User u = @User { name: 123, id: 5 }; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<TypeError>()),
+      );
+    });
+
+    test('struct non-existent field access throws', () {
+      final script = baseRandomScript(
+        'final User u = @User { name: "Test", id: 1 }; final int x = u.nonExistentField; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<SemanticError>()),
+      );
+    });
+
+    test('instantiating struct with non-existent type throws', () {
+      final script = baseRandomScript(
+        'final NonExistentType n = @NonExistentType { field: "value" }; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<SemanticError>()),
+      );
+    });
+
+    test('instantiating struct with non-existent field throws', () {
+      final script = baseRandomScript(
+        'final User u = @User { name: "Test", id: 1, doesNotExist: 5 } ; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<SemanticError>()),
+      );
+    });
+  });
+
+  group('lists', () {
+    test('creating a typed list', () {
+      final script = baseRandomScript(
+        'final List<int> arr = [1, 2, 3]; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+
+    test('list index type mismatch', () {
+      final script = baseRandomScript(
+        'final List<int> arr = [1, 2, 3]; final int x = arr["0"]; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<TypeError>()),
+      );
+    });
+
+    test('accessing list element', () {
+      final script = baseRandomScript(
+        'final List<double> arr = [1.0, 2.0]; final double? x = arr[1]; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+
+    test('assigning to list index', () {
+      final script = baseRandomScript(
+        'final List<int> arr = [1, 2, 3]; arr[0] = 5; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+  });
+
+  group('maps', () {
+    test('creating a typed map', () {
+      final script = baseRandomScript(
+        'final Map<string,int> m = {"a": 1, "b": 2}; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+
+    test('map key type mismatch', () {
+      final script = baseRandomScript(
+        'final Map<string,int> m = {"a": 1}; final int x = m[1]; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<TypeError>()),
+      );
+    });
+
+    test('accessing map element with null check', () {
+      final script = baseRandomScript(
+        'final Map<string,double> m = {"k": 3.14}; final double v = m["k"]!; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
+
+    test('assigning to map index', () {
+      final script = baseRandomScript(
+        'final Map<string,int> m = {"a": 1}; m["a"] = 2; return foo * 1.0;',
+      );
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
   });
 }

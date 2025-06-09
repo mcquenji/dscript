@@ -214,7 +214,7 @@ class ExprVisitor extends AnalysisVisitor {
         );
       }
 
-      final nullable = !(ctx.nullAware != null || !type.nullable);
+      final nullable = ctx.nullAware == null;
 
       if (type is ListType) {
         if (index != PrimitiveType.INT) {

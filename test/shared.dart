@@ -30,6 +30,12 @@ final randomContract = ContractSignature(
     ),
     HookSignature(name: 'onLogout', namedParameters: []),
   ],
+  structs: const [
+    Struct(name: 'User', fields: {
+      'name': PrimitiveType.STRING,
+      'id': PrimitiveType.INT,
+    }),
+  ],
   bindings: ExternalBindings(),
 );
 

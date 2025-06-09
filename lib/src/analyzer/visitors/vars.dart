@@ -26,18 +26,19 @@ class VarsVisitor extends AnalysisVisitor {
   $Type? visitSimpleAssignment(ctx) {
     final name = ctx.identifier()!.text;
 
-    final type = scope.get(name);
+    final type = scope.get(name) ?? ctx.identifier()?.accept(ExprVisitor(this));
     if (type == null) {
       return report(
         SemanticError('Undefined identifier: "$name"', ctx: ctx),
       );
     }
 
-    if (!scope.mutable(name)) {
+    if (scope.exists(name) && !scope.mutable(name)) {
       return report(
         SemanticError('Cannot assign to immutable variable: "$name"', ctx: ctx),
       );
     }
+
     final expr = ctx.expr()?.accept(ExprVisitor(this));
     if (expr == null) {
       return report(InferenceError(ctx: ctx));
@@ -59,14 +60,14 @@ class VarsVisitor extends AnalysisVisitor {
   $Type? visitCompoundAssignment(CompoundAssignmentContext ctx) {
     final name = ctx.identifier()!.text;
 
-    final type = scope.get(name);
+    final type = scope.get(name) ?? ctx.identifier()?.accept(ExprVisitor(this));
     if (type == null) {
       return report(
         SemanticError('Undefined identifier: "$name"', ctx: ctx),
       );
     }
 
-    if (!scope.mutable(name)) {
+    if (scope.exists(name) && !scope.mutable(name)) {
       return report(
         SemanticError('Cannot assign to immutable variable: "$name"', ctx: ctx),
       );

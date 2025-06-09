@@ -258,12 +258,12 @@ sealed class $Type extends Signature {
       return other.nullable || other == PrimitiveType.VOID;
     }
 
-    if (this == PrimitiveType.INT) {
-      return other == PrimitiveType.DOUBLE;
-    }
-
     if (name == other.name) {
       return other.nullable;
+    }
+
+    if (this == PrimitiveType.INT) {
+      return other == PrimitiveType.DOUBLE;
     }
 
     return false;
