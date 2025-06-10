@@ -53,8 +53,12 @@ class Script {
   /// The global constants defined in the contract.
   final List<VarDeclContext> globals;
 
+  /// The functions defined in the script, mapping names to their context.
+  final Map<String, FuncContext> functions;
+
   /// Metadata of an analyzed script.
   const Script({
+    required this.functions,
     required this.globals,
     required this.ast,
     required this.implementations,
@@ -98,6 +102,7 @@ ResultDart<Script, AnalysisReport> analyze(
   }
 
   return Script(
+    functions: analyzer.functions,
     globals: analyzer.globals,
     ast: tree,
     implementations: analyzer.implementations,

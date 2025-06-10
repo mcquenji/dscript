@@ -16,7 +16,14 @@ permissions external::math;
 contract Random {
   const bar = 5;
 
+  func test({string name}) 
+  {
+    log::info("Test function called with name: " + name);
+  }
+
+
   impl randomNumber(int foo) -> double {
+test(name: "TestName");
     log::info("Random number generated: " + foo, error: "Test error");
 
       final test = @User {
@@ -58,10 +65,10 @@ contract Random {
 
   impl randomString() -> string 
   {
-  //  while(true) {
-  //    log::info("Generating random string...");
-  //    break;
-  //  }
+    while(true) {
+      log::info("Generating random string...");
+     break;
+  }
 //
   //   try {
   //    log::info("test");

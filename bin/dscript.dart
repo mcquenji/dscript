@@ -73,6 +73,6 @@ void main(List<String> arguments) async {
 
   final bytecode = compile(script);
   print(
-    bytecode.implementations['randomNumber']?.toDebugString(),
+    bytecode.implementations['randomString']?.toDebugString(),
   );
 }

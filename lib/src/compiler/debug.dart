@@ -43,6 +43,7 @@ extension BufferDebugX on Uint64List {
     Instruction.writeElement: 0,
     Instruction.readProperty: 1,
     Instruction.writeProperty: 1,
+    Instruction.call: 1,
   };
 
   /// Maps opcodes to their names for debugging and display purposes.
@@ -86,6 +87,7 @@ extension BufferDebugX on Uint64List {
     Instruction.writeElement: 'writeElement',
     Instruction.readProperty: 'readProperty',
     Instruction.writeProperty: 'writeProperty',
+    Instruction.call: 'call',
   };
 
   /// Converts a buffer of opcodes into a human-readable string representation.
@@ -94,7 +96,7 @@ extension BufferDebugX on Uint64List {
     final sb = StringBuffer();
     for (var i = 0; i < buff.length; i++) {
       final opcode = buff[i];
-      sb.write('${name[opcode]}');
+      sb.write('[$i] ${name[opcode]}');
       final args = argCount[opcode] ?? 0;
       if (args > 0) {
         sb.write('(');

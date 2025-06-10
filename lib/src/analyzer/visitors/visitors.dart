@@ -55,6 +55,16 @@ abstract class AnalysisVisitor extends dscriptBaseVisitor<$Type> {
   /// {@endtemplate}
   final Map<String, HookContext> _hooks = {};
 
+  /// {@template AnalysisVisitor.functions}
+  /// Functions defined in the script, mapping names to their context.
+  /// {@endtemplate}
+  final Map<String, FuncContext> _functions = {};
+
+  /// {@template AnalysisVisitor.functionSignatures}
+  /// Function signatures defined in the script, mapping names to their signature.
+  /// {@endtemplate}
+  final Map<String, FunctionSignature> _functionSignatures = {};
+
   /// {@template AnalysisVisitor.name}
   /// The name of the contract if one was found during analysis.
   /// {@endtemplate}
@@ -162,6 +172,13 @@ abstract class AnalysisVisitor extends dscriptBaseVisitor<$Type> {
 
   /// {@macro AnalysisVisitor.hooks}
   Map<String, HookContext> get hooks => _inherit((v) => v._hooks);
+
+  /// {@macro AnalysisVisitor.functions}
+  Map<String, FuncContext> get functions => _inherit((v) => v._functions);
+
+  /// {@macro AnalysisVisitor.functionSignatures}
+  Map<String, FunctionSignature> get functionSignatures =>
+      _inherit((v) => v._functionSignatures);
 
   /// {@macro AnalysisVisitor.name}
   String? get name => _inherit((v) => v._name);

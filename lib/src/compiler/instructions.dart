@@ -573,8 +573,8 @@ class Instruction {
   ///   2. Constant pool index for the function name.
   ///
   /// **Operands**
-  ///   1. Positional arguments as List<dynamic>.
-  ///   2. Named arguments as Map<String, dynamic>.
+  ///   1. Positional arguments as List<dynamic> or null ([Instruction.pushNull]).
+  ///   2. Named arguments as Map<String, dynamic> or null ([Instruction.pushNull]).
   ///
   /// **Results**
   ///   1. Return value (dynamic).
@@ -649,6 +649,18 @@ class Instruction {
   ///
   /// {@macro instruction}
   static const writeElement = 0x26;
+
+  /// Calls a function with the given arguments.
+  ///
+  /// Invokes a function by its index in the constant pool with the provided arguments.
+  ///
+  /// **Arguments**
+  ///   1. Constant pool index for the function name.
+  ///
+  /// **Operands**
+  ///   1. Positional arguments as List<dynamic> or null ([Instruction.pushNull]).
+  ///   2. Named arguments as Map<String, dynamic> or null ([Instruction.pushNull]).
+  static const call = 0x27;
 }
 
 /// A function compiled to bytecode.

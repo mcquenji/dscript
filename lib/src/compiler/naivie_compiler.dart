@@ -79,8 +79,7 @@ class NaiveCompiler extends Compiler {
 
   @override
   visitBreakStmt(BreakStmtContext ctx) {
-    // TODO: implement visitBreakStmt
-    throw UnimplementedError();
+    breakLoop();
   }
 
   @override
@@ -151,8 +150,7 @@ class NaiveCompiler extends Compiler {
 
   @override
   visitContinueStmt(ContinueStmtContext ctx) {
-    // TODO: implement visitContinueStmt
-    throw UnimplementedError();
+    jumpToLoopStart();
   }
 
   @override
@@ -179,20 +177,42 @@ class NaiveCompiler extends Compiler {
 
   @override
   visitForStmt(ForStmtContext ctx) {
-    // TODO: implement visitForStmt
-    throw UnimplementedError();
+    startLoop();
+
+    // Initialize the loop variable
+    ctx.varDecl()?.accept(this);
+
+    // Evaluate the condition expression
+    ctx.expr()?.accept(this);
+    final idx = prepareJump(Instruction.jumpIfFalse);
+
+    // Execute the loop body
+    ctx.block()?.accept(this);
+
+    // Increment the loop variable
+    ctx.assignment()?.accept(this);
+
+    // Jump back to the condition check
+    jumpToLoopStart();
+    finalizeJump(idx);
+
+    endLoop();
   }
 
   @override
   visitFunc(FuncContext ctx) {
-    // TODO: implement visitFunc
-    throw UnimplementedError();
+    frame();
+    ctx.pos?.accept(this);
+    ctx.named?.accept(this);
+    ctx.block()?.accept(this);
+    pop();
   }
 
   @override
   visitFunctionCall(FunctionCallContext ctx) {
-    // TODO: implement visitFunctionCall
-    throw UnimplementedError();
+    ctx.args()?.accept(this);
+    final name = ctx.identifier()!.text;
+    emit(Instruction.call, addConstant(name));
   }
 
   @override
@@ -402,6 +422,8 @@ class NaiveCompiler extends Compiler {
       ctx.expr()!.accept(this);
     } else if (ctx.externalFunctionCall() != null) {
       ctx.externalFunctionCall()!.accept(this);
+    } else if (ctx.functionCall() != null) {
+      ctx.functionCall()!.accept(this);
     }
   }
 
@@ -574,7 +596,13 @@ class NaiveCompiler extends Compiler {
 
   @override
   visitWhileStmt(WhileStmtContext ctx) {
-    // TODO: implement visitWhileStmt
-    throw UnimplementedError();
+    startLoop();
+
+    ctx.expr()?.accept(this);
+    final idx = prepareJump(Instruction.jumpIfFalse);
+    ctx.block()?.accept(this);
+    jumpToLoopStart();
+    finalizeJump(idx);
+    endLoop();
   }
 }

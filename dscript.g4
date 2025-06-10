@@ -43,7 +43,13 @@ impl:
 	IMPL identifier OPEN_PAREN params? CLOSE_PAREN ARROW dataType block;
 
 func:
-	FUNC identifier OPEN_PAREN params? CLOSE_PAREN ARROW dataType block;
+	FUNC identifier OPEN_PAREN (
+		pos = params COMMA (
+			OPEN_BRACE named = params CLOSE_BRACE
+		)
+		| pos = params
+		| OPEN_BRACE named = params CLOSE_BRACE
+	)? CLOSE_PAREN (ARROW dataType)? block;
 
 // Function parameters
 params: param (COMMA param)*;

@@ -26,7 +26,9 @@ class ContractVisitor extends AnalysisVisitor {
       decl.accept(VarsVisitor(this));
     }
 
-    for (final func in [...ctx.hooks(), ...ctx.funcs(), ...ctx.impls()]) {
+    // accept the functions first so that they are available
+    // when visiting hooks and implementations
+    for (final func in [...ctx.funcs(), ...ctx.hooks(), ...ctx.impls()]) {
       func.accept(this);
     }
 
@@ -187,11 +189,68 @@ class ContractVisitor extends AnalysisVisitor {
   }
 
   @override
+  $Type? visitFunc(FuncContext ctx) {
+    final name = ctx.identifier()!.text;
+
+    if (functions.containsKey(name)) {
+      report(RedefinitionError(name, ctx: ctx));
+      return const InvalidType();
+    }
+
+    functions[name] = ctx;
+
+    final returnType =
+        ctx.dataType()?.accept(VarsVisitor(this)) ?? PrimitiveType.VOID;
+
+    scope = TypeScope(scope, returnType: returnType);
+
+    final positionalParams = {
+      for (final param in ctx.pos?.params() ?? [])
+        param.identifier()!.text: param.accept(this)!,
+    };
+
+    final namedParams = {
+      for (final param in ctx.named?.params() ?? [])
+        param.identifier()!.text: param.accept(this)!,
+    };
+
+    functionSignatures[name] = FunctionSignature(
+      name: name,
+      returnType: returnType,
+      positionalParameters: positionalParams.entries
+          .map((e) => ParameterSignature(name: e.key, type: e.value))
+          .toList(),
+      namedParameters: namedParams.entries
+          .map((e) => ParameterSignature(name: e.key, type: e.value))
+          .toList(),
+    );
+
+    ctx.block()!.accept(BlockVisitor(this));
+
+    if (scope.returned == null && returnType != PrimitiveType.VOID) {
+      report(
+        SemanticError(
+          "Function '$name' does not return a value.",
+          ctx: ctx,
+        ),
+      );
+    }
+
+    scope = scope.pop();
+
+    return const InvalidType();
+  }
+
+  @override
   $Type? visitParam(ParamContext ctx) {
     final name = ctx.identifier()!.text;
     final type = ctx.dataType()!.accept(VarsVisitor(this))!;
 
-    scope.set(name, type, false);
+    try {
+      scope.set(name, type, false);
+    } catch (e) {
+      report(RedefinitionError(name, ctx: ctx));
+    }
 
     return type;
   }

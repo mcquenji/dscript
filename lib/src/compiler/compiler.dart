@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:antlr4/antlr4.dart';
@@ -22,15 +23,19 @@ class CompiledScript extends Equatable {
   /// Permissions required by the script.
   final List<ScriptPermission> permissions;
 
+  /// Bytecode functions for each global function.
+  final Map<String, BytecodeFunction> functions;
+
   /// Creates a compiled script with [implementations], [hooks] and [permissions].
   const CompiledScript({
     required this.implementations,
     required this.hooks,
     required this.permissions,
+    required this.functions,
   });
 
   @override
-  List<Object?> get props => [implementations, hooks, permissions];
+  List<Object?> get props => [permissions, functions, implementations, hooks];
 }
 
 /// Compiles an analyzed [script] into a [CompiledScript].
@@ -44,6 +49,13 @@ CompiledScript compile(
 ]) {
   final impls = <String, BytecodeFunction>{};
   final hooks = <String, BytecodeFunction>{};
+  final functions = <String, BytecodeFunction>{};
+
+  for (final entry in script.functions.entries) {
+    final visitor = compiler(script.globals);
+    entry.value.accept(visitor);
+    functions[entry.key] = visitor.build();
+  }
 
   for (final entry in script.implementations.entries) {
     final visitor = compiler(script.globals);
@@ -58,6 +70,7 @@ CompiledScript compile(
   }
 
   return CompiledScript(
+    functions: functions,
     implementations: impls,
     hooks: hooks,
     permissions: script.permissions,
@@ -75,6 +88,10 @@ abstract class Compiler extends dscriptVisitor<void> {
 
   /// Builds the compiled bytecode function.
   BytecodeFunction build() {
+    if (_loops.isNotEmpty) {
+      throw StateError('Unclosed loops detected: ${_loops.length}');
+    }
+
     return BytecodeFunction(
       buffer,
       constants,
@@ -87,9 +104,71 @@ abstract class Compiler extends dscriptVisitor<void> {
   /// The code buffer for the compiled function.
   final List<int> _buffer = [];
 
+  /// Stack of loop markers, where each key is the position in the buffer where a loop starts,
+  /// and the value is a list of indices representing a break statment (aka jump) that needs to be updated
+  /// to the end of the loop when [endLoop] is called.
+  final Map<int, List<int>> _loops = {};
+
   final List<List<String>> _stackFrames = [
     [],
   ];
+
+  /// Marks the beginning of a loop.
+  ///
+  /// Stores the current buffer length to be used as a jump target for loop operations.
+  /// This position can be referenced when emitting jump instructions.
+  ///
+  /// Call this method to start a loop before emitting any instructions that evaluate the loop condition or body.
+  void startLoop() {
+    _loops[_buffer.length] = [];
+  }
+
+  /// Ends the current innermost loop.
+  ///
+  /// Removes the last loop marker from the stack.
+  ///
+  /// Throws a [StateError] if there are no active loops to end.
+  void endLoop() {
+    if (_loops.isEmpty) {
+      throw StateError('No loop to end.');
+    }
+    final loop = _loops.entries.last;
+    _loops.remove(loop.key);
+
+    // update all jump instructions that were waiting for this loop to end
+    for (final jumpIndex in loop.value) {
+      finalizeJump(jumpIndex);
+    }
+  }
+
+  /// Emits a jump instruction to break the current innermost loop.
+  ///
+  /// This method prepares a jump instruction that will skip the loop body
+  /// and continue execution after the loop.
+  ///
+  /// Throws a [StateError] if there are no active loops to break.
+  void breakLoop() {
+    if (_loops.isEmpty) {
+      throw StateError('No loop to break.');
+    }
+    final loopStart = _loops.keys.last;
+    final jumpIndex = prepareJump(Instruction.jump);
+    _loops[loopStart]!.add(jumpIndex);
+  }
+
+  /// Emits a jump instruction targeting the start of the current innermost loop.
+  ///
+  /// By default, emits a standard jump instruction ([Instruction.jump]),
+  /// but an alternative instruction can be provided.
+  ///
+  /// Throws a [StateError] if there are no active loops to jump to.
+  void jumpToLoopStart([int instruction = Instruction.jump]) {
+    if (_loops.isEmpty) {
+      throw StateError('No loop to jump to.');
+    }
+    final loopStart = _loops.keys.last;
+    emit(instruction, loopStart);
+  }
 
   /// Index of the current stack frame.
   int get currentFrame => _stackFrames.length - 1;

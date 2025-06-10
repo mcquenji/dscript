@@ -12,10 +12,10 @@ void main() {
     final compiled = compile(result.getOrThrow());
     final fn = compiled.implementations['randomNumber']!;
     expect(fn.buffer.toList(), [
+      Instruction.pushConstant,
+      0,
       Instruction.read,
       1,
-      0,
-      Instruction.pushConstant,
       0,
       Instruction.mul,
       Instruction.ret,
