@@ -581,12 +581,80 @@ class Instruction {
   ///
   /// {@macro instruction}
   static const externalCall = 0x22;
+
+  /// Reads a property from an object and pushes the value onto the stack.
+  ///
+  /// Reads a property from an object using the specified property name.
+  ///
+  /// **Arguments**
+  ///  1. Constant pool index for the property name.
+  ///
+  /// **Operands**
+  /// 1. The object to read the property from (dynamic).
+  ///
+  /// **Results**
+  /// 1. The property value (dynamic).
+  ///
+  /// {@macro instruction}
+  static const readProperty = 0x23;
+
+  /// Writes a value to a property of an object.
+  ///
+  /// Writes a value to a property of an object using the specified property name.
+  ///
+  /// **Arguments**
+  /// 1. Constant pool index for the property name.
+  ///
+  /// **Operands**
+  /// 1. The object to write the property to (dynamic).
+  /// 2. The value to write (dynamic).
+  ///
+  /// **Results**
+  /// None
+  ///
+  /// {@macro instruction}
+  static const writeProperty = 0x24;
+
+  /// Reads an element from an array or map and pushes the value onto the stack.
+  ///
+  /// Reads an element from an array or map using the specified index or key.
+  ///
+  /// **Arguments**
+  /// None
+  ///
+  /// **Operands**
+  /// 1. The array or map to read from (dynamic).
+  /// 2. The index or key to read (dynamic).
+  ///
+  /// **Results**
+  /// 1. The element value (dynamic).
+  ///
+  /// {@macro instruction}
+  static const readElement = 0x25;
+
+  /// Writes a value to an element in an array or map.
+  ///
+  /// Writes a value to an element in an array or map using the specified index or key.
+  ///
+  /// **Arguments**
+  /// None
+  ///
+  /// **Operands**
+  /// 1. The array or map to write to (dynamic).
+  /// 2. The index or key to write (dynamic).
+  /// 3. The value to write (dynamic).
+  ///
+  /// **Results**
+  /// None
+  ///
+  /// {@macro instruction}
+  static const writeElement = 0x26;
 }
 
 /// A function compiled to bytecode.
 class BytecodeFunction extends Equatable {
   /// The flat list of opcodes and operands.
-  final Uint32List buffer;
+  final Uint64List buffer;
 
   /// Constant pool referenced by [buffer].
   final List<Object?> constants;

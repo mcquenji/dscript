@@ -17,10 +17,22 @@ contract Random {
   const bar = 5;
 
   impl randomNumber(int foo) -> double {
+    log::info("Random number generated: " + foo, error: "Test error");
+
       final test = @User {
         name: "TestUser",
         id : 12345
       };
+
+      final name = test.name;
+      test.id = 67890;
+
+      final List<int>? arr = [1, 2, 3, 4, 5];
+
+      //final int x = arr?[1]!;
+
+      //arr?[2] = 10;
+
 
       return 1.0;
 

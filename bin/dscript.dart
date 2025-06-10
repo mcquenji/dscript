@@ -71,8 +71,8 @@ void main(List<String> arguments) async {
   print('Version: ${script.version}');
   print('Description: ${script.description}');
 
-  final bytecode = compileScript(script);
+  final bytecode = compile(script);
   print(
-    '${bytecode.implementations['randomNumber']}',
+    bytecode.implementations['randomNumber']?.toDebugString(),
   );
 }

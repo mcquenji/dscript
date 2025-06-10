@@ -3,7 +3,7 @@ part of 'compiler.dart';
 /// Default compiler for Dscript scripts.
 ///
 /// This compiler fully trusts that the input script is valid and does not perform any error checking.
-class NaiveCompiler extends DscriptCompiler {
+class NaiveCompiler extends Compiler {
   // Default compiler for Dscript scripts.
   ///
   /// This compiler fully trusts that the input script is valid and does not perform any error checking.
@@ -11,23 +11,40 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitAdditiveExpr(AdditiveExprContext ctx) {
-    final exprs = ctx.multiplicativeExprs();
-    exprs[0].accept(this);
-    final tokens = ctx.children!.whereType<TerminalNode>().toList();
-    for (var i = 1; i < exprs.length; i++) {
-      exprs[i].accept(this);
-      final op = tokens[i - 1].symbol.type;
-      if (op == dscriptParser.TOKEN_PLUS) {
-        emit(Instruction.add);
-      } else {
-        emit(Instruction.sub);
+    binop(ctx.left, ctx.right, ctx.op?.type, (op) {
+      switch (op) {
+        case dscriptParser.TOKEN_PLUS:
+          return Instruction.add;
+        case dscriptParser.TOKEN_MINUS:
+          return Instruction.sub;
+        default:
+          throw StateError('Unknown additive operator: $op');
       }
-    }
+    });
   }
 
   @override
   visitArgs(ArgsContext ctx) {
-    throw UnimplementedError();
+    final args = ctx.positionalArgs();
+
+    if (args.isNotEmpty) {
+      for (final arg in args) {
+        arg.accept(this);
+      }
+      emit(Instruction.array, args.length);
+    } else {
+      emit(Instruction.pushNull); // No positional args, push null
+    }
+
+    final namedArgs = ctx.namedArgs();
+    if (namedArgs.isNotEmpty) {
+      for (final namedArg in namedArgs) {
+        namedArg.accept(this);
+      }
+      emit(Instruction.map, namedArgs.length);
+    } else {
+      emit(Instruction.pushNull); // No named args, push null
+    }
   }
 
   @override
@@ -74,10 +91,9 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitCompoundAssignment(CompoundAssignmentContext ctx) {
-    final name = ctx.identifier()!.text;
-    final loc = of(name);
+    final ident = ctx.identifier()!;
 
-    emit(Instruction.read, loc.frame, loc.index);
+    ident.accept(this);
     ctx.expr()?.accept(this);
     final op = ctx.op?.type;
 
@@ -100,6 +116,35 @@ class NaiveCompiler extends DscriptCompiler {
       default:
         throw StateError('Unknown compound assignment operator: $op');
     }
+
+    // check if its a property assignment
+    if (ident.objIdent != null) {
+      final objName = ident.objIdent!.text;
+      final objLoc = of(objName);
+      emit(Instruction.read, objLoc.frame, objLoc.index);
+
+      final propName = ident.property!.text;
+      final propIdx = addConstant(propName);
+      emit(Instruction.writeProperty, propIdx);
+      return;
+    }
+
+    // check if its an indexed assignment
+    if (ident.indexIdent != null) {
+      final objName = ident.indexIdent!.text;
+      final objLoc = of(objName);
+      emit(Instruction.read, objLoc.frame, objLoc.index);
+
+      ident.index?.accept(this);
+
+      emit(Instruction.writeElement);
+      return;
+    }
+
+    // otherwise, it's a simple identifier assignment
+
+    final loc = of(ident.text);
+
     // Store the result back into the variable
     emit(Instruction.store, loc.frame, loc.index);
   }
@@ -123,8 +168,13 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitExternalFunctionCall(ExternalFunctionCallContext ctx) {
-    // TODO: implement visitExternalFunctionCall
-    throw UnimplementedError();
+    final namespace = ctx.namespace!.text;
+    final name = ctx.functionCall()!.identifier()!.text;
+    final args = ctx.functionCall()!.args();
+
+    args?.accept(this);
+
+    emit(Instruction.externalCall, addConstant(namespace), addConstant(name));
   }
 
   @override
@@ -158,6 +208,18 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitIdentifier(IdentifierContext ctx) {
+    // Handle property reads
+    if (ctx.objIdent != null) {
+      final objName = ctx.objIdent!.text;
+      final objLoc = of(objName);
+      emit(Instruction.read, objLoc.frame, objLoc.index);
+
+      final propName = ctx.property!.text;
+      final propIdx = addConstant(propName);
+      emit(Instruction.readProperty, propIdx);
+      return;
+    }
+
     final name = ctx.text;
     final loc = of(name);
     emit(Instruction.read, loc.frame, loc.index);
@@ -276,8 +338,13 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitNamedArg(NamedArgContext ctx) {
-    // TODO: implement visitNamedArg
-    throw UnimplementedError();
+    final name = ctx.identifier()!.text;
+    final idx = addConstant(name);
+    emit(Instruction.pushConstant, idx);
+
+    // Accept the expression for the argument value
+    // to push it onto the stack
+    ctx.expr()?.accept(this);
   }
 
   @override
@@ -322,8 +389,7 @@ class NaiveCompiler extends DscriptCompiler {
 
   @override
   visitPositionalArg(PositionalArgContext ctx) {
-    // TODO: implement visitPositionalArg
-    throw UnimplementedError();
+    ctx.expr()?.accept(this);
   }
 
   @override
@@ -334,6 +400,8 @@ class NaiveCompiler extends DscriptCompiler {
       ctx.identifier()!.accept(this);
     } else if (ctx.expr() != null) {
       ctx.expr()!.accept(this);
+    } else if (ctx.externalFunctionCall() != null) {
+      ctx.externalFunctionCall()!.accept(this);
     }
   }
 
@@ -368,13 +436,19 @@ class NaiveCompiler extends DscriptCompiler {
     int? op,
     int Function(int) instruction,
   ) {
-    left!.accept(this);
-    if (right == null || op == null) {
-      // If there's no right expression or operator, we just return after processing the left expression.
-      return;
+    if (right != null && op != null) {
+      // This is a binary operation with both left and right operands.
+
+      // Push the right operand first so the left operand is on the stack first.
+      right.accept(this);
+      left!.accept(this);
+
+      // Emit the instruction for the binary operation last.
+      emit(instruction(op));
+    } else if (left != null) {
+      // If there's no right operand, we just push the left operand.
+      left.accept(this);
     }
-    right.accept(this);
-    emit(instruction(op));
   }
 
   @override

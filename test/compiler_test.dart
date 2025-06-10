@@ -9,7 +9,7 @@ void main() {
     final script = baseRandomScript('return foo * 2.0;');
     final result = analyze(InputStream.fromString(script), [randomContract]);
     expect(result.isSuccess(), isTrue);
-    final compiled = compileScript(result.getOrThrow());
+    final compiled = compile(result.getOrThrow());
     final fn = compiled.implementations['randomNumber']!;
     expect(fn.buffer.toList(), [
       Instruction.read,

@@ -9,6 +9,7 @@ import 'package:equatable/equatable.dart';
 
 part 'naivie_compiler.dart';
 part 'instructions.dart';
+part 'debug.dart';
 
 /// Result of compiling a script.
 class CompiledScript extends Equatable {
@@ -33,18 +34,25 @@ class CompiledScript extends Equatable {
 }
 
 /// Compiles an analyzed [script] into a [CompiledScript].
-CompiledScript compileScript(Script script) {
+///
+/// Optionally, you can swap out the compiler used with a custom one by overriding the
+/// [compiler] function that takes a list of global variable declarations and returns a [Compiler] instance.
+/// If not provided, the default [NaiveCompiler] is used.
+CompiledScript compile(
+  Script script, [
+  Compiler Function(List<VarDeclContext> globals) compiler = NaiveCompiler.new,
+]) {
   final impls = <String, BytecodeFunction>{};
   final hooks = <String, BytecodeFunction>{};
 
   for (final entry in script.implementations.entries) {
-    final visitor = NaiveCompiler(script.globals);
+    final visitor = compiler(script.globals);
     entry.value.accept(visitor);
     impls[entry.key] = visitor.build();
   }
 
   for (final entry in script.hooks.entries) {
-    final visitor = NaiveCompiler(script.globals);
+    final visitor = compiler(script.globals);
     entry.value.accept(visitor);
     hooks[entry.key] = visitor.build();
   }
@@ -57,9 +65,9 @@ CompiledScript compileScript(Script script) {
 }
 
 /// Base class for compiling Dscript code into bytecode.
-abstract class DscriptCompiler extends dscriptVisitor<void> {
+abstract class Compiler extends dscriptVisitor<void> {
   /// Base class for compiling Dscript code into bytecode.
-  DscriptCompiler(List<VarDeclContext> globals) {
+  Compiler(List<VarDeclContext> globals) {
     for (final global in globals) {
       global.accept(this);
     }
@@ -149,7 +157,7 @@ abstract class DscriptCompiler extends dscriptVisitor<void> {
   }
 
   /// The instruction buffer.
-  Uint32List get buffer => Uint32List.fromList(_buffer);
+  Uint64List get buffer => Uint64List.fromList(_buffer);
 
   /// Starts a counter for jump instructions. Returns the index of the jump instruction.
   ///
