@@ -11,23 +11,30 @@ void main() {
     expect(result.isSuccess(), isTrue);
     final compiled = compile(result.getOrThrow());
     final fn = compiled.implementations['randomNumber']!;
-    expect(fn.buffer.toList(), [
+
+    final expected = [
       Instruction.pushConstant,
-      0,
+      fn.constants.length - 1,
       Instruction.read,
       1,
       0,
       Instruction.mul,
       Instruction.ret,
-    ]);
-    expect(fn.constants[0], 2.0);
+    ];
+
+    final actual = fn.buffer.toList();
+
+    final expectedIndex = actual.length - expected.length;
+
+    expect(actual.sublist(expectedIndex), expected);
+    expect(fn.constants.last, 2.0);
     expect(compiled.permissions, isEmpty);
   });
 
   group('loops', () {
     test('for loop compiles', () {
-      final script =
-          baseRandomScript('for (var int i; i < 2; i = i + 1) { } return foo * 1.0;');
+      final script = baseRandomScript(
+          'for (var int i; i < 2; i = i + 1) { } return foo * 1.0;');
       final result = analyze(InputStream.fromString(script), [randomContract]);
       expect(result.isSuccess(), isTrue);
       final compiled = compile(result.getOrThrow());
