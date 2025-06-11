@@ -133,4 +133,62 @@ class FlowVisitor extends AnalysisVisitor {
 
     return const InvalidType();
   }
+
+  @override
+  $Type? visitForStmt(ForStmtContext ctx) {
+    scope = TypeScope(scope);
+
+    if (ctx.IN() != null) {
+      // For loop with 'in' keyword
+      final iterable = ctx.expr()?.accept(ExprVisitor(this));
+      if (iterable == null) {
+        return report(InferenceError(ctx: ctx));
+      }
+
+      if (iterable is! ListType) {
+        return report(
+          SemanticError('Cannot iterate over non-list type', ctx: ctx),
+        );
+      }
+
+      final varType = ctx.varDecl()!.varType()!;
+
+      final mutable = varType.VAR() != null;
+
+      final ident = ctx.varDecl()!.identifier()!.text;
+      scope.set(
+        ident,
+        iterable.elementType,
+        mutable,
+      );
+
+      ctx.block()?.accept(BlockVisitor(this));
+
+      scope = scope.pop();
+      return const InvalidType();
+    }
+
+    if (ctx.varDecl() != null) {
+      // For loop with variable declaration
+      final varType = ctx.varDecl()!.varType()!;
+
+      final mutable = varType.VAR() != null;
+
+      final ident = ctx.varDecl()!.identifier()!.text;
+      scope.set(
+        ident,
+        PrimitiveType.INT,
+        mutable,
+      );
+    }
+    ensureConditionIsBool(ctx.expr());
+
+    ctx.assignment()?.accept(ExprVisitor(this));
+
+    ctx.block()?.accept(BlockVisitor(this));
+
+    scope = scope.pop();
+
+    return const InvalidType();
+  }
 }

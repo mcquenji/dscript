@@ -34,7 +34,11 @@ test(name: "TestName");
       final name = test.name;
       test.id = 67890;
 
-      final List<int>? arr = [1, 2, 3, 4, 5];
+      final List<int> arr = [1, 2, 3, 4, 5];
+
+for(final int i in arr) {
+        log::info("Array element: " + e);
+      }
 
       //final int x = arr?[1]!;
 
@@ -69,7 +73,10 @@ test(name: "TestName");
       log::info("Generating random string...");
      break;
   }
-//
+  
+  
+
+  //
   //   try {
   //    log::info("test");
   //    return 'test';

@@ -9,6 +9,12 @@ class NaiveCompiler extends Compiler {
   /// This compiler fully trusts that the input script is valid and does not perform any error checking.
   NaiveCompiler(super.globals) : super();
 
+  /// Counter used for generating unique temporary variable names.
+  int _tempCounter = 0;
+
+  /// Returns a unique temporary variable name prefixed with [prefix].
+  String _tempVar(String prefix) => '_$prefix${_tempCounter++}';
+
   @override
   visitAdditiveExpr(AdditiveExprContext ctx) {
     binop(ctx.left, ctx.right, ctx.op?.type, (op) {
@@ -177,22 +183,80 @@ class NaiveCompiler extends Compiler {
 
   @override
   visitForStmt(ForStmtContext ctx) {
-    startLoop();
+    if (ctx.IN() != null) {
+      _compileForIn(ctx);
+      return;
+    }
 
-    // Initialize the loop variable
+    // Initialization runs once before starting the loop.
     ctx.varDecl()?.accept(this);
 
-    // Evaluate the condition expression
+    startLoop();
+
+    // Evaluate the loop condition.
     ctx.expr()?.accept(this);
     final idx = prepareJump(Instruction.jumpIfFalse);
 
-    // Execute the loop body
+    // Loop body.
     ctx.block()?.accept(this);
 
-    // Increment the loop variable
+    markContinueTarget();
+
+    // Increment expression.
     ctx.assignment()?.accept(this);
 
-    // Jump back to the condition check
+    // Repeat the loop.
+    jumpToLoopStart();
+    finalizeJump(idx);
+
+    endLoop();
+  }
+
+  /// Compiles a `for (var x in iterable)` statement.
+  void _compileForIn(ForStmtContext ctx) {
+    // Evaluate the iterable expression and store in a temporary variable.
+    ctx.expr()!.accept(this);
+    final iterableTemp = push(_tempVar('iter'));
+    emit(Instruction.store, iterableTemp.frame, iterableTemp.index);
+
+    // Create an index counter starting at 0.
+    emit(Instruction.pushConstant, addConstant(0));
+    final indexTemp = push(_tempVar('i'));
+    emit(Instruction.store, indexTemp.frame, indexTemp.index);
+
+    // Reserve the loop variable.
+    final loopVarName = ctx.varDecl()!.identifier()!.text;
+    final loopVar = push(loopVarName);
+    emit(Instruction.pushNull);
+    emit(Instruction.store, loopVar.frame, loopVar.index);
+
+    startLoop();
+
+    // Condition: index < iterable.length
+    emit(Instruction.read, indexTemp.frame, indexTemp.index);
+    emit(Instruction.read, iterableTemp.frame, iterableTemp.index);
+    emit(Instruction.readProperty, addConstant('length'));
+    emit(Instruction.lt);
+    final idx = prepareJump(Instruction.jumpIfFalse);
+
+    // loopVar = iterable[index]
+    emit(Instruction.read, iterableTemp.frame, iterableTemp.index);
+    emit(Instruction.read, indexTemp.frame, indexTemp.index);
+    emit(Instruction.readElement);
+    emit(Instruction.store, loopVar.frame, loopVar.index);
+
+    // Body
+    ctx.block()?.accept(this);
+
+    markContinueTarget();
+
+    // index++
+    emit(Instruction.read, indexTemp.frame, indexTemp.index);
+    emit(Instruction.pushConstant, addConstant(1));
+    emit(Instruction.add);
+    emit(Instruction.store, indexTemp.frame, indexTemp.index);
+
+    // Loop back
     jumpToLoopStart();
     finalizeJump(idx);
 
