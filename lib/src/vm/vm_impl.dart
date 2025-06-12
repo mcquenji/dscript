@@ -57,68 +57,68 @@ class DefaultVM extends VM {
           stack.add(_read(frame, index));
           break;
         case Instruction.add:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a + b);
           break;
         case Instruction.sub:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a - b);
           break;
         case Instruction.mul:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a * b);
           break;
         case Instruction.div:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a / b);
           break;
         case Instruction.mod:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a % b);
           break;
         case Instruction.eq:
-          final b = stack.removeLast();
           final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a == b);
           break;
         case Instruction.neq:
-          final b = stack.removeLast();
           final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a != b);
           break;
         case Instruction.lt:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a < b);
           break;
         case Instruction.gt:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a > b);
           break;
         case Instruction.lte:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a <= b);
           break;
         case Instruction.gte:
-          final b = stack.removeLast() as num;
-          final a = stack.removeLast() as num;
+          final a = stack.removeLast();
+          final b = stack.removeLast();
           stack.add(a >= b);
           break;
         case Instruction.and:
-          final b = stack.removeLast() as bool;
           final a = stack.removeLast() as bool;
+          final b = stack.removeLast() as bool;
           stack.add(a && b);
           break;
         case Instruction.or:
-          final b = stack.removeLast() as bool;
           final a = stack.removeLast() as bool;
+          final b = stack.removeLast() as bool;
           stack.add(a || b);
           break;
         case Instruction.not:
@@ -244,8 +244,9 @@ class DefaultVM extends VM {
           if (lib == null) {
             throw StateError('Unknown namespace $namespace');
           }
-          final binding = lib.bindings
-              .firstWhere((b) => b.name == name, orElse: () => throw StateError('Unknown function $name in $namespace'));
+          final binding = lib.bindings.firstWhere((b) => b.name == name,
+              orElse: () =>
+                  throw StateError('Unknown function $name in $namespace'));
           final result = Function.apply(
             binding.function,
             positional ?? const [],
@@ -260,28 +261,28 @@ class DefaultVM extends VM {
           stack.add(map);
           break;
         case Instruction.shl:
-          final b = stack.removeLast() as int;
           final a = stack.removeLast() as int;
+          final b = stack.removeLast() as int;
           stack.add(a << b);
           break;
         case Instruction.shr:
-          final b = stack.removeLast() as int;
           final a = stack.removeLast() as int;
+          final b = stack.removeLast() as int;
           stack.add(a >> b);
           break;
         case Instruction.bitwiseAnd:
-          final b = stack.removeLast() as int;
           final a = stack.removeLast() as int;
+          final b = stack.removeLast() as int;
           stack.add(a & b);
           break;
         case Instruction.bitwiseOr:
-          final b = stack.removeLast() as int;
           final a = stack.removeLast() as int;
+          final b = stack.removeLast() as int;
           stack.add(a | b);
           break;
         case Instruction.bitwiseXor:
-          final b = stack.removeLast() as int;
           final a = stack.removeLast() as int;
+          final b = stack.removeLast() as int;
           stack.add(a ^ b);
           break;
         case Instruction.inc:

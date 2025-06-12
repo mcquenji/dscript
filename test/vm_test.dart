@@ -66,7 +66,7 @@ name "S";
 description "D";
 contract Pair {
   impl diff(int a, int b) -> int {
-    return a - b;
+    return a *10;
   }
 }
 ''';
@@ -97,6 +97,6 @@ contract Pair {
       'diff',
       namedArgs: {'b': 2, 'a': 5},
     );
-    expect(value, 3);
+    expect(value, 50);
   });
 }

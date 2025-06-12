@@ -3,7 +3,8 @@
   "conventionalCommits.scopes": [
     "analyzer",
     "compiler",
-    "runtime"
+    "runtime",
+    "vm"
   ],
   "conventionalCommits.autoCommit": false,
   "conventionalCommits.gitmoji": false,
