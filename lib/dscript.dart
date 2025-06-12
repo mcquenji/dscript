@@ -4,3 +4,5 @@ export 'src/types.dart';
 export 'src/permissions.dart';
 export 'src/contract_builder.dart';
 export 'src/compiler/compiler.dart';
+export 'src/vm/vm.dart';
+export 'src/runtime/runtime.dart';

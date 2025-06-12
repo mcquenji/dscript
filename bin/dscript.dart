@@ -72,7 +72,14 @@ void main(List<String> arguments) async {
   print('Description: ${script.description}');
 
   final bytecode = compile(script);
-  print(
-    bytecode.implementations['randomString']?.toDebugString(),
+
+  final runtime = Runtime(
+    bytecode,
+    [],
+  );
+
+  final result = await runtime.run(
+    'randomNumber',
+    namedArgs: {'foo': 42},
   );
 }

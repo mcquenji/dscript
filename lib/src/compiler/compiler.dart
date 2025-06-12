@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 
 import 'package:antlr4/antlr4.dart';
+import 'package:dscript/dscript.dart';
 import 'package:dscript/src/analyzer/analyzer.dart';
 import 'package:dscript/src/gen/antlr/dscriptParser.dart';
 import 'package:dscript/src/gen/antlr/dscriptVisitor.dart';
@@ -18,6 +19,9 @@ class CompiledScript extends Equatable {
   /// Bytecode for each implementation.
   final Map<String, BytecodeFunction> implementations;
 
+  /// The contract implemented by the script.
+  final ContractSignature contract;
+
   /// Bytecode for each hook.
   final Map<String, BytecodeFunction> hooks;
 
@@ -33,10 +37,12 @@ class CompiledScript extends Equatable {
     required this.hooks,
     required this.permissions,
     required this.functions,
+    required this.contract,
   });
 
   @override
-  List<Object?> get props => [permissions, functions, implementations, hooks];
+  List<Object?> get props =>
+      [permissions, functions, implementations, hooks, contract];
 }
 
 /// Compiles an analyzed [script] into a [CompiledScript].
@@ -75,6 +81,7 @@ CompiledScript compile(
     implementations: impls,
     hooks: hooks,
     permissions: script.permissions,
+    contract: script.contract,
   );
 }
 
