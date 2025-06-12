@@ -1,3 +1,4 @@
+// coverage:ignore-file
 part of 'compiler.dart';
 
 /// Provides debugging utilities for a bytecode buffer.

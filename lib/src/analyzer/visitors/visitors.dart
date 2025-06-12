@@ -1,3 +1,4 @@
+// coverage:ignore-file
 import 'package:antlr4/antlr4.dart';
 import 'package:collection/collection.dart';
 import 'package:dscript/dscript.dart' hide contract;

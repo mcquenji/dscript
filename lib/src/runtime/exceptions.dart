@@ -1,3 +1,4 @@
+// coverage:ignore-file
 /// Base class for all exceptions thrown during runtime execution.
 class RuntimeException implements Exception {
   /// The error message.

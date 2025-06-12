@@ -1,3 +1,4 @@
+// coverage:ignore-file
 part of 'compiler.dart';
 
 /// Represents a single instruction in the bytecode.

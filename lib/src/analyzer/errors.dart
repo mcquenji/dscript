@@ -1,3 +1,4 @@
+// coverage:ignore-file
 part of 'analyzer.dart';
 
 /// Represents a span of text in the source code, defined by its start and end

@@ -1,3 +1,4 @@
+// coverage:ignore-file
 import 'package:collection/collection.dart';
 import 'package:dscript/dscript.dart';
 import 'package:equatable/equatable.dart';

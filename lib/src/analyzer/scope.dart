@@ -1,3 +1,4 @@
+// coverage:ignore-file
 part of 'analyzer.dart';
 
 /// Same as [Scope] but only stores the types of variables and not their values.

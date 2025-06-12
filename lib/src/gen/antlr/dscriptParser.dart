@@ -1,4 +1,5 @@
 // Generated from dscript.g4 by ANTLR 4.13.2
+// coverage:ignore-file
 // ignore_for_file: unused_import, unused_local_variable, prefer_single_quotes
 import 'package:antlr4/antlr4.dart';
 
