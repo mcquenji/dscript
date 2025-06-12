@@ -703,5 +703,10 @@ class BytecodeFunction extends Equatable {
   });
 
   @override
-  List<Object?> get props => [buffer, constants, positionalParams, namedParameterIndex];
+  List<Object?> get props => [
+        buffer,
+        constants,
+        positionalParams,
+        namedParameterIndex,
+      ];
 }
