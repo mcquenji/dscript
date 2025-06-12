@@ -8,4 +8,7 @@
   - [External Functions](host/external-functions.md)
   - [Custom Objects](host/custom-objects.md)
   - [Analyzing Scripts](host/analyzer.md)
+  - [Compiling Scripts](host/compiler.md)
   - [Runtime Support](host/runtime.md)
+- Advanced
+  - [Compiler](advanced/compiler.md)

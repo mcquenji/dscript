@@ -214,7 +214,7 @@ class ExprVisitor extends AnalysisVisitor {
         );
       }
 
-      final nullable = !(ctx.nullAware != null || !type.nullable);
+      final nullable = ctx.nullAware == null;
 
       if (type is ListType) {
         if (index != PrimitiveType.INT) {
@@ -754,11 +754,87 @@ class ExprVisitor extends AnalysisVisitor {
 
   @override
   $Type? visitFunctionCall(FunctionCallContext ctx) {
-    return report(
-      SemanticError(
-        'Internal function calls are not supported yet.',
-        ctx: ctx,
-      ),
-    );
+    final name = ctx.method!.text;
+
+    final posArgs =
+        ctx.args()?.positionalArgs().map((a) => a.accept(this)!).toList() ?? [];
+    final namedArgs = {
+      for (var e in ctx.args()?.namedArgs() ?? <NamedArgContext>[])
+        e.identifier()!.text: e.expr()!.accept(this)!
+    };
+
+    final func = functionSignatures[name];
+
+    if (func == null) {
+      return report(UndefinedError(name, ctx: ctx));
+    }
+
+    if (func.positionalParameters.length != posArgs.length) {
+      return report(
+        PositionalArgumentError(
+          func.name,
+          posArgs.length,
+          func.positionalParameters.length,
+          ctx: ctx,
+        ),
+      );
+    }
+
+    for (var i = 0; i < posArgs.length; i++) {
+      final expected = func.positionalParameters[i];
+      final found = posArgs[i];
+
+      if (!found.canCast(expected.type)) {
+        report(
+          ArgumentTypeMismatchError(
+            expected.type,
+            found,
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    for (final arg in namedArgs.entries) {
+      final expected = func.namedParameters.firstWhereOrNull(
+        (p) => p.name == arg.key.toString(),
+      );
+
+      if (expected == null) {
+        report(
+          UndefinedArgumentError(
+            func.name,
+            arg.key.toString(),
+            ctx: ctx,
+          ),
+        );
+        continue;
+      }
+
+      final found = arg.value;
+
+      if (!found.canCast(expected.type)) {
+        report(
+          ArgumentTypeMismatchError(
+            expected.type,
+            found,
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    for (final param in func.namedParameters) {
+      if (!namedArgs.containsKey(param.name) && !param.type.nullable) {
+        report(
+          SemanticError(
+            'Missing non-nullable parameter "${param.name}" in "$name"',
+            ctx: ctx,
+          ),
+        );
+      }
+    }
+
+    return func.returnType;
   }
 }

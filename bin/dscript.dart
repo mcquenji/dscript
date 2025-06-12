@@ -63,11 +63,16 @@ void main(List<String> arguments) async {
           .end()
           .build(),
     ],
-    // ignoreWarnings: true,
+    ignoreWarnings: true,
   ).getOrThrow();
 
   print('Author: ${script.author}');
   print('Name: ${script.name}');
   print('Version: ${script.version}');
   print('Description: ${script.description}');
+
+  final bytecode = compile(script);
+  print(
+    bytecode.implementations['randomString']?.toDebugString(),
+  );
 }

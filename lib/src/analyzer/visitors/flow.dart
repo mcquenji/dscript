@@ -111,25 +111,91 @@ class FlowVisitor extends AnalysisVisitor {
     scope = scope.pop();
 
     final catchBlock = ctx.catchBlock();
-    if (catchBlock != null) {
-      scope = scope.fork();
 
-      final ident = catchBlock.identifier()!.text;
+    if (catchBlock == null) {
+      return report(
+        SemanticError(
+          'Catch block is missing.',
+          ctx: ctx,
+        ),
+      );
+    }
+
+    scope = scope.fork();
+
+    final ident = catchBlock.identifier()!.text;
+    scope.set(
+      ident,
+      Struct.error,
+      false,
+    );
+
+    catchBlock.block()?.accept(BlockVisitor(this));
+
+    final catchReturned = scope.returned != null;
+    scope = scope.pop();
+
+    if (tryReturned && catchReturned) {
+      scope.markReturned(scope.returnType);
+    }
+
+    return const InvalidType();
+  }
+
+  @override
+  $Type? visitForStmt(ForStmtContext ctx) {
+    scope = TypeScope(scope);
+
+    if (ctx.IN() != null) {
+      // For loop with 'in' keyword
+      final iterable = ctx.expr()?.accept(ExprVisitor(this));
+      if (iterable == null) {
+        return report(InferenceError(ctx: ctx));
+      }
+
+      if (iterable is! ListType) {
+        return report(
+          SemanticError('Cannot iterate over non-list type', ctx: ctx),
+        );
+      }
+
+      final varType = ctx.varDecl()!.varType()!;
+
+      final mutable = varType.VAR() != null;
+
+      final ident = ctx.varDecl()!.identifier()!.text;
       scope.set(
         ident,
-        Struct.error,
-        false,
+        iterable.elementType,
+        mutable,
       );
 
-      catchBlock.block()?.accept(BlockVisitor(this));
+      ctx.block()?.accept(BlockVisitor(this));
 
-      final catchReturned = scope.returned != null;
       scope = scope.pop();
-
-      if (tryReturned && catchReturned) {
-        scope.markReturned(scope.returnType);
-      }
+      return const InvalidType();
     }
+
+    if (ctx.varDecl() != null) {
+      // For loop with variable declaration
+      final varType = ctx.varDecl()!.varType()!;
+
+      final mutable = varType.VAR() != null;
+
+      final ident = ctx.varDecl()!.identifier()!.text;
+      scope.set(
+        ident,
+        PrimitiveType.INT,
+        mutable,
+      );
+    }
+    ensureConditionIsBool(ctx.expr());
+
+    ctx.assignment()?.accept(ExprVisitor(this));
+
+    ctx.block()?.accept(BlockVisitor(this));
+
+    scope = scope.pop();
 
     return const InvalidType();
   }

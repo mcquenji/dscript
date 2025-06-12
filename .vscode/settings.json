@@ -1,7 +1,8 @@
 {
   "dart.flutterSdkPath": ".fvm/versions/3.29.3",
   "conventionalCommits.scopes": [
-    "analyzer"
+    "analyzer",
+    "compiler"
   ],
   "conventionalCommits.autoCommit": false,
   "conventionalCommits.gitmoji": false,

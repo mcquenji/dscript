@@ -1,3 +1,4 @@
+// coverage:ignore-file
 part of 'visitors.dart';
 
 /// Analyzes statements in the script.

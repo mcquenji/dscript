@@ -16,17 +16,54 @@ permissions external::math;
 contract Random {
   const bar = 5;
 
+  func test({string name}) 
+  {
+    log::info("Test function called with name: " + name);
+  }
+
+
   impl randomNumber(int foo) -> double {
-    log::info(string::from(5 + bar));
+test(name: "TestName");
+    log::info("Random number generated: " + foo, error: "Test error");
+
+      final test = @User {
+        name: "TestUser",
+        id : 12345
+      };
+
+      final name = test.name;
+      test.id = 67890;
+
+      final List<int> arr = [1, 2, 3, 4, 5];
+
+for(final int i in arr) {
+        log::info("Array element: " + e);
+      }
+
+      //final int x = arr?[1]!;
+
+      //arr?[2] = 10;
 
 
-    if(5 == foo) {
       return 1.0;
-    }else if(5 < foo && foo < 10) {
-      return 4 *bar;
-    }else {
-      return external::double(math::floor(foo * pi));
-    }
+
+
+    //log::info(string::from(5 + bar));
+//
+//
+    ///if(5 == foo) {
+    ///}else if(foo > 5) {
+    ///  return 2.0 * bar;
+    ///}else{
+    ///      return foo * bar + 1.0;
+///
+    ///}
+    //else if(5 < foo && foo < 10) {
+    //  return 4 *bar;
+    //}else {
+    //  return external::double(math::floor(foo * pi));
+    //}
+
   }
 
 
@@ -34,16 +71,21 @@ contract Random {
   {
     while(true) {
       log::info("Generating random string...");
-      break;
-    }
+     break;
+  }
+  
+  
 
-     try {
-      log::info("test");
-      return 'test';
-    } catch (e) {
-      log::error("Error", error: e);
-      return e.message;
-    }
+  //
+  //   try {
+  //    log::info("test");
+  //    return 'test';
+  //  } catch (e) {
+  //    log::error("Error", error: e);
+  //    return e.message;
+  //  }
+
+  return "RandomString";
   }
 
   impl test() -> void {
@@ -73,22 +115,22 @@ contract Random {
 
     // return math::floor(1.5);
 
-    log::info("User logged in: " + user.name);
+    //log::info("User logged in: " + user.name);
 
-    final User? test = @User {
-      name: "TestUser",
-      id : 12345
-    };
-
-  
-
-    final  map = {"key1": user};
-    final array = [1, 2, 3, 4, 5];
-
-    log::info("Map: " + map["key1"].name);
-
-    final int x = array[1]!;
-    final string name = test!.name;
+    //final User? test = @User {
+    //  name: "TestUser",
+    //  id : 12345
+    //};
+//
+  //
+//
+    //final  map = {"key1": user};
+    //final array = [1, 2, 3, 4, 5];
+//
+    //log::info("Map: " + map["key1"].name);
+//
+    //final int x = array[1]!;
+    //final string name = test!.name;
   }
 
 }

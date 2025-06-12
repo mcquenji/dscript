@@ -34,5 +34,11 @@ jobs:
         with:
           name: test-results
           path: test-results.json
-
-  
+          
+      - name: 📝 Check Test Results
+        run: |
+          if grep -q '"result":"failure"' test-results.json; then
+            echo "❌ Tests failed"
+            exit 1
+          fi
+          echo "✅ All tests passed"

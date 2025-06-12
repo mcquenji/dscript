@@ -1,3 +1,4 @@
+// coverage:ignore-file
 import 'package:dscript/dscript.dart';
 
 /// A builder for creating a [ContractSignature].

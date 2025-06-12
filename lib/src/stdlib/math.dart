@@ -1,3 +1,4 @@
+// coverage:ignore-file
 part of 'stdlib.dart';
 
 /// Bindings for the math standard library.

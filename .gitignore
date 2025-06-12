@@ -4,8 +4,10 @@
 
 # FVM Version Cache
 .fvm/
+
 .gpt/
 .antlr/
 .gen/
 *.interp
 *.tokens
+coverage/
