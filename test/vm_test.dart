@@ -13,7 +13,7 @@ void main() {
     final compiled = compile(result.getOrThrow());
     final runtime = Runtime(compiled, []);
 
-    final value = await runtime.run('randomNumber', namedArgs: {'foo': 21});
+    final value = await runtime.run('randomNumber', args: {'foo': 21});
     expect(value, 42.0);
   });
 
@@ -42,7 +42,7 @@ contract Random {
     final compiled = compile(result.getOrThrow());
     final runtime = Runtime(compiled, []);
 
-    final value = await runtime.run('randomNumber', namedArgs: {'foo': 21});
+    final value = await runtime.run('randomNumber', args: {'foo': 21});
     expect(value, 441.0);
   });
 
@@ -54,7 +54,7 @@ contract Random {
     final compiled = compile(result.getOrThrow());
     final runtime = Runtime(compiled, []);
 
-    final value = await runtime.run('randomNumber', namedArgs: {'foo': 21});
+    final value = await runtime.run('randomNumber', args: {'foo': 21});
     expect(value, 52.0);
   });
 
@@ -95,7 +95,7 @@ contract Pair {
 
     final value = await runtime.run(
       'diff',
-      namedArgs: {'b': 2, 'a': 5},
+      args: {'b': 2, 'a': 5},
     );
     expect(value, 50);
   });

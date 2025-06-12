@@ -9,8 +9,7 @@ import 'package:dscript/src/stdlib/stdlib.dart';
 /// permissions are granted to access the
 /// required resources and perform the intended operations.
 ///
-/// If any permissions are missing,
-/// a [RuntimeException] will be thrown with details about the missing permissions.
+/// If any permissions are missing, calling [run] or [emit] will throw a [StateError].
 class Runtime {
   /// The script being executed in this runtime.
   final CompiledScript script;
@@ -53,10 +52,10 @@ class Runtime {
     }
   }
 
-  /// Executes the given [implementation] in a new isolate with the provided [args] and [namedArgs].
+  /// Executes the given [implementation] with the provided [args].
   Future<dynamic> run(
     String implementation, {
-    Map<String, dynamic> namedArgs = const {},
+    Map<String, dynamic> args = const {},
   }) async {
     checkPermissions();
 
@@ -80,28 +79,28 @@ class Runtime {
       ...script.hooks,
     };
     final libraries = {
-      for (final lib in LibraryBinding.stdLib()) lib.name: lib,
+      for (final lib in LibraryBinding.stdLib(script.metadata)) lib.name: lib,
       script.contract.bindings.name: script.contract.bindings,
     };
 
     final vm = vmFactory(
       impl,
       args: [],
-      namedArgs: namedArgs,
+      namedArgs: args,
       functions: functions,
       libraries: libraries,
     );
 
-    return Isolate.run(vm.exec);
+    return await vm.exec();
   }
 
-  /// Executes the given [hook] in a new isolate with the provided [args] and [namedArgs].
+  /// Executes the given [hook] in with the provided [args].
   ///
   /// If the [hook] is defined but not implemented in the script, this will be a no-op.
-  /// If the [script] does not define the [hook], an [ArgumentError] is thrown.
+  /// If the scipt's contract does not define the [hook], an [ArgumentError] is thrown.
   Future<void> emit(
     String hook, {
-    Map<String, dynamic> namedArgs = const {},
+    Map<String, dynamic> args = const {},
   }) async {
     checkPermissions();
 
@@ -127,19 +126,19 @@ class Runtime {
       ...script.hooks,
     };
     final libraries = {
-      for (final lib in LibraryBinding.stdLib()) lib.name: lib,
+      for (final lib in LibraryBinding.stdLib(script.metadata)) lib.name: lib,
       script.contract.bindings.name: script.contract.bindings,
     };
 
     final vm = vmFactory(
       hookImpl,
       args: [],
-      namedArgs: namedArgs,
+      namedArgs: args,
       functions: functions,
       libraries: libraries,
     );
 
-    await Isolate.run(vm.exec);
+    await vm.exec();
   }
 
   /// Grants the specified [permission] to this runtime.
@@ -168,5 +167,21 @@ class Runtime {
   /// Revokes all permissions from this runtime.
   void revokeAll() {
     permissions.clear();
+  }
+}
+
+/// Same as [Runtime] but each invocation of [run] or [emit] will be executed in a separate isolate.
+class IsolateRuntime extends Runtime {
+  /// Same as [Runtime] but each invocation of [run] or [emit] will be executed in a separate isolate.
+  IsolateRuntime(super.script, super.permissions, [super.vmFactory]);
+
+  @override
+  Future run(String implementation, {Map<String, dynamic> args = const {}}) {
+    return Isolate.run(() => super.run(implementation, args: args));
+  }
+
+  @override
+  Future<void> emit(String hook, {Map<String, dynamic> args = const {}}) {
+    return Isolate.run(() => super.emit(hook, args: args));
   }
 }

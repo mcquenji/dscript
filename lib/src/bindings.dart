@@ -2,9 +2,7 @@
 import 'dart:async';
 
 import 'package:dscript/src/permissions.dart';
-import 'package:dscript/src/runtime/exceptions.dart';
 import 'package:dscript/src/stdlib/stdlib.dart';
-import 'package:dscript/src/runtime/values.dart';
 import 'package:dscript/src/types.dart';
 
 /// A binding that connects a Dart function to the dscript runtime.
@@ -46,72 +44,78 @@ class RuntimeBinding<T> {
   });
 
   /// Calls the bound function with the provided arguments.
-  Future<T> call(List<RuntimeValue> positionalArgs,
-      {Map<Symbol, RuntimeValue> namedArgs = const {}}) async {
+  Future<T> call(List<dynamic> positionalArgs,
+      {Map<Symbol, dynamic> namedArgs = const {}}) async {
+    positionalArgs = List.from(positionalArgs);
+    namedArgs = Map<Symbol, dynamic>.from(namedArgs);
+
     // Check if all named parameters are provided
     for (final entry in namedParams.entries) {
       final param = entry.key;
       final expectedType = entry.value;
 
       if (!namedArgs.containsKey(param) && !expectedType.nullable) {
-        throw RuntimeException('Missing non-nullable argument: $param');
+        throw ArgumentError('Missing non-nullable argument: $param');
       }
 
       if (!namedArgs.containsKey(param)) {
-        namedArgs[param] = const NullValue();
+        namedArgs[param] = null;
       }
 
       // Check if the argument type matches the expected type
-      final arg = namedArgs[param]!;
+      final arg = namedArgs[param];
 
-      if (!arg.type.canCast(expectedType)) {
-        throw RuntimeException(
-          'Invalid argument type for $param: expected $expectedType, got ${arg.type}',
+      final type = $Type.fromValue(arg);
+
+      if (!type.canCast(expectedType)) {
+        throw ArgumentError(
+          'Invalid argument type for $param: expected $expectedType, got $type',
         );
       }
 
       // Cast the argument to the expected type
-      namedArgs[param] = arg.cast(expectedType);
+      namedArgs[param] = type.cast(expectedType, arg);
     }
 
     // Check if the number of positional arguments matches
     if (positionalParams.length != positionalArgs.length) {
-      throw RuntimeException(
+      throw ArgumentError(
         'Invalid number of positional arguments: expected ${positionalParams.length}, got ${positionalArgs.length}',
       );
     }
     // Check if the types of positional arguments match
     for (int i = 0; i < positionalParams.length; i++) {
       if (i >= positionalArgs.length) {
-        throw RuntimeException(
+        throw ArgumentError(
           '${positionalParams.length} positional arguments expected, but only ${positionalArgs.length} provided',
         );
       }
 
-      if (!positionalArgs[i].type.canCast(positionalParams[i])) {
-        throw RuntimeException(
-          'Invalid argument type for positional argument $i: expected ${positionalParams[i]}, got ${positionalArgs[i].type}',
+      final type = $Type.fromValue(positionalArgs[i]);
+
+      if (!type.canCast(positionalParams[i])) {
+        throw ArgumentError(
+          'Invalid argument type for positional argument $i: expected ${positionalParams[i]}, got $type',
         );
       }
 
       // Cast the argument to the expected type
-      positionalArgs[i] = positionalArgs[i].cast(positionalParams[i]);
+      positionalArgs[i] = type.cast(positionalParams[i], positionalArgs[i]);
     }
 
     final result = await Function.apply(
-        function,
-        positionalArgs.map((arg) => arg.value).toList(),
-        namedArgs.map(
-          (key, value) => MapEntry(
-            key,
-            value.value,
-          ),
-        ));
+      function,
+      positionalArgs,
+      namedArgs,
+    );
 
-    if (result is T) {
-      return result;
+    final resultType = $Type.fromValue(result);
+
+    if (resultType.canCast(returnType)) {
+      // Cast the result to the expected return type
+      return resultType.cast(returnType, result) as T;
     } else {
-      throw RuntimeException(
+      throw ArgumentError(
         'Invalid return type: expected $T, got ${result.runtimeType}',
       );
     }

@@ -201,6 +201,51 @@ sealed class $Type extends Signature {
     }
   }
 
+  /// The key inside a map that indicates it's a struct type. The value is the name of the struct.
+  static const structKey = '__type__';
+
+  /// Extracts the type from a value.
+  factory $Type.fromValue(dynamic value) {
+    if (value == null) {
+      return PrimitiveType.NULL;
+    }
+
+    if (value is int) {
+      return PrimitiveType.INT;
+    } else if (value is double) {
+      return PrimitiveType.DOUBLE;
+    } else if (value is String) {
+      return PrimitiveType.STRING;
+    } else if (value is bool) {
+      return PrimitiveType.BOOL;
+    } else if (value is List) {
+      if (value.isEmpty) {
+        return ListType(elementType: PrimitiveType.NULL);
+      }
+      return ListType(
+        elementType: $Type.fromValue(value.first),
+      );
+    } else if (value is Map) {
+      if (value.isEmpty) {
+        return MapType(
+          keyType: PrimitiveType.NULL,
+          valueType: PrimitiveType.NULL,
+        );
+      }
+      final key = value.keys.first;
+      final val = value.values.first;
+
+      return MapType(
+        keyType: $Type.fromValue(key),
+        valueType: $Type.fromValue(val),
+      );
+    } else if (value is Struct) {
+      return value.asNullable();
+    }
+
+    throw ArgumentError.value(value, 'value', 'Cannot determine type of value');
+  }
+
   /// Looks up a placeholder struct by its name in the provided [types] and [Struct.defaults] list.
   ///
   /// Returns the struct if found, otherwise returns null.

@@ -12,7 +12,7 @@ class DefaultVM extends VM {
   });
 
   @override
-  dynamic exec() {
+  Future<dynamic> exec() async {
     final buffer = function.buffer;
     final constants = function.constants;
 
@@ -20,17 +20,17 @@ class DefaultVM extends VM {
     final Map<int, Map<int, dynamic>> frames = {};
     final List<int> catchTargets = [];
 
-    void _store(int frame, int index, dynamic value) {
+    void store(int frame, int index, dynamic value) {
       frames.putIfAbsent(frame, () => {})[index] = value;
     }
 
-    dynamic _read(int frame, int index) {
+    dynamic read(int frame, int index) {
       return frames[frame]?[index];
     }
 
     // Initialize first frame with positional and named arguments.
     if (args.isNotEmpty || namedArgs.isNotEmpty) {
-      var frame = frames.putIfAbsent(1, () => {});
+      final frame = frames.putIfAbsent(1, () => {});
       for (var i = 0; i < args.length; i++) {
         frame[i] = args[i];
       }
@@ -49,17 +49,24 @@ class DefaultVM extends VM {
         case Instruction.store:
           final frame = buffer[ip++];
           final index = buffer[ip++];
-          _store(frame, index, stack.removeLast());
+          store(frame, index, stack.removeLast());
           break;
         case Instruction.read:
           final frame = buffer[ip++];
           final index = buffer[ip++];
-          stack.add(_read(frame, index));
+          stack.add(read(frame, index));
           break;
         case Instruction.add:
           final a = stack.removeLast();
           final b = stack.removeLast();
+
+          if (a is String) {
+            stack.add('$a$b');
+            break;
+          }
+
           stack.add(a + b);
+
           break;
         case Instruction.sub:
           final a = stack.removeLast();
@@ -178,7 +185,7 @@ class DefaultVM extends VM {
           if (obj is Map) {
             stack.add(obj[prop]);
           } else {
-            stack.add((obj as dynamic)[prop]);
+            throw StateError("Cannot read property '$prop' from '$obj'");
           }
           break;
         case Instruction.writeProperty:
@@ -200,7 +207,9 @@ class DefaultVM extends VM {
           } else if (obj is Map) {
             stack.add(obj[index]);
           } else {
-            stack.add((obj as dynamic)[index]);
+            throw StateError(
+              "Cannot read element '$index' from '$obj'",
+            );
           }
           break;
         case Instruction.writeElement:
@@ -221,9 +230,11 @@ class DefaultVM extends VM {
           final positional = stack.removeLast() as List<dynamic>?;
           final name = constants[idx] as String;
           final fn = functions[name];
+
           if (fn == null) {
             throw StateError('Function $name not found');
           }
+
           final vm = DefaultVM(
             fn,
             args: positional ?? const [],
@@ -231,7 +242,7 @@ class DefaultVM extends VM {
             functions: functions,
             libraries: libraries,
           );
-          stack.add(vm.exec());
+          stack.add(await vm.exec());
           break;
         case Instruction.externalCall:
           final nsIdx = buffer[ip++];
@@ -247,10 +258,9 @@ class DefaultVM extends VM {
           final binding = lib.bindings.firstWhere((b) => b.name == name,
               orElse: () =>
                   throw StateError('Unknown function $name in $namespace'));
-          final result = Function.apply(
-            binding.function,
+          final result = await binding(
             positional ?? const [],
-            named?.map((k, v) => MapEntry(Symbol(k), v)),
+            namedArgs: named?.map((k, v) => MapEntry(Symbol(k), v)) ?? const {},
           );
           stack.add(result);
           break;
@@ -296,7 +306,7 @@ class DefaultVM extends VM {
         case Instruction.throw_:
           final error = stack.removeLast();
           if (catchTargets.isEmpty) {
-            throw RuntimeException(error.toString());
+            throw StateError(error.toString());
           }
           stack.add(error);
           ip = catchTargets.last;
@@ -308,7 +318,7 @@ class DefaultVM extends VM {
         case Instruction.catchStart:
           final frame = buffer[ip++];
           final index = buffer[ip++];
-          _store(frame, index, stack.removeLast());
+          store(frame, index, stack.removeLast());
           break;
         case Instruction.endTry:
           if (catchTargets.isNotEmpty) catchTargets.removeLast();

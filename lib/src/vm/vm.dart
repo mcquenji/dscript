@@ -1,5 +1,4 @@
 import 'package:dscript/dscript.dart';
-import 'package:dscript/src/runtime/exceptions.dart';
 import 'package:dscript/src/stdlib/stdlib.dart';
 
 part 'vm_impl.dart';
