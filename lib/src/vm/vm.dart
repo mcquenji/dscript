@@ -1,4 +1,6 @@
 import 'package:dscript/dscript.dart';
+import 'package:dscript/src/runtime/exceptions.dart';
+import 'package:dscript/src/stdlib/stdlib.dart';
 
 part 'vm_impl.dart';
 
@@ -14,11 +16,24 @@ abstract class VM {
   final Map<String, dynamic> namedArgs;
 
   /// A virtual machine executing a [BytecodeFunction].
+  ///
+  /// The [functions] map contains all bytecode functions available for
+  /// invocation via the [Instruction.call] opcode. The [libraries] map provides
+  /// access to host or standard library bindings used by
+  /// [Instruction.externalCall].
   VM(
     this.function, {
     this.args = const [],
     this.namedArgs = const {},
+    this.functions = const {},
+    this.libraries = const {},
   });
+
+  /// All functions that can be invoked by this VM.
+  final Map<String, BytecodeFunction> functions;
+
+  /// Available libraries for external calls keyed by namespace.
+  final Map<String, LibraryBinding> libraries;
 
   /// Executes the function with the provided [args] and [namedArgs].
   ///

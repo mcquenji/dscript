@@ -1,6 +1,7 @@
 import 'dart:isolate';
 
 import 'package:dscript/dscript.dart';
+import 'package:dscript/src/stdlib/stdlib.dart';
 
 /// The Dscript runtime environment.
 ///
@@ -24,6 +25,8 @@ class Runtime {
     BytecodeFunction, {
     List<dynamic> args,
     Map<String, dynamic> namedArgs,
+    Map<String, BytecodeFunction> functions,
+    Map<String, LibraryBinding> libraries,
   }) vmFactory;
 
   /// A list of permissions that are missing for the script to run.
@@ -71,7 +74,23 @@ class Runtime {
 
     final impl = script.implementations[implementation]!;
 
-    final vm = vmFactory(impl, args: [], namedArgs: namedArgs);
+    final functions = {
+      ...script.functions,
+      ...script.implementations,
+      ...script.hooks,
+    };
+    final libraries = {
+      for (final lib in LibraryBinding.stdLib()) lib.name: lib,
+      script.contract.bindings.name: script.contract.bindings,
+    };
+
+    final vm = vmFactory(
+      impl,
+      args: [],
+      namedArgs: namedArgs,
+      functions: functions,
+      libraries: libraries,
+    );
 
     return Isolate.run(vm.exec);
   }
@@ -102,7 +121,23 @@ class Runtime {
 
     final hookImpl = script.hooks[hook]!;
 
-    final vm = vmFactory(hookImpl, args: [], namedArgs: namedArgs);
+    final functions = {
+      ...script.functions,
+      ...script.implementations,
+      ...script.hooks,
+    };
+    final libraries = {
+      for (final lib in LibraryBinding.stdLib()) lib.name: lib,
+      script.contract.bindings.name: script.contract.bindings,
+    };
+
+    final vm = vmFactory(
+      hookImpl,
+      args: [],
+      namedArgs: namedArgs,
+      functions: functions,
+      libraries: libraries,
+    );
 
     await Isolate.run(vm.exec);
   }
