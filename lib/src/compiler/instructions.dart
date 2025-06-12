@@ -661,6 +661,22 @@ class Instruction {
   ///   1. Positional arguments as List<dynamic> or null ([Instruction.pushNull]).
   ///   2. Named arguments as Map<String, dynamic> or null ([Instruction.pushNull]).
   static const call = 0x27;
+
+  /// Begins a try block and registers the catch handler target.
+  ///
+  /// **Arguments**
+  ///   1. Target instruction index of the associated catch block.
+  static const tryStart = 0x28;
+
+  /// Marks the start of a catch block and stores the thrown exception.
+  ///
+  /// **Arguments**
+  ///   1. Frame index for the exception variable.
+  ///   2. Variable index within the frame.
+  static const catchStart = 0x29;
+
+  /// Ends exception handling for the current try/catch statement.
+  static const endTry = 0x2A;
 }
 
 /// A function compiled to bytecode.

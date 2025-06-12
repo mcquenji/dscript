@@ -90,8 +90,12 @@ class NaiveCompiler extends Compiler {
 
   @override
   visitCatchBlock(CatchBlockContext ctx) {
-    // TODO: implement visitCatchBlock
-    throw UnimplementedError();
+    frame();
+    final ident = ctx.identifier()!.text;
+    final loc = push(ident);
+    emit(Instruction.catchStart, loc.frame, loc.index);
+    ctx.block()?.accept(this);
+    pop();
   }
 
   @override
@@ -612,8 +616,13 @@ class NaiveCompiler extends Compiler {
 
   @override
   visitTryStmt(TryStmtContext ctx) {
-    // TODO: implement visitTryStmt
-    throw UnimplementedError();
+    final catchJump = prepareJump(Instruction.tryStart);
+    ctx.block()?.accept(this);
+    final endJump = prepareJump(Instruction.jump);
+    finalizeJump(catchJump);
+    ctx.catchBlock()?.accept(this);
+    finalizeJump(endJump);
+    emit(Instruction.endTry);
   }
 
   @override

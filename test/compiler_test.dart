@@ -216,4 +216,18 @@ contract Random {
       expect(fn.constants.contains('square'), isTrue);
     });
   });
+
+  group('exceptions', () {
+    test('try/catch compiles', () {
+      final script = baseRandomScript(
+          'try { return foo * 2.0; } catch (e) { return foo * 3.0; }');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+      final compiled = compile(result.getOrThrow());
+      final fn = compiled.implementations['randomNumber']!;
+      expect(fn.buffer.contains(Instruction.tryStart), isTrue);
+      expect(fn.buffer.contains(Instruction.catchStart), isTrue);
+      expect(fn.buffer.contains(Instruction.endTry), isTrue);
+    });
+  });
 }
