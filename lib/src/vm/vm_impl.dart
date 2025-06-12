@@ -267,7 +267,7 @@ class DefaultVM extends VM {
         case Instruction.structFromMap:
           final idx = buffer[ip++];
           final map = Map<String, dynamic>.from(stack.removeLast() as Map);
-          map['__type'] = constants[idx];
+          map[$Type.structKey] = constants[idx];
           stack.add(map);
           break;
         case Instruction.shl:
