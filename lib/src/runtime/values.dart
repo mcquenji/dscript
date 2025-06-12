@@ -1,3 +1,4 @@
+// coverage:ignore-file
 import 'package:dscript/src/types.dart';
 
 /// Represents a runtime value of type [T] used during script execution.

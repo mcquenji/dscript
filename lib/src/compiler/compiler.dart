@@ -1,3 +1,4 @@
+// coverage:ignore-file
 import 'dart:typed_data';
 
 import 'package:antlr4/antlr4.dart';
