@@ -270,9 +270,26 @@ class NaiveCompiler extends Compiler {
   @override
   visitFunc(FuncContext ctx) {
     frame();
-    ctx.pos?.accept(this);
-    ctx.named?.accept(this);
+
+    final posParams = ctx.pos?.params() ?? [];
+    final namedParams = ctx.named?.params() ?? [];
+
+    positionalParams = posParams.length;
+    namedParameterIndex.clear();
+
+    for (var i = 0; i < posParams.length; i++) {
+      final name = posParams[i].identifier()!.text;
+      push(name);
+    }
+
+    for (var i = 0; i < namedParams.length; i++) {
+      final name = namedParams[i].identifier()!.text;
+      push(name);
+      namedParameterIndex[name] = positionalParams + i;
+    }
+
     ctx.block()?.accept(this);
+
     pop();
   }
 
@@ -287,7 +304,16 @@ class NaiveCompiler extends Compiler {
   visitHook(HookContext ctx) {
     frame();
 
-    ctx.params()?.accept(this);
+    final params = ctx.params()?.params() ?? [];
+
+    positionalParams = 0;
+    namedParameterIndex.clear();
+
+    for (var i = 0; i < params.length; i++) {
+      final name = params[i].identifier()!.text;
+      push(name);
+      namedParameterIndex[name] = i;
+    }
 
     ctx.block()?.accept(this);
 
@@ -329,7 +355,17 @@ class NaiveCompiler extends Compiler {
   @override
   visitImpl(ImplContext ctx) {
     frame();
-    ctx.params()?.accept(this);
+
+    final params = ctx.params()?.params() ?? [];
+
+    positionalParams = 0;
+    namedParameterIndex.clear();
+
+    for (var i = 0; i < params.length; i++) {
+      final name = params[i].identifier()!.text;
+      push(name);
+      namedParameterIndex[name] = i;
+    }
 
     ctx.block()?.accept(this);
 

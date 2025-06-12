@@ -112,6 +112,12 @@ abstract class Compiler extends dscriptVisitor<void> {
     }
   }
 
+  /// Number of positional parameters for the function being compiled.
+  int positionalParams = 0;
+
+  /// Mapping of named parameter to its stack index.
+  final Map<String, int> namedParameterIndex = {};
+
   /// Builds the compiled bytecode function.
   BytecodeFunction build() {
     if (_loops.isNotEmpty) {
@@ -121,6 +127,8 @@ abstract class Compiler extends dscriptVisitor<void> {
     return BytecodeFunction(
       buffer,
       constants,
+      positionalParams: positionalParams,
+      namedParameterIndex: Map.unmodifiable(namedParameterIndex),
     );
   }
 
