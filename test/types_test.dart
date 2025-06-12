@@ -16,7 +16,7 @@ void main() {
     });
   });
 
-  group('\$Type casting', () {
+  group(r'$Type casting', () {
     test('int to double cast', () {
       final result = PrimitiveType.INT.cast(PrimitiveType.DOUBLE, 4);
       expect(result, 4.0);

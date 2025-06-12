@@ -111,24 +111,32 @@ class FlowVisitor extends AnalysisVisitor {
     scope = scope.pop();
 
     final catchBlock = ctx.catchBlock();
-    if (catchBlock != null) {
-      scope = scope.fork();
 
-      final ident = catchBlock.identifier()!.text;
-      scope.set(
-        ident,
-        Struct.error,
-        false,
+    if (catchBlock == null) {
+      return report(
+        SemanticError(
+          'Catch block is missing.',
+          ctx: ctx,
+        ),
       );
+    }
 
-      catchBlock.block()?.accept(BlockVisitor(this));
+    scope = scope.fork();
 
-      final catchReturned = scope.returned != null;
-      scope = scope.pop();
+    final ident = catchBlock.identifier()!.text;
+    scope.set(
+      ident,
+      Struct.error,
+      false,
+    );
 
-      if (tryReturned && catchReturned) {
-        scope.markReturned(scope.returnType);
-      }
+    catchBlock.block()?.accept(BlockVisitor(this));
+
+    final catchReturned = scope.returned != null;
+    scope = scope.pop();
+
+    if (tryReturned && catchReturned) {
+      scope.markReturned(scope.returnType);
     }
 
     return const InvalidType();
