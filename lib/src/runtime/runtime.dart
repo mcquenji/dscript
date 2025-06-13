@@ -73,11 +73,6 @@ class Runtime {
 
     final impl = script.implementations[implementation]!;
 
-    final functions = {
-      ...script.functions,
-      ...script.implementations,
-      ...script.hooks,
-    };
     final libraries = {
       for (final lib in LibraryBinding.stdLib(script.metadata)) lib.name: lib,
       script.contract.bindings.name: script.contract.bindings,
@@ -87,7 +82,7 @@ class Runtime {
       impl,
       args: [],
       namedArgs: args,
-      functions: functions,
+      functions: script.functions,
       libraries: libraries,
     );
 
@@ -120,11 +115,6 @@ class Runtime {
 
     final hookImpl = script.hooks[hook]!;
 
-    final functions = {
-      ...script.functions,
-      ...script.implementations,
-      ...script.hooks,
-    };
     final libraries = {
       for (final lib in LibraryBinding.stdLib(script.metadata)) lib.name: lib,
       script.contract.bindings.name: script.contract.bindings,
@@ -134,7 +124,7 @@ class Runtime {
       hookImpl,
       args: [],
       namedArgs: args,
-      functions: functions,
+      functions: script.functions,
       libraries: libraries,
     );
 
