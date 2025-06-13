@@ -15,10 +15,10 @@ jobs:
         - name: Install absolute version
           run: npm i -g commit-and-tag-version
 
+        - uses: fregante/setup-git-user@v2.0.2
+
         - name: Bump version
           run: |
-            git config --global user.name "GitHub Action"
-            git config --global user.email "<>"
             commit-and-tag-version
             git push --follow-tags origin main
     publish:
