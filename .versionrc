@@ -1,0 +1,26 @@
+{
+    "$schema": "https://raw.githubusercontent.com/conventional-changelog/conventional-changelog-config-spec/refs/heads/master/versions/2.2.0/schema.json",
+    "types": [
+        {
+            "type": "feat",
+            "section": "Features"
+        },
+        {
+            "type": "fix",
+            "section": "Bug Fixes"
+        },
+        {
+            "type": "ci",
+            "hidden": true
+        }
+    ],
+    "bumpFiles": [
+        {
+            "filename": "pubspec.yaml",
+            "type": "yaml"
+        }
+    ],
+    "packageFiles": [
+        "pubspec.yaml"
+    ]
+}
