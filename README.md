@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/mcquenji/dscript/refs/heads/main/icon.svg" alt="Dscript" width="28"/> Dscript
 
-[![pub package](https://img.shields.io/pub/v/dscript.svg)](https://pub.dev/packages/dscript)
+[![pub package](https://img.shields.io/pub/v/dscript_dart.svg)](https://pub.dev/packages/dscript_dart)
 
 A lightweight [Domain-Specific Language (DSL)](https://en.wikipedia.org/wiki/Domain-specific_language) for Dart designed to simplify writing and integrating plugins/extensions into Flutter and Dart applications. It offers strong interop between DSL constructs and Dart code, a static permission system, and a contract-based plugin model.
 
