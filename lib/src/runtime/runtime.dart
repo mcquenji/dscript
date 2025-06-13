@@ -36,11 +36,11 @@ class Runtime {
   /// Constructs a [Runtime] instance with the provided [script] and [permissions].
   ///
   /// You can optionally provide a custom [vmFactory] to use your own VM implementation.
-  const Runtime(
+  Runtime(
     this.script, {
-    this.permissions = const [],
+    List<ScriptPermission> permissions = const [],
     this.vmFactory = DefaultVM.new,
-  });
+  }) : permissions = List.of(permissions);
 
   /// Checks if the runtime has the necessary permissions to execute the script.
   /// If any permissions are missing this will throw.
