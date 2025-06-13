@@ -37,10 +37,10 @@ class Runtime {
   ///
   /// You can optionally provide a custom [vmFactory] to use your own VM implementation.
   const Runtime(
-    this.script,
-    this.permissions, [
+    this.script, {
+    this.permissions = const [],
     this.vmFactory = DefaultVM.new,
-  ]);
+  });
 
   /// Checks if the runtime has the necessary permissions to execute the script.
   /// If any permissions are missing this will throw.
@@ -163,7 +163,7 @@ class Runtime {
 /// Same as [Runtime] but each invocation of [run] or [emit] will be executed in a separate isolate.
 class IsolateRuntime extends Runtime {
   /// Same as [Runtime] but each invocation of [run] or [emit] will be executed in a separate isolate.
-  IsolateRuntime(super.script, super.permissions, [super.vmFactory]);
+  IsolateRuntime(super.script, {super.permissions, super.vmFactory});
 
   @override
   Future run(String implementation, {Map<String, dynamic> args = const {}}) {

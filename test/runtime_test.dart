@@ -24,7 +24,7 @@ contract Random {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     expect(() => runtime.run('randomNumber'), throwsStateError);
   });
@@ -48,7 +48,7 @@ contract Random {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
     runtime.grantAll();
     final value = await runtime.run('randomNumber', args: {'foo': 2});
     expect(value, 4.0);
@@ -70,7 +70,7 @@ contract Random {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     await runtime.emit('onLogin', args: {'username': 'bob'});
   });
@@ -81,7 +81,7 @@ contract Random {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     expect(() => runtime.run('nope'), throwsArgumentError);
   });
@@ -92,7 +92,7 @@ contract Random {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     expect(() => runtime.emit('nope'), throwsArgumentError);
   });

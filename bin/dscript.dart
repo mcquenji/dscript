@@ -70,7 +70,6 @@ void main(List<String> arguments) async {
 
   final runtime = Runtime(
     bytecode,
-    [],
   );
 
   runtime.grantAll();

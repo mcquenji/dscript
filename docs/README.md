@@ -1,6 +1,6 @@
 # Dscript Overview
 
-Dscript is a small scripting language intended for plug‑in style extensions in Dart applications. At the moment the package ships with a parser and static analyzer. A runtime engine is planned but not yet available.
+Dscript is a small scripting language intended for plug‑in style extensions in Dart applications. It includes a parser, static analyzer and fully featured runtime for executing compiled scripts.
 
 This guide covers the language syntax and how to integrate scripts with a Dart host. Sections marked as **Work in Progress** describe features that are not implemented in the current version.
 
@@ -16,7 +16,7 @@ flowchart-elk TD
     Stdlib["Standard Libraries (math, string, log)"]
     External[External Bindings]
     Permissions["Declared Permissions"]
-    Runtime["Runtime (planned)"]
+    Runtime["Runtime"]
 
     Host -->|defines| Contracts
     Contracts --> Analyzer

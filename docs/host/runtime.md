@@ -1,3 +1,13 @@
-# Runtime Support *(Work in Progress)*
+# Runtime Support
 
-!> A fully featured runtime for executing scripts is not yet included. The library provides basic classes such as `Scope` and `RuntimeValue`, but there is no interpreter. Until a runtime is released you can only perform static analysis.
+The runtime executes compiled scripts and enforces the permission model defined
+by the host. It exposes a simple API for loading and running `CompiledScript`
+instances.
+
+```dart
+final runtime = Runtime(bytecode);
+final result = await runtime.run(compiledScript, args: {'foo':'bar'}); // To execute an implementation
+await runtime.emit('hookName', args: {'foo':'bar'}); // To emit an event the script can listen to
+```
+
+?> For more advanced details on the `Runtime`, see [Choosing a Runtime](/advanced/runtimes.md).

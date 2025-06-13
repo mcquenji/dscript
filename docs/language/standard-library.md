@@ -13,4 +13,4 @@ Logging helpers: `log::info`, `log::warning` and `log::error` simply print to th
 
 ## Not Yet Implemented
 
-The `fs::` and `http::` namespaces are defined in the grammar but have no implementation at this time. Calls to these functions will raise analysis errors or runtime errors once the runtime exists.
+The `fs::` and `http::` namespaces are defined in the grammar but are not yet implemented. Calls to these functions will raise analysis errors or runtime errors until support is added.

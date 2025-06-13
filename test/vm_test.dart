@@ -13,7 +13,7 @@ void main() {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     final value = await runtime.run('randomNumber', args: {'foo': 21});
     expect(value, 42.0);
@@ -42,7 +42,7 @@ contract Random {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     final value = await runtime.run('randomNumber', args: {'foo': 21});
     expect(value, 441.0);
@@ -54,7 +54,7 @@ contract Random {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     final value = await runtime.run('randomNumber', args: {'foo': 21});
     expect(value, 52.0);
@@ -93,7 +93,7 @@ contract Pair {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     final value = await runtime.run(
       'diff',
@@ -216,7 +216,7 @@ contract Pair {
     expect(result.isSuccess(), isTrue);
 
     final compiled = compile(result.getOrThrow());
-    final runtime = Runtime(compiled, []);
+    final runtime = Runtime(compiled);
 
     final value = await runtime.run('randomNumber', args: {'foo': 21});
     expect(value, 63.0);

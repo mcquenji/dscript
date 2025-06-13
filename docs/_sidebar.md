@@ -12,3 +12,4 @@
   - [Runtime Support](host/runtime.md)
 - Advanced
   - [Compiler](advanced/compiler.md)
+  - [Choosing a Runtime](advanced/runtimes.md)

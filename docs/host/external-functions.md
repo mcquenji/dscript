@@ -10,7 +10,7 @@ Scripts request access using the `permissions` declaration:
 permissions external::storage, external::network;
 ```
 
-The names after `external::` are defined by the host, not by the language. At analysis time the declarations are recorded but only enforced once a runtime exists.
+The names after `external::` are defined by the host, not by the language. At analysis time the declarations are recorded and enforced at run time when scripts are executed.
 
 ## Binding Functions
 
