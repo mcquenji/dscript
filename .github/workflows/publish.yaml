@@ -1,0 +1,25 @@
+on:
+  push:
+    branches:
+      - main
+      
+jobs:
+    bump-version:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4.2.2
+
+        - uses: actions/setup-node@v4
+        - name: Install absolute version
+          run: npm i -g commit-and-tag-version
+
+        - name: Bump version
+          run: |
+            commit-and-tag-version
+            git push --follow-tags origin main
+    publish:
+        needs: bump-version
+        permissions:
+            id-token: write # Required for authentication using OIDC
+        uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1

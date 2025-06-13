@@ -1,7 +1,7 @@
 // coverage:ignore-file
 import 'dart:math';
 
-import 'package:dscript/dscript.dart';
+import 'package:dscript_dart/dscript_dart.dart';
 import 'package:logging/logging.dart';
 import 'package:pub_semver/pub_semver.dart';
 

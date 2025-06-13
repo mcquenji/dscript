@@ -1,30 +1,48 @@
 # <img src="https://raw.githubusercontent.com/mcquenji/dscript/refs/heads/main/icon.svg" alt="Dscript" width="28"/> Dscript
 
+[![pub package](https://img.shields.io/pub/v/dscript.svg)](https://pub.dev/packages/dscript)
+
 A lightweight [Domain-Specific Language (DSL)](https://en.wikipedia.org/wiki/Domain-specific_language) for Dart designed to simplify writing and integrating plugins/extensions into Flutter and Dart applications. It offers strong interop between DSL constructs and Dart code, a static permission system, and a contract-based plugin model.
 
 ---
 
-# Development
+## Getting Started
 
-## Prerequisites
+Define a script:
 
-- Dart SDK (`fvm use` if using FVM)
-- antlr4  [installation instructions](https://github.com/antlr/antlr4/blob/master/doc/getting-started.md)
+```dscript
+author "You";
+version 0.1.0;
+name "Example";
 
-## Building the ANTLR Grammar
+description "demo";
 
-To build the ANTLR grammar, run the following command:
-
-```bash
-antlr4 -Dlanguage=Dart dscript.g4 -o lib/src/gen/antlr -Werror -visitor       
+contract Demo {
+  impl greet(string who) -> void {
+    log::info("Hello " + who);
+  }
+}
 ```
 
-# Contributing
+Register the contract in your host app:
 
-Contributions welcome! Please open issues or pull requests on the [GitHub repository](https://github.com/mcquenji/dscript).
+```dart
+final demo = contract('Demo')
+  .impl('greet', returnType: PrimitiveType.VOID)
+  .param('who', PrimitiveType.STRING)
+  .describe("Greets someone")
+  .end()
+  .build();
+```
+
+For full documentation see the [docs](https://mcquenji.github.io/dscript).
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development instructions.
 
 ---
 
-# License
+## License
 
 This project is licensed under the [MIT License](LICENSE).

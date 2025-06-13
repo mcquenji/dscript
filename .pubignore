@@ -1,0 +1,12 @@
+logo.png
+logo.svg
+icon.png
+dscript.g4
+bin/
+.fvmrc
+.vscode
+.versionrc
+.antlr
+.github
+*.tokens
+*.interp

@@ -1,6 +1,6 @@
 // coverage:ignore-file
 import 'package:collection/collection.dart';
-import 'package:dscript/dscript.dart';
+import 'package:dscript_dart/dscript_dart.dart';
 import 'package:equatable/equatable.dart';
 
 /// Base class for all signatures.

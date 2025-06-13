@@ -1,9 +1,9 @@
 // coverage:ignore-file
 import 'dart:async';
 
-import 'package:dscript/src/permissions.dart';
-import 'package:dscript/src/stdlib/stdlib.dart';
-import 'package:dscript/src/types.dart';
+import 'package:dscript_dart/src/permissions.dart';
+import 'package:dscript_dart/src/stdlib/stdlib.dart';
+import 'package:dscript_dart/src/types.dart';
 
 /// A binding that connects a Dart function to the dscript runtime.
 class RuntimeBinding<T> {
