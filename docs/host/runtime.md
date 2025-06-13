@@ -6,7 +6,7 @@ instances.
 
 ```dart
 final runtime = Runtime(bytecode);
-final result = await runtime.run(compiledScript, args: {'foo':'bar'}); // To execute an implementation
+final result = await runtime.run('implementationName', args: {'foo':'bar'}); // To execute an implementation
 await runtime.emit('hookName', args: {'foo':'bar'}); // To emit an event the script can listen to
 ```
 
@@ -16,7 +16,7 @@ The runtime enforces permissions declared by the script. When a script is execut
 
 ```dart
 final runtime = Runtime(compiledScript, permissions: [ScriptPermission.readFileSystem]);
-final result = await runtime.run(compiledScript, args: {'foo':'bar'});
+final result = await runtime.run('implementationName', args: {'foo':'bar'});
 ```
 
 The `Runtime` constructor takes a list of permissions that the script is allowed to use. If the script tries to call an external function that requires a permission not in this list, it will raise an error.
