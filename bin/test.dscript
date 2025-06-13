@@ -16,15 +16,13 @@ permissions external::math;
 contract Random {
   const bar = 5;
 
-  func test({string name}) 
+  func test(string name) 
   {
-    log::info("Test function called with name: " + name);
+    throw name;
   }
 
 
   impl randomNumber(int foo) -> double {
-
-log::info("Random number function called with foo: " + foo);
     if(5 == foo) {
       return 2 * bar;
     }
