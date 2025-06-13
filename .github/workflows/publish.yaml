@@ -2,17 +2,10 @@ on:
   push:
     branches:
       - main
-    tags-ignore: 
-      - 'v*.*.*' # Ignore version tags so we dont recursively run this workflow
-    paths-ignore:
-      - 'CHANGELOG.md'
-      - 'pubspec.yaml'
   workflow_dispatch:
       
 jobs:
     bump-version:
-      permissions:                
-        contents: write           
       runs-on: ubuntu-latest
       steps:
         - name: Checkout code
@@ -24,14 +17,10 @@ jobs:
 
         - name: Bump version
           run: |
+            git config --global user.name "GitHub Action"
+            git config --global user.email "<>"
             commit-and-tag-version
-        - name: Push changes
-          uses: ad-m/github-push-action@master
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            branch: ${{ github.ref }}
-            tags: true
-            
+            git push --follow-tags origin main
     publish:
         needs: bump-version
         permissions:
