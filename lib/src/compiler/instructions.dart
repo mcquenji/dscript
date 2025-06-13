@@ -688,9 +688,25 @@ class BytecodeFunction extends Equatable {
   /// Constant pool referenced by [buffer].
   final List<Object?> constants;
 
+  /// Number of positional parameters this function expects.
+  final int positionalParams;
+
+  /// Mapping of named parameter to its index within the first frame.
+  final Map<String, int> namedParameterIndex;
+
   /// Creates a compiled function with [buffer] and [constants].
-  const BytecodeFunction(this.buffer, this.constants);
+  const BytecodeFunction(
+    this.buffer,
+    this.constants, {
+    this.positionalParams = 0,
+    this.namedParameterIndex = const {},
+  });
 
   @override
-  List<Object?> get props => [buffer, constants];
+  List<Object?> get props => [
+        buffer,
+        constants,
+        positionalParams,
+        namedParameterIndex,
+      ];
 }

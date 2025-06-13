@@ -1,9 +1,9 @@
 // coverage:ignore-file
 import 'dart:math';
 
-import 'package:dscript/src/bindings.dart';
-import 'package:dscript/src/types.dart';
+import 'package:dscript/dscript.dart';
 import 'package:logging/logging.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 part 'math.dart';
 part 'string.dart';
@@ -57,9 +57,20 @@ $name {
   int get hashCode => Object.hash(name, bindings);
 
   /// Standard library bindings.
-  static List<LibraryBinding> stdLib() => [
+  static List<LibraryBinding> stdLib([ScriptMetadata? metadata]) => [
         const MathBindings(),
         const StringBindings(),
-        LogBindings(),
+        LogBindings(
+          metadata ??
+              ScriptMetadata(
+                author: '',
+                name: '',
+                version: Version(0, 0, 1),
+                description: '',
+                license: null,
+                repository: null,
+                website: null,
+              ),
+        ),
       ];
 }

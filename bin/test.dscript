@@ -16,53 +16,21 @@ permissions external::math;
 contract Random {
   const bar = 5;
 
-  func test({string name}) 
+  func test(string name) 
   {
-    log::info("Test function called with name: " + name);
+    throw name;
   }
 
 
   impl randomNumber(int foo) -> double {
-test(name: "TestName");
-    log::info("Random number generated: " + foo, error: "Test error");
-
-      final test = @User {
-        name: "TestUser",
-        id : 12345
-      };
-
-      final name = test.name;
-      test.id = 67890;
-
-      final List<int> arr = [1, 2, 3, 4, 5];
-
-for(final int i in arr) {
-        log::info("Array element: " + e);
-      }
-
-      //final int x = arr?[1]!;
-
-      //arr?[2] = 10;
-
-
-      return 1.0;
-
-
-    //log::info(string::from(5 + bar));
-//
-//
-    ///if(5 == foo) {
-    ///}else if(foo > 5) {
-    ///  return 2.0 * bar;
-    ///}else{
-    ///      return foo * bar + 1.0;
-///
-    ///}
-    //else if(5 < foo && foo < 10) {
-    //  return 4 *bar;
-    //}else {
-    //  return external::double(math::floor(foo * pi));
-    //}
+    if(5 == foo) {
+      return 2 * bar;
+    }
+    else if(5 > foo && foo < 10) {
+      return 4 * bar;
+    }else {
+      return external::double(math::floor(foo * pi));
+    }
 
   }
 

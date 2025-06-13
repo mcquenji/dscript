@@ -66,13 +66,26 @@ void main(List<String> arguments) async {
     ignoreWarnings: true,
   ).getOrThrow();
 
-  print('Author: ${script.author}');
-  print('Name: ${script.name}');
-  print('Version: ${script.version}');
-  print('Description: ${script.description}');
-
   final bytecode = compile(script);
-  print(
-    bytecode.implementations['randomString']?.toDebugString(),
+
+  final runtime = Runtime(
+    bytecode,
   );
+
+  runtime.grantAll();
+
+  print(await runtime.run(
+    'randomNumber',
+    args: {'foo': 5},
+  ));
+
+  print(await runtime.run(
+    'randomNumber',
+    args: {'foo': 6},
+  ));
+
+  print(await runtime.run(
+    'randomNumber',
+    args: {'foo': 42},
+  ));
 }

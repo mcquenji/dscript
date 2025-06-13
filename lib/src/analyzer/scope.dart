@@ -3,6 +3,18 @@ part of 'analyzer.dart';
 
 /// Same as [Scope] but only stores the types of variables and not their values.
 class TypeScope {
+  /// All global constants available in the dscript runtime.
+  static const globals = {
+    'pi': (pi, PrimitiveType.DOUBLE),
+    'e': (e, PrimitiveType.DOUBLE),
+    'sqrt2': (sqrt2, PrimitiveType.DOUBLE),
+    'sqrt1_2': (sqrt1_2, PrimitiveType.DOUBLE),
+    'log2e': (log2e, PrimitiveType.DOUBLE),
+    'log10e': (log10e, PrimitiveType.DOUBLE),
+    'ln2': (ln2, PrimitiveType.DOUBLE),
+    'ln10': (ln10, PrimitiveType.DOUBLE),
+  };
+
   /// The parent scope of this scope.
   final TypeScope? _parent;
 
@@ -21,7 +33,7 @@ class TypeScope {
   TypeScope(this._parent, {$Type? returnType, this.isFork = false})
       : returnType = returnType ?? _parent?.returnType,
         _types = _parent == null
-            ? Scope().variables.map((name, v) => MapEntry(name, v.value.type))
+            ? globals.map((name, v) => MapEntry(name, v.$2))
             : <String, $Type>{};
 
   final Map<String, $Type> _types;

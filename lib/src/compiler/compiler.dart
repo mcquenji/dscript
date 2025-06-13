@@ -2,11 +2,9 @@
 import 'dart:typed_data';
 
 import 'package:antlr4/antlr4.dart';
-import 'package:dscript/src/analyzer/analyzer.dart';
+import 'package:dscript/dscript.dart';
 import 'package:dscript/src/gen/antlr/dscriptParser.dart';
 import 'package:dscript/src/gen/antlr/dscriptVisitor.dart';
-import 'package:dscript/src/permissions.dart';
-import 'package:dscript/src/runtime/scope.dart';
 import 'package:equatable/equatable.dart';
 
 part 'naivie_compiler.dart';
@@ -18,6 +16,9 @@ class CompiledScript extends Equatable {
   /// Bytecode for each implementation.
   final Map<String, BytecodeFunction> implementations;
 
+  /// The contract implemented by the script.
+  final ContractSignature contract;
+
   /// Bytecode for each hook.
   final Map<String, BytecodeFunction> hooks;
 
@@ -27,16 +28,22 @@ class CompiledScript extends Equatable {
   /// Bytecode functions for each global function.
   final Map<String, BytecodeFunction> functions;
 
+  /// Metadata of the script.
+  final ScriptMetadata metadata;
+
   /// Creates a compiled script with [implementations], [hooks] and [permissions].
   const CompiledScript({
     required this.implementations,
     required this.hooks,
     required this.permissions,
     required this.functions,
+    required this.contract,
+    required this.metadata,
   });
 
   @override
-  List<Object?> get props => [permissions, functions, implementations, hooks];
+  List<Object?> get props =>
+      [permissions, functions, implementations, hooks, contract];
 }
 
 /// Compiles an analyzed [script] into a [CompiledScript].
@@ -75,6 +82,8 @@ CompiledScript compile(
     implementations: impls,
     hooks: hooks,
     permissions: script.permissions,
+    contract: script.contract,
+    metadata: script.metadata,
   );
 }
 
@@ -84,8 +93,8 @@ abstract class Compiler extends dscriptVisitor<void> {
   Compiler(List<VarDeclContext> globals) {
     // add predefined global variables to the constant pool
     // add them first so they can be overridden by user-defined globals
-    for (final global in Scope().variables.entries) {
-      final idx = addConstant(global.value.value.value);
+    for (final global in TypeScope.globals.entries) {
+      final idx = addConstant(global.value.$1);
       // add the variable to the current stack frame
       final varIdx = push(global.key);
 
@@ -105,6 +114,12 @@ abstract class Compiler extends dscriptVisitor<void> {
     }
   }
 
+  /// Number of positional parameters for the function being compiled.
+  int positionalParams = 0;
+
+  /// Mapping of named parameter to its stack index.
+  final Map<String, int> namedParameterIndex = {};
+
   /// Builds the compiled bytecode function.
   BytecodeFunction build() {
     if (_loops.isNotEmpty) {
@@ -114,6 +129,8 @@ abstract class Compiler extends dscriptVisitor<void> {
     return BytecodeFunction(
       buffer,
       constants,
+      positionalParams: positionalParams,
+      namedParameterIndex: Map.unmodifiable(namedParameterIndex),
     );
   }
 
