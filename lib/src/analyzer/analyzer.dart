@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:antlr4/antlr4.dart';
-import 'package:dscript/dscript.dart';
-import 'package:dscript/src/gen/antlr/dscriptLexer.dart';
-import 'package:dscript/src/gen/antlr/dscriptParser.dart';
+import 'package:dscript_dart/dscript_dart.dart';
+import 'package:dscript_dart/src/gen/antlr/dscriptLexer.dart';
+import 'package:dscript_dart/src/gen/antlr/dscriptParser.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:result_dart/result_dart.dart';
 

@@ -2,7 +2,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:antlr4/antlr4.dart';
-import 'package:dscript/dscript.dart';
+import 'package:dscript_dart/dscript_dart.dart';
 import 'package:logging/logging.dart';
 
 void main(List<String> arguments) async {

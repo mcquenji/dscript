@@ -2,9 +2,9 @@
 import 'dart:typed_data';
 
 import 'package:antlr4/antlr4.dart';
-import 'package:dscript/dscript.dart';
-import 'package:dscript/src/gen/antlr/dscriptParser.dart';
-import 'package:dscript/src/gen/antlr/dscriptVisitor.dart';
+import 'package:dscript_dart/dscript_dart.dart';
+import 'package:dscript_dart/src/gen/antlr/dscriptParser.dart';
+import 'package:dscript_dart/src/gen/antlr/dscriptVisitor.dart';
 import 'package:equatable/equatable.dart';
 
 part 'naivie_compiler.dart';

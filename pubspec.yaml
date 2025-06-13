@@ -1,4 +1,4 @@
-name: dscript
+name: dscript_dart
 description: Scripting language for flutter/dart plugins & extensions
 version: 1.0.0
 repository: https://github.com/mcquenji/dscript

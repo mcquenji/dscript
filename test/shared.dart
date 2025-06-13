@@ -1,4 +1,4 @@
-import 'package:dscript/dscript.dart';
+import 'package:dscript_dart/dscript_dart.dart';
 
 final randomContract = ContractSignature(
   name: 'Random',

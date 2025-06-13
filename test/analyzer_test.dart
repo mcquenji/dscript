@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:antlr4/antlr4.dart';
-import 'package:dscript/dscript.dart';
+import 'package:dscript_dart/dscript_dart.dart';
 
 import 'shared.dart';
 
