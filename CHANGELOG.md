@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.0](https://github.com/mcquenji/dscript/compare/v1.1.0...v1.2.0) (2025-06-14)
+
+
+### Features
+
+* **analyzer:** validate constant expressions ([#19](https://github.com/mcquenji/dscript/issues/19)) ([bbb8f74](https://github.com/mcquenji/dscript/commit/bbb8f742a74da55e019068f01f7f7f59a7ec2cbd))
+
+
+### Bug Fixes
+
+* **analyzer:** mark globals as constant ([685e3ba](https://github.com/mcquenji/dscript/commit/685e3bab290bac3a17d523e136317e59c84d3768))
+
 ## 1.1.0 (2025-06-13)
 
 
