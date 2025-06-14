@@ -404,6 +404,67 @@ contract Random {
         ),
       );
     });
+
+    test('if condition constant expression warns', () {
+      final script = baseRandomScript(
+          'if (1 < 2) { return foo * 1.0; } else { return 0.0; }');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticWarning>().having(
+            (e) => e.message,
+            'message',
+            contains('Condition is constant'),
+          ),
+        ),
+      );
+    });
+
+    test('if condition constant variable warns', () {
+      final script = baseRandomScript('''
+        const bool c = true;
+        if (c) { return foo * 1.0; } else { return 0.0; }
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(isA<SemanticWarning>()),
+      );
+    });
+  });
+
+  group('constants', () {
+    test('const variable requires constant initializer', () {
+      final script = baseRandomScript('''
+        const int c = foo;
+        return foo * 1.0;
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isError(), isTrue);
+      expect(
+        result.exceptionOrNull()?.errors,
+        contains(
+          isA<SemanticError>().having(
+            (e) => e.message,
+            'message',
+            contains('Constant variable'),
+          ),
+        ),
+      );
+    });
+
+    test('const variable with constant initializer is valid', () {
+      final script = baseRandomScript('''
+        const int a = 1;
+        const int b = a;
+        return foo * 1.0;
+      ''');
+      final result = analyze(InputStream.fromString(script), [randomContract]);
+      expect(result.isSuccess(), isTrue);
+    });
   });
 
   group('null safety', () {
