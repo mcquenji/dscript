@@ -62,3 +62,37 @@ contract Random {
   }
 }
 ''';
+
+String heavyRandomScript() => '''
+author "A";
+version 1.0.0;
+name "S";
+description "D";
+contract Random {
+  func sum(int n) -> double {
+    if (n == 0) {
+      return 0.0;
+    }
+    try {
+      return n + sum(n - 1);
+    } catch (e) {
+      return -1.0;
+    }
+  }
+  impl randomNumber(int foo) -> double {
+    return sum(10) * 1.0;
+  }
+  impl randomString() -> string {
+    return "STR";
+  }
+  impl test() -> void {
+    return;
+  }
+  hook onLogin(string username) {
+    return;
+  }
+  hook onLogout() {
+    return;
+  }
+}
+''';
