@@ -23,8 +23,10 @@ contract Random {
 
 
   impl randomNumber(int foo) -> double {
-    if(5 == foo) {
-      return 2 * bar;
+    
+    const l = pi * 5;
+    if(5.0 == l) {
+      return l;
     }
     else if(5 > foo && foo < 10) {
       return 4 * bar;
@@ -40,7 +42,7 @@ contract Random {
     while(true) {
       log::info("Generating random string...");
      break;
-  }
+    }
   
   
 

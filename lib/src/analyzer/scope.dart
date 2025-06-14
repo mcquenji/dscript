@@ -34,7 +34,11 @@ class TypeScope {
       : returnType = returnType ?? _parent?.returnType,
         _types = _parent == null
             ? globals.map((name, v) => MapEntry(name, v.$2))
-            : <String, $Type>{};
+            : <String, $Type>{} {
+    if (_parent == null) {
+      _constants.addAll(globals.keys);
+    }
+  }
 
   final Map<String, $Type> _types;
 
