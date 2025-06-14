@@ -145,6 +145,103 @@ abstract class AnalysisVisitor extends dscriptBaseVisitor<$Type> {
     }
   }
 
+  /// Returns `true` if [node] is a constant expression.
+  ///
+  /// A constant expression is composed only of literals or references to other
+  /// constant variables.
+  bool isConstExpr(ParseTree? node) {
+    if (node == null) return true;
+
+    if (node is LiteralContext) {
+      if (node.arrayLiteral() != null) {
+        return node.arrayLiteral()!.exprs().every((e) => isConstExpr(e));
+      }
+      if (node.mapLiteral() != null) {
+        return node
+            .mapLiteral()!
+            .mapEntrys()
+            .every((e) => isConstExpr(e.expr(0)!) && isConstExpr(e.expr(1)!));
+      }
+      if (node.objectLiteral() != null) {
+        return node
+            .objectLiteral()!
+            .objectPropertys()
+            .every((p) => isConstExpr(p.expr()!));
+      }
+      return true;
+    }
+
+    if (node is ArrayLiteralContext) {
+      return node.exprs().every((e) => isConstExpr(e));
+    }
+
+    if (node is MapLiteralContext) {
+      return node
+          .mapEntrys()
+          .every((e) => isConstExpr(e.expr(0)!) && isConstExpr(e.expr(1)!));
+    }
+
+    if (node is ObjectLiteralContext) {
+      return node.objectPropertys().every((p) => isConstExpr(p.expr()!));
+    }
+
+    if (node is IdentifierContext) {
+      if (node.property != null ||
+          node.index != null ||
+          node.indexIdent != null) {
+        return false;
+      }
+      final name = node.ident?.text;
+      return name != null && scope.exists(name) && scope.constant(name);
+    }
+
+    if (node is FunctionCallContext || node is ExternalFunctionCallContext) {
+      return false;
+    }
+
+    if (node is PrimaryExprContext) {
+      if (node.literal() != null) {
+        return isConstExpr(node.literal()!);
+      }
+      if (node.identifier() != null) {
+        return isConstExpr(node.identifier()!);
+      }
+      if (node.expr() != null) {
+        return isConstExpr(node.expr()!);
+      }
+      return false;
+    }
+
+    if (node is SuffixExprContext) {
+      if (node.op != null) return false;
+      return isConstExpr(node.primaryExpr()!);
+    }
+
+    if (node is UnaryExprContext) {
+      if (node.unaryExpr() != null) {
+        return isConstExpr(node.unaryExpr()!);
+      }
+      if (node.suffixExpr() != null) {
+        return isConstExpr(node.suffixExpr()!);
+      }
+      return false;
+    }
+
+    if (node is ExprContext) {
+      return isConstExpr(node.logicalExpr()!);
+    }
+
+    if (node is ParserRuleContext) {
+      for (final child in node.children ?? const <ParseTree>[]) {
+        if (child is ParserRuleContext && !isConstExpr(child)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
   /// {@macro AnalysisVisitor.globals}
   List<VarDeclContext> get globals => _inherit((v) => v._globals);
 

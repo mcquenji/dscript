@@ -147,8 +147,8 @@ class VarsVisitor extends AnalysisVisitor {
     final name = ctx.identifier()?.text ??
         ctx.assignment()?.simpleAssignment()?.identifier()?.text;
 
-    final initializer =
-        ctx.assignment()?.simpleAssignment()?.expr()?.accept(ExprVisitor(this));
+    final initCtx = ctx.assignment()?.simpleAssignment()?.expr();
+    final initializer = initCtx?.accept(ExprVisitor(this));
 
     final isMutable = varType.VAR() != null;
 
@@ -177,6 +177,17 @@ class VarsVisitor extends AnalysisVisitor {
                 "Immutable non-nullable variable '$name' must have an initializer",
                 ctx: ctx,
               ),
+      );
+    }
+
+    final isConst = ctx.varType()?.CONST() != null;
+
+    if (isConst && initCtx != null && !isConstExpr(initCtx)) {
+      report(
+        SemanticError(
+          'Constant variable "$name" must be initialized with only literals or other constants',
+          ctx: ctx,
+        ),
       );
     }
 
