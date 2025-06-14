@@ -1,4 +1,5 @@
 - [Overview](README.md)
+- [Performance](performance.md)
 - Language
   - [Getting Started](language/getting-started.md)
   - [Syntax](language/syntax.md)
