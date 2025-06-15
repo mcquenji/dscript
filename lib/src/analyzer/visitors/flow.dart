@@ -153,9 +153,9 @@ class FlowVisitor extends AnalysisVisitor {
         return report(InferenceError(ctx: ctx));
       }
 
-      if (iterable is! ListType) {
+      if (iterable is! ListType && iterable != PrimitiveType.STRING) {
         return report(
-          SemanticError('Cannot iterate over non-list type', ctx: ctx),
+          SemanticError('Can only iterate over strings and lists', ctx: ctx),
         );
       }
 
@@ -166,7 +166,7 @@ class FlowVisitor extends AnalysisVisitor {
       final ident = ctx.varDecl()!.identifier()!.text;
       scope.set(
         ident,
-        iterable.elementType,
+        iterable is ListType ? iterable.elementType : PrimitiveType.STRING,
         mutable,
       );
 

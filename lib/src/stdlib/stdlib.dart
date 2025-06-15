@@ -1,4 +1,5 @@
 // coverage:ignore-file
+import 'dart:io';
 import 'dart:math';
 
 import 'package:dscript_dart/dscript_dart.dart';
@@ -9,6 +10,9 @@ part 'math.dart';
 part 'string.dart';
 part 'log.dart';
 part 'fs.dart';
+part 'list.dart';
+part 'map.dart';
+part 'dynamic.dart';
 
 /// A library binding that contains a list of runtime bindings.
 /// This class is used to group related bindings together, such as math
@@ -60,6 +64,10 @@ $name {
   static List<LibraryBinding> stdLib([ScriptMetadata? metadata]) => [
         const MathBindings(),
         const StringBindings(),
+        const FsBindings(),
+        const ListBindings(),
+        const MapBindings(),
+        const DynamicBindings(),
         LogBindings(
           metadata ??
               ScriptMetadata(
