@@ -61,24 +61,44 @@ $name {
   int get hashCode => Object.hash(name, bindings);
 
   /// Standard library bindings.
-  static List<LibraryBinding> stdLib([ScriptMetadata? metadata]) => [
+  ///
+  /// This calls [standardLibrary] and sets [metadata] to a default value if not provided.
+  ///
+  /// See [standardLibrary] to override the default standard library bindings.
+  static List<LibraryBinding> stdLib([ScriptMetadata? metadata]) {
+    return standardLibrary(
+      metadata ??
+          ScriptMetadata(
+            author: '',
+            name: '',
+            version: Version(0, 0, 1),
+            description: '',
+            license: null,
+            repository: null,
+            website: null,
+          ),
+    );
+  }
+
+  /// The standard library bindings used by [stdLib].
+  /// Defaults to [defaultStdLib].
+  ///
+  /// Set this to a custom function to override the default standard library bindings,
+  /// which must be done **before** analyzing, compiling, or running any scripts,
+  /// in order to take effect.
+  static StdLib standardLibrary = defaultStdLib;
+
+  /// The default standard library bindings returned by [standardLibrary] if not overridden.
+  static List<LibraryBinding> defaultStdLib(ScriptMetadata metadata) => [
         const MathBindings(),
         const StringBindings(),
         const FsBindings(),
         const ListBindings(),
         const MapBindings(),
         const DynamicBindings(),
-        LogBindings(
-          metadata ??
-              ScriptMetadata(
-                author: '',
-                name: '',
-                version: Version(0, 0, 1),
-                description: '',
-                license: null,
-                repository: null,
-                website: null,
-              ),
-        ),
+        LogBindings(metadata),
       ];
 }
+
+/// A function that returns a list of standard library bindings.
+typedef StdLib = List<LibraryBinding> Function(ScriptMetadata metadata);

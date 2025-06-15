@@ -33,8 +33,18 @@ class RuntimeBinding<T> {
   /// The return type of the function as a dsl type.
   $Type get returnType => $Type.from(T.toString());
 
+  /// A list of pre-binding middlewares that are called before the binding's function is executed.
+  ///
+  /// These middlewares will be called in the order they are added.
+  final List<PreBindingMiddleware<T>> _preMiddlewares = [validateArgs<T>];
+
+  /// A list of pre-binding middlewares that are called before the binding's function is executed.
+  ///
+  /// These middlewares will be called in the order they are added.
+  final List<PostBindingMiddleware<T>> _postMiddlewares = [];
+
   /// Creates a new [RuntimeBinding] instance.
-  const RuntimeBinding({
+  RuntimeBinding({
     required this.name,
     required this.function,
     this.namedParams = const {},
@@ -43,14 +53,78 @@ class RuntimeBinding<T> {
     required this.description,
   });
 
+  /// Adds a [PreBindingMiddleware] to this binding called in the order it was added.
+  ///
+  /// Any changes made to the arguments in the middleware will be passed to the next middleware in the chain
+  /// and finally to the bound function.
+  void addPreMiddleware(PreBindingMiddleware<T> middleware) {
+    _preMiddlewares.add(middleware);
+  }
+
+  /// Adds a [PostBindingMiddleware] to this binding called in the order it was added.
+  ///
+  /// The result of the added middleware will be passed to the next middleware in the chain
+  /// and finally to the caller.
+  void addPostMiddleware(PostBindingMiddleware<T> middleware) {
+    _postMiddlewares.add(middleware);
+  }
+
   /// Calls the bound function with the provided arguments.
   Future<T> call(List<dynamic> positionalArgs,
       {Map<Symbol, dynamic> namedArgs = const {}}) async {
     positionalArgs = List.from(positionalArgs);
     namedArgs = Map<Symbol, dynamic>.from(namedArgs);
 
-    // Check if all named parameters are provided
-    for (final entry in namedParams.entries) {
+    // call the pre-middlewares
+    for (final middleware in _preMiddlewares) {
+      await middleware(
+        binding: this,
+        positionalArgs: positionalArgs,
+        namedArgs: namedArgs,
+      );
+    }
+
+    var result = await Function.apply(
+      function,
+      positionalArgs,
+      namedArgs,
+    );
+
+    final resultType = $Type.fromValue(result);
+
+    if (resultType.canCast(returnType)) {
+      // Cast the result to the expected return type
+      result = resultType.cast(returnType, result) as T;
+    } else {
+      throw StateError(
+        'Invalid return type: expected $T, got ${result.runtimeType}',
+      );
+    }
+
+    // call the post-middlewares
+
+    return await _postMiddlewares.fold<Future<T>>(
+      Future.value(result),
+      (previous, middleware) async {
+        final res = await previous;
+        return middleware(
+          binding: this,
+          result: res,
+          positionalArgs: positionalArgs,
+          namedArgs: namedArgs,
+        );
+      },
+    );
+  }
+
+  /// Validates the provided arguments against the binding's parameters.
+  static void validateArgs<T>({
+    required RuntimeBinding<T> binding,
+    required List<dynamic> positionalArgs,
+    required Map<Symbol, dynamic> namedArgs,
+  }) {
+// Check if all named parameters are provided
+    for (final entry in binding.namedParams.entries) {
       final param = entry.key;
       final expectedType = entry.value;
 
@@ -78,45 +152,31 @@ class RuntimeBinding<T> {
     }
 
     // Check if the number of positional arguments matches
-    if (positionalParams.length != positionalArgs.length) {
+    if (binding.positionalParams.length != positionalArgs.length) {
       throw ArgumentError(
-        'Invalid number of positional arguments: expected ${positionalParams.length}, got ${positionalArgs.length}',
+        'Invalid number of positional arguments: expected ${binding.positionalParams.length}, got ${positionalArgs.length}',
       );
     }
     // Check if the types of positional arguments match
-    for (int i = 0; i < positionalParams.length; i++) {
+    for (int i = 0; i < binding.positionalParams.length; i++) {
       if (i >= positionalArgs.length) {
         throw ArgumentError(
-          '${positionalParams.length} positional arguments expected, but only ${positionalArgs.length} provided',
+          '${binding.positionalParams.length} positional arguments expected, but only ${positionalArgs.length} provided',
         );
       }
 
       final type = $Type.fromValue(positionalArgs[i]);
 
-      if (!type.canCast(positionalParams[i])) {
+      if (!type.canCast(binding.positionalParams[i])) {
         throw ArgumentError(
-          'Invalid argument type for positional argument $i: expected ${positionalParams[i]}, got $type',
+          'Invalid argument type for positional argument $i: expected ${binding.positionalParams[i]}, got $type',
         );
       }
 
       // Cast the argument to the expected type
-      positionalArgs[i] = type.cast(positionalParams[i], positionalArgs[i]);
-    }
-
-    final result = await Function.apply(
-      function,
-      positionalArgs,
-      namedArgs,
-    );
-
-    final resultType = $Type.fromValue(result);
-
-    if (resultType.canCast(returnType)) {
-      // Cast the result to the expected return type
-      return resultType.cast(returnType, result) as T;
-    } else {
-      throw ArgumentError(
-        'Invalid return type: expected $T, got ${result.runtimeType}',
+      positionalArgs[i] = type.cast(
+        binding.positionalParams[i],
+        positionalArgs[i],
       );
     }
   }
@@ -182,3 +242,32 @@ class ExternalBindings extends LibraryBinding {
   @override
   Set<RuntimeBinding> get bindings => _bindings;
 }
+
+/// A callback that is called before a binding's function is called.
+///
+/// It can be used to modify the binding or the arguments before the function is called.
+///
+/// This will block the execution of the binding's function until it completes, so no heavy operations should be done here,
+/// as it will slow down the Dscript runtime.
+///
+/// If this function throws an error, the binding will rethrow the error, canceling its execution.
+typedef PreBindingMiddleware<T> = FutureOr<void> Function({
+  required RuntimeBinding<T> binding,
+  required List<dynamic> positionalArgs,
+  required Map<Symbol, dynamic> namedArgs,
+});
+
+/// A callback that is called after a binding's function is called.
+///
+/// It can be used to modify the result of the binding or perform additional actions after the function is called.
+///
+/// This will block the execution of the binding's function until it completes, so no heavy operations should be done here,
+/// as it will slow down the Dscript runtime.
+///
+/// If this function throws an error, the binding will rethrow the error, canceling its execution.
+typedef PostBindingMiddleware<T> = FutureOr<T> Function({
+  required RuntimeBinding<T> binding,
+  required T result,
+  required List<dynamic> positionalArgs,
+  required Map<Symbol, dynamic> namedArgs,
+});

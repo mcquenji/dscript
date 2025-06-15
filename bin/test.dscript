@@ -39,24 +39,10 @@ contract Random {
 
   impl randomString() -> string 
   {
-    while(true) {
-      log::info("Generating random string...");
-     break;
-    }
-  
-  
-
-  //
-  //   try {
-  //    log::info("test");
-  //    return 'test';
-  //  } catch (e) {
-  //    log::error("Error", error: e);
-  //    return e.message;
-  //  }
-
-  return "RandomString";
+    return fs::read("bin/test.dscript");
   }
+
+
 
   impl test() -> void {
     final string? test = "Test";
@@ -72,8 +58,7 @@ contract Random {
      var p = 1.3;
      p = 2.0;
 
-     return;
-  }
+     return;}
 
   hook onLogout() {
     // Hook implementation
