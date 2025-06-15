@@ -88,4 +88,8 @@ void main(List<String> arguments) async {
     'randomNumber',
     args: {'foo': 42},
   ));
+
+  print(await runtime.run(
+    'randomString',
+  ));
 }

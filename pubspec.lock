@@ -297,14 +297,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.1"
-  stack:
-    dependency: "direct main"
-    description:
-      name: stack
-      sha256: f5a3032c965b74f394dc6aa138c82373a3403438c68cf5d8e6ef2bc2698949bf
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.2"
   stack_trace:
     dependency: transitive
     description:

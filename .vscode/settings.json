@@ -4,7 +4,8 @@
     "analyzer",
     "compiler",
     "runtime",
-    "vm"
+    "vm",
+    "stdlib"
   ],
   "conventionalCommits.autoCommit": false,
   "conventionalCommits.gitmoji": false,
