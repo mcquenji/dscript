@@ -1,4 +1,4 @@
-schema "";	
+schema "";
 
 author "McQuenji";
 version 0.0.1;
@@ -23,12 +23,12 @@ contract Random {
   }
 
 
+
   impl randomNumber(int foo) -> double {
-    
     const l = pi * 5;
     if(5.0 == l) {
       return l;
-    }
+    } 
     else if(5 > foo && foo < 10) {
       return 4 * bar;
     }else {
@@ -38,8 +38,7 @@ contract Random {
   }
 
 
-  impl randomString() -> string 
-  {
+  impl randomString() -> string {
     try{
       log::info("Reading file: " + fs::absolute(srcFile));
       final contents = fs::read(srcFile);
@@ -56,18 +55,20 @@ contract Random {
   impl test() -> void {
     final string? test = "Test";
 
+
     return;
+
 
     var string? nonNullable;
 
      final bool test2 = false;
-
      //test = "Test2";
 
-     var p = 1.3;
+     var p = 1.0;
      p = 2.0;
 
-     return;}
+     return;
+     }
 
   hook onLogout() {
     // Hook implementation

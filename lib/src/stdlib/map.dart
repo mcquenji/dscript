@@ -21,6 +21,7 @@ class MapBindings extends LibraryBinding {
         addAllBinding,
         clearBinding,
         removeBinding,
+        keyOfBinding,
       };
 
   /// Binding for [Map.length].
@@ -161,5 +162,26 @@ class MapBindings extends LibraryBinding {
     },
     description:
         'Removes the key-value pair for the specified [key] from the map.',
+  );
+
+  /// B
+  static final keyOfBinding = RuntimeBinding<dynamic>(
+    name: 'keyOf',
+    function: (Map<dynamic, dynamic> map, dynamic value) {
+      for (var entry in map.entries) {
+        if (entry.value == value) {
+          return entry.key;
+        }
+      }
+      return null;
+    },
+    positionalParams: {
+      'map': MapType(
+        keyType: const DynamicType(),
+        valueType: const DynamicType(),
+      ),
+      'value': const DynamicType(),
+    },
+    description: 'Returns the key associated with the specified [value].',
   );
 }

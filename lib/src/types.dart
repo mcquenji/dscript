@@ -596,6 +596,11 @@ class Struct extends $Type {
     super.description,
   });
 
+  /// Creates a shallow struct with only the name and no fields.
+  /// This is useful for defining hooks or implementations that reference a struct without needing to define its fields immediately.
+  const Struct.shallow(String name)
+      : this(name: name, fields: const {}, nullable: false);
+
   @override
   Map<String, dynamic> toMap() {
     return {

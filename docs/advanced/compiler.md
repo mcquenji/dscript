@@ -1,15 +1,14 @@
 # Compiler Overview
 
-Dscript includes an optional bytecode compiler that transforms the
-analyzed abstract syntax tree (AST) into a compact representation.
-The compiler currently targets a simple stack based virtual machine.
+Dscript includes a bytecode compiler that transforms the
+analyzed abstract syntax tree (AST) into a compact representation, which is then executed by the runtime via a virtual machine.
 
 ```mermaid
 flowchart LR
   subgraph Analysis
     A[Parsed AST]
-  end
   A --> B{Analyzer}
+  end
   B -->|verified script| C[Compiler]
   C --> D[Bytecode]
   D -.-> E[Runtime]

@@ -29,7 +29,7 @@ The following globals are available in the dscript runtime. They are not part of
 
 Library for mathematical functions.
 
-### sqrt
+### sqrt &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ Library for mathematical functions.
 <em>Converts <code>x</code> to a <code>double</code> and returns the positive square root of the value</em>
 
 
-### pow
+### pow &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -73,7 +73,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <br>
 
 
-### log
+### log &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -82,7 +82,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <em>Converts <code>x</code> to a <code>double</code> and returns the natural logarithm of the value.</em>
 
 
-### exp
+### exp &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -91,7 +91,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <em>Converts <code>x</code> to a <code>double</code> and returns the natural exponent, <code>e</code>, to the power <code>x</code>.</em>
 
 
-### sin
+### sin &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -100,7 +100,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <em>Converts <code>x</code> to a <code>double</code> and returns the sine of the value.</em>
 
 
-### cos
+### cos &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -109,7 +109,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <em>Converts <code>x</code> to a <code>double</code> and returns the cosine of the value.</em>
 
 
-### tan
+### tan &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -121,7 +121,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <br>
 
 
-### asin
+### asin &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -130,7 +130,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <em>Converts <code>x</code> to a <code>double</code> and returns its arc sine in radians.</em>
 
 
-### acos
+### acos &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -139,7 +139,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <em>Converts <code>x</code> to a <code>double</code> and returns its arc cosine in radians.</em>
 
 
-### atan
+### atan &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -148,7 +148,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
 <em>Converts <code>x</code> to a <code>double</code> and returns its arc tangent in radians.</em>
 
 
-### atan2
+### atan2 &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -169,7 +169,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <br>
 
 
-### abs
+### abs &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -178,7 +178,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <em>Returns the absolute value of <code>x</code>.</em>
 
 
-### floor
+### floor &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -187,7 +187,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <em>Returns the largest integer less than or equal to <code>x</code>.</em>
 
 
-### ceil
+### ceil &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -196,7 +196,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <em>Returns the smallest integer greater than or equal to <code>x</code>.</em>
 
 
-### round
+### round &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -205,7 +205,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <em>Rounds <code>x</code> number to the nearest integer.</em>
 
 
-### clamp
+### clamp &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -216,7 +216,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <em>Clamps <code>x</code> number between a <code>min</code> and <code>max</code> value.</em>
 
 
-### min
+### min &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -226,7 +226,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <em>Returns the minimum of <code>a</code> and <code>b</code>.</em>
 
 
-### max
+### max &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -236,7 +236,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <em>Returns the maximum of <code>a</code> and <code>b</code>.</em>
 
 
-### rad
+### rad &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -245,7 +245,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 <em>Converts <code>degrees</code> to radians.</em>
 
 
-### deg
+### deg &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -262,7 +262,7 @@ If <code>a</code> is equal to zero, the vector (<code>b</code>,<code>a</code>) i
 
 Library for working with strings.
 
-### length
+### length &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -271,7 +271,7 @@ Library for working with strings.
 <em>Returns the length of <code>str</code>.</em>
 
 
-### substring
+### substring &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -286,7 +286,7 @@ Library for working with strings.
 <br>
 
 
-### upper
+### upper &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -295,7 +295,7 @@ Library for working with strings.
 <em>Converts <code>str</code> to uppercase.</em>
 
 
-### lower
+### lower &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -304,7 +304,7 @@ Library for working with strings.
 <em>Converts <code>str</code> to lowercase.</em>
 
 
-### trim
+### trim &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -313,7 +313,7 @@ Library for working with strings.
 <em>Removes leading and trailing whitespace from <code>str</code> and returns the resulting string.</em>
 
 
-### split
+### split &rarr; `List<string>`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -323,7 +323,7 @@ Library for working with strings.
 <em>Splits <code>str</code> into a list of substrings using <code>pattern</code> as the delimiter.</em>
 
 
-### replaceAll
+### replaceAll &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -334,7 +334,7 @@ Library for working with strings.
 <em>Replaces all occurrences of <code>from</code> with <code>to</code> in <code>str</code>.</em>
 
 
-### contains
+### contains &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -344,7 +344,7 @@ Library for working with strings.
 <em>Returns true if <code>str</code> contains <code>pattern</code>. False otherwise.</em>
 
 
-### startsWith
+### startsWith &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -354,7 +354,7 @@ Library for working with strings.
 <em>Returns true if <code>str</code> starts with <code>pattern</code>. False otherwise.</em>
 
 
-### endsWith
+### endsWith &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -364,7 +364,7 @@ Library for working with strings.
 <em>Returns true if <code>str</code> ends with <code>pattern</code>. False otherwise.</em>
 
 
-### indexOf
+### indexOf &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -374,7 +374,7 @@ Library for working with strings.
 <em>Returns the index of the first occurrence of <code>pattern</code> in <code>str</code>.</em>
 
 
-### lastIndexOf
+### lastIndexOf &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -384,7 +384,7 @@ Library for working with strings.
 <em>Returns the index of the last occurrence of <code>pattern</code> in <code>str</code>.</em>
 
 
-### replaceFirst
+### replaceFirst &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -395,7 +395,7 @@ Library for working with strings.
 <em>Replaces the first occurrence of <code>from</code> with <code>to</code> in <code>str</code>.</em>
 
 
-### from
+### from &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -404,7 +404,7 @@ Library for working with strings.
 <em>String representation of <code>obj</code>. If <code>obj</code> is a string, it is returned unchanged; otherwise, it is stringfied.</em>
 
 
-### fromCharCode
+### fromCharCode &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -413,7 +413,7 @@ Library for working with strings.
 <em>Creates a string from a single character code <code>code</code>.</em>
 
 
-### from
+### from &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -430,7 +430,7 @@ Library for working with strings.
 
 Library for interacting with the file system.
 
-### read
+### read &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -443,7 +443,7 @@ Library for interacting with the file system.
 `fs::read`
 
 
-### write
+### write &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -458,7 +458,7 @@ Library for interacting with the file system.
 `fs::write`
 
 
-### delete
+### delete &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -471,7 +471,7 @@ Library for interacting with the file system.
 `fs::write`
 
 
-### exists
+### exists &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -484,7 +484,7 @@ Library for interacting with the file system.
 `fs::read`
 
 
-### ls
+### ls &rarr; `List<string>`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -497,7 +497,7 @@ Library for interacting with the file system.
 `fs::read`
 
 
-### mkdir
+### mkdir &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -510,7 +510,7 @@ Library for interacting with the file system.
 `fs::write`
 
 
-### isDir
+### isDir &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -523,7 +523,7 @@ Library for interacting with the file system.
 `fs::read`
 
 
-### isFile
+### isFile &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -536,7 +536,7 @@ Library for interacting with the file system.
 `fs::read`
 
 
-### absolute
+### absolute &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -549,7 +549,7 @@ Library for interacting with the file system.
 `fs::read`
 
 
-### cwd
+### cwd &rarr; `string`
 
 <em>Returns the current working directory.</em>
 
@@ -558,7 +558,7 @@ Library for interacting with the file system.
 `fs::read`
 
 
-### move
+### move &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -572,7 +572,7 @@ Library for interacting with the file system.
 `fs::write`, `fs::read`
 
 
-### copy
+### copy &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -586,7 +586,7 @@ Library for interacting with the file system.
 `fs::write`, `fs::read`
 
 
-### size
+### size &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -599,7 +599,7 @@ Library for interacting with the file system.
 `fs::read`
 
 
-### extension
+### extension &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -608,7 +608,7 @@ Library for interacting with the file system.
 <em>Gets the file extension of the given <code>path</code>. Returns an empty string if no extension is found.</em>
 
 
-### basename
+### basename &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -617,7 +617,7 @@ Library for interacting with the file system.
 <em>Gets the base name of the given <code>path</code>.</em>
 
 
-### dirname
+### dirname &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -639,7 +639,7 @@ Will not remove the root component of a Windows path, like "C:\" or "\\server_na
 
 Library for working with lists.
 
-### length
+### length &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -648,7 +648,7 @@ Library for working with lists.
 <em>Returns the number of elements in the list.</em>
 
 
-### isEmpty
+### isEmpty &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -657,7 +657,7 @@ Library for working with lists.
 <em>Returns true if the list is empty.</em>
 
 
-### isNotEmpty
+### isNotEmpty &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -666,7 +666,7 @@ Library for working with lists.
 <em>Returns true if the list is not empty.</em>
 
 
-### add
+### add &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -675,7 +675,7 @@ Library for working with lists.
 <em>Adds <code>element</code> to the end of the <code>list</code>.</em>
 
 
-### addAll
+### addAll &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -685,7 +685,7 @@ Library for working with lists.
 <em>Adds all <code>elements</code> to the end of the <code>list</code>.</em>
 
 
-### clear
+### clear &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -694,7 +694,7 @@ Library for working with lists.
 <em>Removes all elements from the list.</em>
 
 
-### remove
+### remove &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -703,7 +703,7 @@ Library for working with lists.
 <em>Removes the first occurrence of <code>element</code> from the list.</em>
 
 
-### removeAt
+### removeAt &rarr; `dynamic`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -713,7 +713,7 @@ Library for working with lists.
 <em>Removes and returns the element at <code>index</code> from the list.</em>
 
 
-### removeLast
+### removeLast &rarr; `dynamic`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -722,7 +722,7 @@ Library for working with lists.
 <em>Removes and returns the last element from the list.</em>
 
 
-### insert
+### insert &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -733,7 +733,7 @@ Library for working with lists.
 <em>Inserts <code>element</code> at <code>index</code> in the list.</em>
 
 
-### insertAll
+### insertAll &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -744,7 +744,7 @@ Library for working with lists.
 <em>Inserts all <code>elements</code> at <code>index</code> in the list.</em>
 
 
-### indexOf
+### indexOf &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -755,7 +755,7 @@ Library for working with lists.
 <em>Returns the index of the first occurrence of <code>element</code> in the list, starting from <code>start</code>.</em>
 
 
-### lastIndexOf
+### lastIndexOf &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -766,7 +766,7 @@ Library for working with lists.
 <em>Returns the index of the last occurrence of <code>element</code> in the list, starting from <code>start</code>.</em>
 
 
-### contains
+### contains &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -784,7 +784,7 @@ Library for working with lists.
 
 Library for working with maps.
 
-### length
+### length &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -793,7 +793,7 @@ Library for working with maps.
 <em>Returns the number of key-value pairs in the map.</em>
 
 
-### isEmpty
+### isEmpty &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -802,7 +802,7 @@ Library for working with maps.
 <em>Returns true if the map is empty.</em>
 
 
-### isNotEmpty
+### isNotEmpty &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -811,7 +811,7 @@ Library for working with maps.
 <em>Returns true if the map is not empty.</em>
 
 
-### containsKey
+### containsKey &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -821,7 +821,7 @@ Library for working with maps.
 <em>Returns true if the map contains the specified <code>key</code>.</em>
 
 
-### containsValue
+### containsValue &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -831,7 +831,7 @@ Library for working with maps.
 <em>Returns true if the map contains the specified <code>value</code>.</em>
 
 
-### keys
+### keys &rarr; `List<dynamic>`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -840,7 +840,7 @@ Library for working with maps.
 <em>Returns a list of all keys in the map.</em>
 
 
-### values
+### values &rarr; `List<dynamic>`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -849,7 +849,7 @@ Library for working with maps.
 <em>Returns a list of all values in the map.</em>
 
 
-### addAll
+### addAll &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -859,7 +859,7 @@ Library for working with maps.
 <em>Adds all key-value pairs from <code>other</code> to the map.</em>
 
 
-### clear
+### clear &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -868,7 +868,7 @@ Library for working with maps.
 <em>Removes all key-value pairs from the map.</em>
 
 
-### remove
+### remove &rarr; `dynamic`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -876,6 +876,16 @@ Library for working with maps.
 | key | `dynamic?` | Positional (2) |
 
 <em>Removes the key-value pair for the specified <code>key</code> from the map.</em>
+
+
+### keyOf &rarr; `dynamic`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| map | `Map<dynamic?, dynamic?>` | Positional (1) |
+| value | `dynamic?` | Positional (2) |
+
+<em>Returns the key associated with the specified <code>value</code>.</em>
 
 
 
@@ -886,7 +896,7 @@ Library for working with maps.
 
 Various utilities for dynamic values.
 
-### toString
+### toString &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -895,7 +905,7 @@ Various utilities for dynamic values.
 <em>Converts <code>value</code> to a string.</em>
 
 
-### toInt
+### toInt &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -904,7 +914,7 @@ Various utilities for dynamic values.
 <em>Converts <code>value</code> to an int.</em>
 
 
-### toDouble
+### toDouble &rarr; `double`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -913,7 +923,7 @@ Various utilities for dynamic values.
 <em>Converts <code>value</code> to a double.</em>
 
 
-### toBool
+### toBool &rarr; `bool`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -922,7 +932,7 @@ Various utilities for dynamic values.
 <em>Converts <code>value</code> to a bool.</em>
 
 
-### length
+### length &rarr; `int`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -931,7 +941,7 @@ Various utilities for dynamic values.
 <em>Returns the length of <code>value</code> if it is a collection or string, otherwise throws.</em>
 
 
-### type
+### type &rarr; `string`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -948,7 +958,7 @@ Various utilities for dynamic values.
 
 Logging utilities.
 
-### info
+### info &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -958,7 +968,7 @@ Logging utilities.
 <em>Logs an info message.</em>
 
 
-### warning
+### warning &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -968,7 +978,7 @@ Logging utilities.
 <em>Logs a warning message.</em>
 
 
-### error
+### error &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -978,7 +988,7 @@ Logging utilities.
 <em>Logs an error message.</em>
 
 
-### debug
+### debug &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -988,7 +998,7 @@ Logging utilities.
 <em>Logs a debug message.</em>
 
 
-### verbose
+### verbose &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -998,7 +1008,7 @@ Logging utilities.
 <em>Logs a verbose message.</em>
 
 
-### fatal
+### fatal &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -1008,7 +1018,7 @@ Logging utilities.
 <em>Logs a fatal message.</em>
 
 
-### critical
+### critical &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |

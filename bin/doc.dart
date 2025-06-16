@@ -69,7 +69,7 @@ String _documentBinding(RuntimeBinding binding) {
   final sb = StringBuffer();
 
   // Binding Header with anchor
-  sb.writeln('### ${binding.name}');
+  sb.writeln('### ${binding.name} &rarr; `${binding.returnType}`');
 
   // Combine positional and named params in one table
   final params = <Map<String, dynamic>>[];

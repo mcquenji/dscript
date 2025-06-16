@@ -2,6 +2,8 @@
 
 Dscript ships with two runtime implementations: `Runtime` and `IsolateRuntime`. Both execute compiled scripts but differ in how they isolate script code.
 
+!> As a result of each hook or implementation being executed independently in seperate VMs (regardless of the runtime) and to avoid race conditions, it is not possible to share state between them. If you need to share data, consider passing it explicitly as an argument.
+
 ## Runtime
 
 The default `Runtime` runs code in the current isolate. Host functions are invoked directly which yields the best performance but means that the script shares memory with the host application.
