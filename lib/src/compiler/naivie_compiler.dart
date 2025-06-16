@@ -632,6 +632,7 @@ class NaiveCompiler extends Compiler {
     ctx.throwStmt()?.accept(this);
     ctx.tryStmt()?.accept(this);
     ctx.throwStmt()?.accept(this);
+    ctx.assignment()?.accept(this);
   }
 
   @override
