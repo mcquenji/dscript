@@ -333,6 +333,9 @@ class DefaultVM extends VM {
             final frame = buffer[ip++];
             final index = buffer[ip++];
             store(frame, index, stack.removeLast());
+
+            // pop this catch target to avoid infinite loops if the catch block throws again
+            if (catchTargets.isNotEmpty) catchTargets.removeLast();
             break;
           case Instruction.endTry:
             if (catchTargets.isNotEmpty) catchTargets.removeLast();

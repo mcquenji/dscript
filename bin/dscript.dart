@@ -89,6 +89,9 @@ void main(List<String> arguments) async {
     args: {'foo': 42},
   ));
 
+  print(bytecode.implementations['randomString']?.toDebugString() ??
+      'No implementation found for randomString');
+
   print(await runtime.run(
     'randomString',
   ));

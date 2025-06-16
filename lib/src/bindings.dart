@@ -70,8 +70,10 @@ class RuntimeBinding<T> {
   }
 
   /// Calls the bound function with the provided arguments.
-  Future<T> call(List<dynamic> positionalArgs,
-      {Map<Symbol, dynamic> namedArgs = const {}}) async {
+  Future<T> call(
+    List<dynamic> positionalArgs, {
+    Map<Symbol, dynamic> namedArgs = const {},
+  }) async {
     positionalArgs = List.from(positionalArgs);
     namedArgs = Map<Symbol, dynamic>.from(namedArgs);
 
@@ -84,11 +86,15 @@ class RuntimeBinding<T> {
       );
     }
 
+    print('Calling binding: $name');
+
     var result = await Function.apply(
       function,
       positionalArgs,
       namedArgs,
     );
+
+    print('Binding $name returned: $result');
 
     final resultType = $Type.fromValue(result);
 
@@ -123,7 +129,7 @@ class RuntimeBinding<T> {
     required List<dynamic> positionalArgs,
     required Map<Symbol, dynamic> namedArgs,
   }) {
-// Check if all named parameters are provided
+    // Check if all named parameters are provided
     for (final entry in binding.namedParams.entries) {
       final param = entry.key;
       final expectedType = entry.value;
