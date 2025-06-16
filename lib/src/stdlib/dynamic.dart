@@ -3,7 +3,11 @@ part of 'stdlib.dart';
 /// Bindings for the dynamic standard library.
 class DynamicBindings extends LibraryBinding {
   /// Bindings for the dynamic standard library.
-  const DynamicBindings() : super(name: 'dynamic');
+  const DynamicBindings()
+      : super(
+          name: 'dynamic',
+          description: 'Various utilities for dynamic values.',
+        );
 
   @override
   Set<RuntimeBinding> get bindings => {
@@ -19,7 +23,9 @@ class DynamicBindings extends LibraryBinding {
   static final toStringBinding = RuntimeBinding<String>(
     name: 'toString',
     function: (dynamic value) => value.toString(),
-    positionalParams: [const DynamicType()],
+    positionalParams: {
+      'value': const DynamicType(),
+    },
     description: 'Converts [value] to a string.',
   );
 
@@ -28,7 +34,9 @@ class DynamicBindings extends LibraryBinding {
     name: 'toInt',
     function: (dynamic value) =>
         value is int ? value : int.parse(value.toString()),
-    positionalParams: [const DynamicType()],
+    positionalParams: {
+      'value': const DynamicType(),
+    },
     description: 'Converts [value] to an int.',
   );
 
@@ -37,7 +45,9 @@ class DynamicBindings extends LibraryBinding {
     name: 'toDouble',
     function: (dynamic value) =>
         value is double ? value : double.parse(value.toString()),
-    positionalParams: [const DynamicType()],
+    positionalParams: {
+      'value': const DynamicType(),
+    },
     description: 'Converts [value] to a double.',
   );
 
@@ -46,7 +56,9 @@ class DynamicBindings extends LibraryBinding {
     name: 'toBool',
     function: (dynamic value) =>
         value is bool ? value : (value.toString().toLowerCase() == 'true'),
-    positionalParams: [const DynamicType()],
+    positionalParams: {
+      'value': const DynamicType(),
+    },
     description: 'Converts [value] to a bool.',
   );
 
@@ -59,7 +71,9 @@ class DynamicBindings extends LibraryBinding {
       }
       return 1; // For non-collection types, return 1
     },
-    positionalParams: [const DynamicType()],
+    positionalParams: {
+      'value': const DynamicType(),
+    },
     description:
         'Returns the length of [value] if it is a collection or string, otherwise returns 1.',
   );
@@ -68,7 +82,9 @@ class DynamicBindings extends LibraryBinding {
   static final typeBinding = RuntimeBinding<String>(
     name: 'type',
     function: (dynamic value) => $Type.fromValue(value).toString(),
-    positionalParams: [const DynamicType()],
+    positionalParams: {
+      'value': const DynamicType(),
+    },
     description: 'Returns the type of [value] as a string.',
   );
 }

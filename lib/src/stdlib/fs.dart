@@ -3,7 +3,11 @@ part of 'stdlib.dart';
 /// Bindings for the file system standard library.
 class FsBindings extends LibraryBinding {
   /// Bindings for the file system standard library.
-  const FsBindings() : super(name: 'fs');
+  const FsBindings()
+      : super(
+          name: 'fs',
+          description: 'Library for interacting with the file system.',
+        );
 
   @override
   Set<RuntimeBinding> get bindings => {
@@ -35,9 +39,9 @@ class FsBindings extends LibraryBinding {
       }
       return await file.readAsString();
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     permissions: [ScriptPermission.readFiles],
     description: 'Reads the contents of a file at the given path as a string.',
   );
@@ -73,9 +77,9 @@ class FsBindings extends LibraryBinding {
 
       await file.delete();
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     permissions: [ScriptPermission.writeFiles],
     description: 'Deletes a file at the given [path].',
   );
@@ -87,9 +91,9 @@ class FsBindings extends LibraryBinding {
       final file = File(path);
       return await file.exists();
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     permissions: [ScriptPermission.readFiles],
     description: 'Checks if a file exists at the given [path].',
   );
@@ -108,9 +112,9 @@ class FsBindings extends LibraryBinding {
           .map((file) => file.path)
           .toList(growable: false);
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     permissions: [ScriptPermission.readFiles],
     description:
         'Lists the contents of a directory at the given [path]. Returns a list of file paths.',
@@ -126,9 +130,9 @@ class FsBindings extends LibraryBinding {
       }
       await dir.create(recursive: true);
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     permissions: [ScriptPermission.writeFiles],
     description:
         'Creates a directory at the given [path]. If the directory already exists, it does nothing.',
@@ -140,9 +144,9 @@ class FsBindings extends LibraryBinding {
     function: (String path) async {
       return await FileSystemEntity.isDirectory(path);
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     permissions: [ScriptPermission.readFiles],
     description: 'Checks if the path is a directory.',
   );
@@ -153,9 +157,9 @@ class FsBindings extends LibraryBinding {
     function: (String path) async {
       return await FileSystemEntity.isFile(path);
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     permissions: [ScriptPermission.readFiles],
     description: 'Checks if the path is a file.',
   );
@@ -167,9 +171,10 @@ class FsBindings extends LibraryBinding {
       final entity = File(path);
       return entity.absolute.path;
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
+    permissions: [ScriptPermission.readFiles],
     description:
         'Gets the absolute path of a file or directory at the given [path].',
   );
@@ -178,7 +183,7 @@ class FsBindings extends LibraryBinding {
   static final currentDirectoryBinding = RuntimeBinding<String>(
     name: 'cwd',
     function: () => Directory.current.path,
-    positionalParams: [],
+    permissions: [ScriptPermission.readFiles],
     description: 'Returns the current working directory.',
   );
 
@@ -228,9 +233,9 @@ class FsBindings extends LibraryBinding {
       }
       return await file.length();
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     permissions: [ScriptPermission.readFiles],
     description: 'Gets the size of a file at the given [path] in bytes.',
   );
@@ -247,9 +252,9 @@ class FsBindings extends LibraryBinding {
 
       return file.uri.pathSegments.last.split('.').last;
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     description:
         'Gets the file extension of the given [path]. Returns an empty string if no extension is found.',
   );
@@ -267,9 +272,9 @@ class FsBindings extends LibraryBinding {
 
       return name;
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     description: 'Gets the base name of the given [path].',
   );
 
@@ -279,9 +284,9 @@ class FsBindings extends LibraryBinding {
     function: (String path) {
       return FileSystemEntity.parentOf(path);
     },
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'path': PrimitiveType.STRING,
+    },
     description: r"""
 The parent path of a path.
 

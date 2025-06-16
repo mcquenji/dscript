@@ -3,7 +3,11 @@ part of 'stdlib.dart';
 /// Bindings for the list standard library.
 class ListBindings extends LibraryBinding {
   /// Bindings for the list standard library.
-  const ListBindings() : super(name: 'list');
+  const ListBindings()
+      : super(
+          name: 'list',
+          description: 'Library for working with lists.',
+        );
 
   @override
   Set<RuntimeBinding> get bindings => {
@@ -27,9 +31,9 @@ class ListBindings extends LibraryBinding {
   static final lengthBinding = RuntimeBinding<int>(
     name: 'length',
     function: (List<dynamic> list) => list.length,
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+    },
     description: 'Returns the number of elements in the list.',
   );
 
@@ -37,9 +41,9 @@ class ListBindings extends LibraryBinding {
   static final isEmptyBinding = RuntimeBinding<bool>(
     name: 'isEmpty',
     function: (List<dynamic> list) => list.isEmpty,
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+    },
     description: 'Returns true if the list is empty.',
   );
 
@@ -47,9 +51,9 @@ class ListBindings extends LibraryBinding {
   static final isNotEmptyBinding = RuntimeBinding<bool>(
     name: 'isNotEmpty',
     function: (List<dynamic> list) => list.isNotEmpty,
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+    },
     description: 'Returns true if the list is not empty.',
   );
 
@@ -57,11 +61,10 @@ class ListBindings extends LibraryBinding {
   static final addBinding = RuntimeBinding<void>(
     name: 'add',
     function: (List<dynamic> list, dynamic element) => list.add(element),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      const DynamicType(),
-    ],
-    description: 'Adds [element] to the end of the list.',
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+    },
+    description: 'Adds [element] to the end of the [list].',
   );
 
   /// Binding for [List.addAll].
@@ -69,20 +72,20 @@ class ListBindings extends LibraryBinding {
     name: 'addAll',
     function: (List<dynamic> list, List<dynamic> elements) =>
         list.addAll(elements),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      ListType(elementType: const DynamicType()),
-    ],
-    description: 'Adds all [elements] to the end of the list.',
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+      'elements': ListType(elementType: const DynamicType()),
+    },
+    description: 'Adds all [elements] to the end of the [list].',
   );
 
   /// Binding for [List.clear].
   static final clearBinding = RuntimeBinding<void>(
     name: 'clear',
     function: (List<dynamic> list) => list.clear(),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+    },
     description: 'Removes all elements from the list.',
   );
 
@@ -90,10 +93,9 @@ class ListBindings extends LibraryBinding {
   static final removeBinding = RuntimeBinding<bool>(
     name: 'remove',
     function: (List<dynamic> list, dynamic element) => list.remove(element),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+    },
     description: 'Removes the first occurrence of [element] from the list.',
   );
 
@@ -101,10 +103,10 @@ class ListBindings extends LibraryBinding {
   static final removeAtBinding = RuntimeBinding<dynamic>(
     name: 'removeAt',
     function: (List<dynamic> list, int index) => list.removeAt(index),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      PrimitiveType.INT,
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+      'index': PrimitiveType.INT,
+    },
     description: 'Removes and returns the element at [index] from the list.',
   );
 
@@ -112,9 +114,9 @@ class ListBindings extends LibraryBinding {
   static final removeLastBinding = RuntimeBinding<dynamic>(
     name: 'removeLast',
     function: (List<dynamic> list) => list.removeLast(),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+    },
     description: 'Removes and returns the last element from the list.',
   );
 
@@ -123,11 +125,11 @@ class ListBindings extends LibraryBinding {
     name: 'insert',
     function: (List<dynamic> list, int index, dynamic element) =>
         list.insert(index, element),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      PrimitiveType.INT,
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+      'index': PrimitiveType.INT,
+      'element': const DynamicType(),
+    },
     description: 'Inserts [element] at [index] in the list.',
   );
 
@@ -136,11 +138,11 @@ class ListBindings extends LibraryBinding {
     name: 'insertAll',
     function: (List<dynamic> list, int index, List<dynamic> elements) =>
         list.insertAll(index, elements),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      PrimitiveType.INT,
-      ListType(elementType: const DynamicType()),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+      'index': PrimitiveType.INT,
+      'elements': ListType(elementType: const DynamicType()),
+    },
     description: 'Inserts all [elements] at [index] in the list.',
   );
 
@@ -149,10 +151,10 @@ class ListBindings extends LibraryBinding {
     name: 'indexOf',
     function: (List<dynamic> list, dynamic element, {int? start}) =>
         list.indexOf(element, start ?? 0),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+      'element': const DynamicType(),
+    },
     namedParams: {
       #start: PrimitiveType.INT.asNullable(),
     },
@@ -165,10 +167,10 @@ class ListBindings extends LibraryBinding {
     name: 'lastIndexOf',
     function: (List<dynamic> list, dynamic element, {int? start}) =>
         list.lastIndexOf(element, start),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+      'element': const DynamicType(),
+    },
     namedParams: {
       #start: PrimitiveType.INT.asNullable(),
     },
@@ -180,10 +182,10 @@ class ListBindings extends LibraryBinding {
   static final containsBinding = RuntimeBinding<bool>(
     name: 'contains',
     function: (List<dynamic> list, dynamic element) => list.contains(element),
-    positionalParams: [
-      ListType(elementType: const DynamicType()),
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+      'element': const DynamicType(),
+    },
     description: 'Returns true if the list contains [element].',
   );
 }

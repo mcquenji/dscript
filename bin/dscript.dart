@@ -51,7 +51,7 @@ void main(List<String> arguments) async {
           )
           .end()
           .bind<double>('double', (int x) => x * 2)
-          .param(PrimitiveType.INT)
+          .param('x', PrimitiveType.INT)
           .describe(
             'A simple function that doubles an integer.',
           )

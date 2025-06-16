@@ -15,6 +15,7 @@ permissions external::math;
 
 contract Random {
   const bar = 5;
+  const srcFile = "bin/test.dscript";
 
   func test(string name) 
   {
@@ -39,7 +40,15 @@ contract Random {
 
   impl randomString() -> string 
   {
-    return fs::read("bin/test.dscript");
+    try{
+      log::info("Reading file: " + fs::absolute(srcFile));
+      final contents = fs::read(srcFile);
+      log::info("Successfully read file");
+      return contents;
+    }catch(e) {
+      log::error("Error reading file", error: e);
+      return "Error";
+    }
   }
 
 

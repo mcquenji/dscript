@@ -7,6 +7,7 @@ class MathBindings extends LibraryBinding {
   const MathBindings()
       : super(
           name: 'math',
+          description: 'Library for mathematical functions.',
         );
 
   @override
@@ -37,9 +38,9 @@ class MathBindings extends LibraryBinding {
   static final sqrtBinding = RuntimeBinding<double>(
     name: 'sqrt',
     function: (num x) => sqrt(x),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description:
         'Converts [x] to a [double] and returns the positive square root of the value',
   );
@@ -48,10 +49,10 @@ class MathBindings extends LibraryBinding {
   static final powBinding = RuntimeBinding<double>(
     name: 'pow',
     function: (num x, num y) => pow(x, y),
-    positionalParams: [
-      PrimitiveType.NUM,
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+      'y': PrimitiveType.NUM,
+    },
     description: '''
 Returns [x] to the power of [exponent].
 
@@ -85,9 +86,9 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
   static final logBinding = RuntimeBinding<double>(
     name: 'log',
     function: (num x) => log(x),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description:
         'Converts [x] to a [double] and returns the natural logarithm of the value.',
   );
@@ -96,9 +97,9 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
   static final expBinding = RuntimeBinding<double>(
     name: 'exp',
     function: (num x) => exp(x),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description:
         'Converts [x] to a [double] and returns the natural exponent, [e], to the power [x].',
   );
@@ -107,9 +108,9 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
   static final sinBinding = RuntimeBinding<double>(
     name: 'sin',
     function: (num x) => sin(x),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description:
         'Converts [x] to a [double] and returns the sine of the value.',
   );
@@ -118,9 +119,9 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
   static final cosBinding = RuntimeBinding<double>(
       name: 'cos',
       function: (num x) => cos(x),
-      positionalParams: [
-        PrimitiveType.NUM,
-      ],
+      positionalParams: {
+        'x': PrimitiveType.NUM,
+      },
       description:
           'Converts [x] to a [double] and returns the cosine of the value.');
 
@@ -128,9 +129,9 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
   static final tanBinding = RuntimeBinding<double>(
     name: 'tan',
     function: (num x) => tan(x),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description: '''
 Converts [x] to a [double] and returns the tangent of the value.
 
@@ -142,9 +143,9 @@ The tangent function is equivalent to sin(x)/cos(x)
   static final asinBinding = RuntimeBinding<double>(
     name: 'asin',
     function: (num x) => asin(x),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description:
         'Converts [x] to a [double] and returns its arc sine in radians.',
   );
@@ -153,9 +154,9 @@ The tangent function is equivalent to sin(x)/cos(x)
   static final acosBinding = RuntimeBinding<double>(
     name: 'acos',
     function: (num x) => acos(x),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description:
         'Converts [x] to a [double] and returns its arc cosine in radians.',
   );
@@ -164,9 +165,9 @@ The tangent function is equivalent to sin(x)/cos(x)
   static final atanBinding = RuntimeBinding<double>(
     name: 'atan',
     function: (num x) => atan(x),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description:
         'Converts [x] to a [double] and returns its arc tangent in radians.',
   );
@@ -175,10 +176,10 @@ The tangent function is equivalent to sin(x)/cos(x)
   static final atan2Binding = RuntimeBinding<double>(
     name: 'atan2',
     function: (num y, num x) => atan2(y, x),
-    positionalParams: [
-      PrimitiveType.NUM,
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+      'y': PrimitiveType.NUM,
+    },
     description: '''
 A variant of [atan].
 
@@ -198,9 +199,9 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
   static final absBinding = RuntimeBinding<double>(
     name: 'abs',
     function: (num x) => x.abs(),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description: 'Returns the absolute value of [x].',
   );
 
@@ -208,9 +209,9 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
   static final floorBinding = RuntimeBinding<int>(
     name: 'floor',
     function: (num x) => x.floor(),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description: 'Returns the largest integer less than or equal to [x].',
   );
 
@@ -218,9 +219,9 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
   static final ceilBinding = RuntimeBinding<int>(
     name: 'ceil',
     function: (num x) => x.ceil(),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description: 'Returns the smallest integer greater than or equal to [x].',
   );
 
@@ -228,9 +229,9 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
   static final roundBinding = RuntimeBinding<int>(
     name: 'round',
     function: (num x) => x.round(),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description: 'Rounds [x] number to the nearest integer.',
   );
 
@@ -243,9 +244,9 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       #min: PrimitiveType.NUM,
       #max: PrimitiveType.NUM,
     },
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
     description: 'Clamps [x] number between a [min] and [max] value.',
   );
 
@@ -253,10 +254,10 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
   static final minBinding = RuntimeBinding<num>(
     name: 'min',
     function: (num a, num b) => min(a, b),
-    positionalParams: [
-      PrimitiveType.NUM,
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'a': PrimitiveType.NUM,
+      'b': PrimitiveType.NUM,
+    },
     description: 'Returns the minimum of [a] and [b].',
   );
 
@@ -264,10 +265,10 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
   static final maxBinding = RuntimeBinding<num>(
     name: 'max',
     function: (num a, num b) => max(a, b),
-    positionalParams: [
-      PrimitiveType.NUM,
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'a': PrimitiveType.NUM,
+      'b': PrimitiveType.NUM,
+    },
     description: 'Returns the maximum of [a] and [b].',
   );
 
@@ -275,9 +276,9 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
   static final radBinding = RuntimeBinding<double>(
     name: 'rad',
     function: (num degrees) => degrees * (pi / 180),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'degrees': PrimitiveType.NUM,
+    },
     description: 'Converts [degrees] to radians.',
   );
 
@@ -285,9 +286,9 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
   static final degBinding = RuntimeBinding<double>(
     name: 'deg',
     function: (num radians) => radians * (180 / pi),
-    positionalParams: [
-      PrimitiveType.NUM,
-    ],
+    positionalParams: {
+      'radians': PrimitiveType.NUM,
+    },
     description: 'Converts [radians] to degrees.',
   );
 }

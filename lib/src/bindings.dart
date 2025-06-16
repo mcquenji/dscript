@@ -23,7 +23,7 @@ class RuntimeBinding<T> {
   final List<ScriptPermission> permissions;
 
   /// A list of positional parameters in the order they are expected.
-  final List<$Type> positionalParams;
+  final Map<String, $Type> positionalParams;
 
   /// Optional description of the binding.
   ///
@@ -49,7 +49,7 @@ class RuntimeBinding<T> {
     required this.function,
     this.namedParams = const {},
     this.permissions = const [],
-    this.positionalParams = const [],
+    this.positionalParams = const {},
     required this.description,
   });
 
@@ -167,15 +167,15 @@ class RuntimeBinding<T> {
 
       final type = $Type.fromValue(positionalArgs[i]);
 
-      if (!type.canCast(binding.positionalParams[i])) {
+      if (!type.canCast(binding.positionalParams.values.elementAt(i))) {
         throw ArgumentError(
-          'Invalid argument type for positional argument $i: expected ${binding.positionalParams[i]}, got $type',
+          'Invalid argument type for positional argument $i: expected ${binding.positionalParams.values.elementAt(i)}, got $type',
         );
       }
 
       // Cast the argument to the expected type
       positionalArgs[i] = type.cast(
-        binding.positionalParams[i],
+        binding.positionalParams.values.elementAt(i),
         positionalArgs[i],
       );
     }
@@ -219,12 +219,16 @@ class ExternalBindings extends LibraryBinding {
   ExternalBindings()
       : super(
           name: 'external',
+          description:
+              'Library for external bindings defined by the host at runtime.',
         );
 
   /// Creates an [ExternalBindings] instance with the provided list of bindings.
   ExternalBindings.from(List<RuntimeBinding> bindings)
       : super(
           name: 'external',
+          description:
+              'Library for external bindings defined by the host at runtime.',
         ) {
     _bindings.addAll(bindings);
   }

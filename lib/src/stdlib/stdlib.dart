@@ -24,11 +24,15 @@ abstract class LibraryBinding {
   /// The name of the library.
   final String name;
 
+  /// The docstring to describe the library.
+  final String description;
+
   /// A library binding that contains a list of runtime bindings.
   /// This class is used to group related bindings together, such as math
   /// functions or string manipulations.
   const LibraryBinding({
     required this.name,
+    required this.description,
   });
 
   @override
