@@ -86,15 +86,11 @@ class RuntimeBinding<T> {
       );
     }
 
-    print('Calling binding: $name');
-
     var result = await Function.apply(
       function,
       positionalArgs,
       namedArgs,
     );
-
-    print('Binding $name returned: $result');
 
     final resultType = $Type.fromValue(result);
 
