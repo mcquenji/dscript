@@ -928,7 +928,7 @@ Various utilities for dynamic values.
 | --- | --- | --- |
 | value | `dynamic?` | Positional (1) |
 
-<em>Returns the length of <code>value</code> if it is a collection or string, otherwise returns 1.</em>
+<em>Returns the length of <code>value</code> if it is a collection or string, otherwise throws.</em>
 
 
 ### type

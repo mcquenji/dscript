@@ -69,13 +69,18 @@ class DynamicBindings extends LibraryBinding {
       if (value is String || value is List || value is Map) {
         return value.length;
       }
-      return 1; // For non-collection types, return 1
+
+      throw ArgumentError.value(
+        value,
+        'value',
+        'Value must be a collection or string to get length.',
+      );
     },
     positionalParams: {
       'value': const DynamicType(),
     },
     description:
-        'Returns the length of [value] if it is a collection or string, otherwise returns 1.',
+        'Returns the length of [value] if it is a collection or string, otherwise throws.',
   );
 
   /// Returns the type of the dynamic value as a string.
