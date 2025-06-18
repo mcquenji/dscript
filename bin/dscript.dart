@@ -20,6 +20,14 @@ void main(List<String> arguments) async {
     );
   });
 
+  HttpBindings.getBinding.addPreMiddleware(({
+    required RuntimeBinding binding,
+    required List<dynamic> positionalArgs,
+    required Map<Symbol, dynamic> namedArgs,
+  }) {
+    print('Sending GET request to ${positionalArgs[0]}');
+  });
+
   final code = await InputStream.fromPath('./bin/test.dscript');
 
   final script = analyze(
@@ -88,9 +96,6 @@ void main(List<String> arguments) async {
     'randomNumber',
     args: {'foo': 42},
   ));
-
-  print(bytecode.implementations['randomString']?.toDebugString() ??
-      'No implementation found for randomString');
 
   print(await runtime.run(
     'randomString',

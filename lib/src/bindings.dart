@@ -31,7 +31,9 @@ class RuntimeBinding<T> {
   final String? description;
 
   /// The return type of the function as a dsl type.
-  $Type get returnType => $Type.from(T.toString());
+  $Type get returnType => _returnType ?? $Type.from(T.toString());
+
+  final $Type? _returnType;
 
   /// A list of pre-binding middlewares that are called before the binding's function is executed.
   ///
@@ -44,6 +46,12 @@ class RuntimeBinding<T> {
   final List<PostBindingMiddleware<T>> _postMiddlewares = [];
 
   /// Creates a new [RuntimeBinding] instance.
+  ///
+  /// The [returnType] can be specified to override the default return type inferred from [T].
+  /// If not specified, it will default to the type of [T].
+  ///
+  /// When returning structs, it is recommended to override the [returnType] to the struct type
+  /// as the type inference will just return [MapType].
   RuntimeBinding({
     required this.name,
     required this.function,
@@ -51,7 +59,8 @@ class RuntimeBinding<T> {
     this.permissions = const [],
     this.positionalParams = const {},
     required this.description,
-  });
+    $Type? returnType,
+  }) : _returnType = returnType;
 
   /// Adds a [PreBindingMiddleware] to this binding called in the order it was added.
   ///
@@ -99,7 +108,7 @@ class RuntimeBinding<T> {
       result = resultType.cast(returnType, result) as T;
     } else {
       throw StateError(
-        'Invalid return type: expected $T, got ${result.runtimeType}',
+        'Invalid return type: expected $returnType, got $resultType',
       );
     }
 

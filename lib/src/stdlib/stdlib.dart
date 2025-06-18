@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:dscript_dart/dscript_dart.dart';
 import 'package:logging/logging.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -13,6 +14,7 @@ part 'fs.dart';
 part 'list.dart';
 part 'map.dart';
 part 'dynamic.dart';
+part 'http.dart';
 
 /// A library binding that contains a list of runtime bindings.
 /// This class is used to group related bindings together, such as math
@@ -100,6 +102,7 @@ $name {
         const ListBindings(),
         const MapBindings(),
         const DynamicBindings(),
+        const HttpBindings(),
         LogBindings(metadata),
       ];
 }

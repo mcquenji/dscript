@@ -38,13 +38,14 @@ contract Random {
   }
 
 
-  impl randomString() -> string {
-    try{
+  impl randomString() -> string {      
+    try {
       log::info("Reading file: " + fs::absolute(srcFile));
       final contents = fs::read(srcFile);
       log::info("Successfully read file");
+     
       return contents;
-    }catch(e) {
+    } catch(e) {
       log::error("Error reading file", error: e);
       return "Error";
     }
