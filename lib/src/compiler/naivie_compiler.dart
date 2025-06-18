@@ -236,10 +236,6 @@ class NaiveCompiler extends Compiler {
 
     startLoop();
 
-    // Condition: index < iterable.length
-    emit(Instruction.read, indexTemp.frame, indexTemp.index);
-    emit(Instruction.read, iterableTemp.frame, iterableTemp.index);
-
     // push iter on the stack.
     emit(Instruction.read, iterableTemp.frame, iterableTemp.index);
 
@@ -252,6 +248,9 @@ class NaiveCompiler extends Compiler {
     final method = addConstant(DynamicBindings.lengthBinding.name);
     emit(Instruction.externalCall, ns, method);
 
+    emit(Instruction.read, indexTemp.frame, indexTemp.index);
+
+    // Condition: index < iterable.length
     emit(Instruction.lt);
     final idx = prepareJump(Instruction.jumpIfFalse);
 

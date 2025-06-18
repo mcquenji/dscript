@@ -176,19 +176,17 @@ class FlowVisitor extends AnalysisVisitor {
       return const InvalidType();
     }
 
-    if (ctx.varDecl() != null) {
-      // For loop with variable declaration
-      final varType = ctx.varDecl()!.varType()!;
+    // For loop with variable declaration
+    final varType = ctx.varDecl()!.varType()!;
 
-      final mutable = varType.VAR() != null;
+    final mutable = varType.VAR() != null;
 
-      final ident = ctx.varDecl()!.identifier()!.text;
-      scope.set(
-        ident,
-        PrimitiveType.INT,
-        mutable,
-      );
-    }
+    final ident = ctx.varDecl()!.identifier()!.text;
+    scope.set(
+      ident,
+      PrimitiveType.INT,
+      mutable,
+    );
     ensureConditionIsBool(ctx.expr());
 
     ctx.assignment()?.accept(ExprVisitor(this));

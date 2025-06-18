@@ -97,6 +97,8 @@ void main(List<String> arguments) async {
     args: {'foo': 42},
   ));
 
+  print(bytecode.implementations['randomString']!.toDebugString());
+
   print(await runtime.run(
     'randomString',
   ));
