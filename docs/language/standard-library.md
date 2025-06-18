@@ -8,6 +8,8 @@
 - [map](#map)
 - [dynamic](#dynamic)
 - [http](#http)
+- [json](#json)
+- [utf8](#utf8)
 - [log](#log)
 ---
 
@@ -1070,6 +1072,64 @@ Library for making HTTP requests.
 #### Permissions
 
 `http::client`
+
+
+
+
+---
+
+## json
+
+Provides JSON encoding and decoding functions.
+
+### decode &rarr; `Map<string, dynamic>`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| str | `string` | Positional (1) |
+<details>
+<summary><em>Deserializes the given <code>str</code> to a <code>Map<String, dynamic></code>.</em></summary>
+<em>Throws an error if the string is not valid JSON or cannot be parsed.</em>
+</details>
+<br>
+
+
+### encode &rarr; `string`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| obj | `dynamic?` | Positional (1) |
+<details>
+<summary><em>Serializes the given <code>obj</code> to a JSON string. </em></summary>
+<em>Throws an error if the object cannot be serialized.</em>
+</details>
+<br>
+
+
+
+
+---
+
+## utf8
+
+Provides UTF-8 encoding and decoding functions.
+
+### decode &rarr; `string`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| bytes | `List<int>` | Positional (1) |
+
+<em>Decodes the given <code>bytes</code> to a UTF-8 string.</em>
+
+
+### encode &rarr; `List<int>`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| str | `string` | Positional (1) |
+
+<em>Encodes the given <code>str</code> to a list of UTF-8 bytes.</em>
 
 
 

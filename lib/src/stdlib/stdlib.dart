@@ -1,4 +1,5 @@
 // coverage:ignore-file
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -15,6 +16,8 @@ part 'list.dart';
 part 'map.dart';
 part 'dynamic.dart';
 part 'http.dart';
+part 'json.dart';
+part 'utf8.dart';
 
 /// A library binding that contains a list of runtime bindings.
 /// This class is used to group related bindings together, such as math
@@ -103,6 +106,8 @@ $name {
         const MapBindings(),
         const DynamicBindings(),
         const HttpBindings(),
+        const JsonBindings(),
+        const Utf8Bindings(),
         LogBindings(metadata),
       ];
 }
