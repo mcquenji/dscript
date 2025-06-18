@@ -7,20 +7,25 @@
 - [list](#list)
 - [map](#map)
 - [dynamic](#dynamic)
+- [http](#http)
 - [log](#log)
 ---
 
 ## Globals
 
 The following globals are available in the dscript runtime. They are not part of any library.
-- `pi`: double *(3.141592653589793)*
-- `e`: double *(2.718281828459045)*
-- `sqrt2`: double *(1.4142135623730951)*
-- `sqrt1_2`: double *(0.7071067811865476)*
-- `log2e`: double *(1.4426950408889634)*
-- `log10e`: double *(0.4342944819032518)*
-- `ln2`: double *(0.6931471805599453)*
-- `ln10`: double *(2.302585092994046)*
+
+
+| Name | Type | Value |
+| --- | --- | --- |
+| pi | `double` | 3.141592653589793 |
+| e | `double` | 2.718281828459045 |
+| sqrt2 | `double` | 1.4142135623730951 |
+| sqrt1_2 | `double` | 0.7071067811865476 |
+| log2e | `double` | 1.4426950408889634 |
+| log10e | `double` | 0.4342944819032518 |
+| ln2 | `double` | 0.6931471805599453 |
+| ln10 | `double` | 2.302585092994046 |
 
 
 ---
@@ -954,9 +959,128 @@ Various utilities for dynamic values.
 
 ---
 
+## http
+
+Library for making HTTP requests.
+
+### get &rarr; `HttpResponse`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| path | `string` | Positional (1) |
+| queryParams | `Map<string, dynamic?>?` | Named |
+| headers | `Map<string, dynamic?>?` | Named |
+
+<em>Makes a GET request to the specified <code>path</code> with optional query parameters and headers.</em>
+
+#### Permissions
+
+`http::client`
+
+
+### post &rarr; `HttpResponse`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| path | `string` | Positional (1) |
+| data | `dynamic?` | Named |
+| queryParams | `Map<string, dynamic?>?` | Named |
+| headers | `Map<string, dynamic?>?` | Named |
+
+<em>Makes a POST request to the specified <code>path</code> with optional data, query parameters, and headers.</em>
+
+#### Permissions
+
+`http::client`
+
+
+### put &rarr; `HttpResponse`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| path | `string` | Positional (1) |
+| data | `dynamic?` | Named |
+| queryParams | `Map<string, dynamic?>?` | Named |
+| headers | `Map<string, dynamic?>?` | Named |
+
+<em>Makes a PUT request to the specified <code>path</code> with optional data, query parameters, and headers.</em>
+
+#### Permissions
+
+`http::client`
+
+
+### delete &rarr; `HttpResponse`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| path | `string` | Positional (1) |
+| data | `dynamic?` | Named |
+| queryParams | `Map<string, dynamic?>?` | Named |
+| headers | `Map<string, dynamic?>?` | Named |
+
+<em>Makes a DELETE request to the specified <code>path</code> with optional data, query parameters, and headers.</em>
+
+#### Permissions
+
+`http::client`
+
+
+### patch &rarr; `HttpResponse`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| path | `string` | Positional (1) |
+| data | `dynamic?` | Named |
+| queryParams | `Map<string, dynamic?>?` | Named |
+| headers | `Map<string, dynamic?>?` | Named |
+
+<em>Makes a PATCH request to the specified <code>path</code> with optional data, query parameters, and headers.</em>
+
+#### Permissions
+
+`http::client`
+
+
+### head &rarr; `HttpResponse`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| path | `string` | Positional (1) |
+| queryParams | `Map<string, dynamic?>?` | Named |
+| headers | `Map<string, dynamic?>?` | Named |
+
+<em>Makes a HEAD request to the specified <code>path</code> with optional query parameters and headers.</em>
+
+#### Permissions
+
+`http::client`
+
+
+### options &rarr; `HttpResponse`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| path | `string` | Positional (1) |
+| queryParams | `Map<string, dynamic?>?` | Named |
+| headers | `Map<string, dynamic?>?` | Named |
+
+<em>Makes an OPTIONS request to the specified <code>path</code> with optional query parameters and headers.</em>
+
+#### Permissions
+
+`http::client`
+
+
+
+
+---
+
 ## log
 
 Logging utilities.
+
+!> Log messages will not be visible when using <code>IsolateRuntime</code>.
 
 ### info &rarr; `void`
 

@@ -10,7 +10,8 @@ class LogBindings extends LibraryBinding {
   LogBindings(ScriptMetadata metadata)
       : super(
           name: 'log',
-          description: 'Logging utilities.',
+          description:
+              'Logging utilities.\n\n!> Log messages will not be visible when using [IsolateRuntime].',
         ) {
     logger = Logger(
       '[Dscript] ${metadata.author}.${metadata.name}@${metadata.version}',

@@ -21,9 +21,14 @@ void main() async {
   sb.writeln(
     'The following globals are available in the dscript runtime. They are not part of any library.',
   );
+  sb.writeln();
+  sb.writeln();
+
+  sb.writeln('| Name | Type | Value |');
+  sb.writeln('| --- | --- | --- |');
 
   for (final glob in TypeScope.globals.entries) {
-    sb.writeln('- `${glob.key}`: ${glob.value.$2} *(${glob.value.$1})*');
+    sb.writeln('| ${glob.key} | `${glob.value.$2}` | ${glob.value.$1} |');
   }
 
   sb.writeln();
@@ -54,7 +59,7 @@ String _documentLibrary(LibraryBinding lib) {
 
   sb.writeln('## ${lib.name}');
   sb.writeln();
-  sb.writeln(lib.description);
+  sb.writeln(lib.description.docstring);
   sb.writeln();
 
   for (final binding in lib.bindings) {
@@ -100,10 +105,7 @@ String _documentBinding(RuntimeBinding binding) {
   }
 
   if (binding.description != null && binding.description!.isNotEmpty) {
-    final description = binding.description!.trim().replaceAllMapped(
-          RegExp(r'\[([^\]]+)\]'),
-          (m) => '<code>${m.group(1)}</code>',
-        );
+    final description = binding.description!.docstring;
 
     if (description.contains('\n')) {
       final summary = description.split('\n').first;
@@ -127,4 +129,11 @@ String _documentBinding(RuntimeBinding binding) {
   }
 
   return sb.toString();
+}
+
+extension on String {
+  String get docstring => trim().replaceAllMapped(
+        RegExp(r'\[([^\]]+)\]'),
+        (m) => '<code>${m.group(1)}</code>',
+      );
 }

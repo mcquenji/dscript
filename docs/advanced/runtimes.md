@@ -12,6 +12,8 @@ The default `Runtime` runs code in the current isolate. Host functions are invok
 
 `IsolateRuntime` uses Dart's `Isolate.run` to execute each invocation in a separate isolate. This provides memory isolation between script and host but comes with additional overhead due to message passing. Use `IsolateRuntime` when scripts should not affect the host isolate or when they perform heavy work that may block.
 
+!> Note that the `IsolateRuntime` does not support any logging or debugging features, as these rely on the host isolate's context. If you need logging, use `Runtime` instead.
+
 ## Custom Virtual Machines
 
 The runtime uses a bytecode virtual machine (VM) to execute compiled functions. A different VM can be provided by passing a `vmFactory` when constructing a runtime:

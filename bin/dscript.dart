@@ -21,9 +21,9 @@ void main(List<String> arguments) async {
   });
 
   HttpBindings.getBinding.addPreMiddleware(({
-    required RuntimeBinding binding,
-    required List<dynamic> positionalArgs,
-    required Map<Symbol, dynamic> namedArgs,
+    required binding,
+    required positionalArgs,
+    required namedArgs,
   }) {
     print('Sending GET request to ${positionalArgs[0]}');
   });

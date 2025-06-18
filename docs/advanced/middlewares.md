@@ -16,9 +16,9 @@ Runs *before* the bound function. Use these to tweak or validate inputs. If one 
 ```dart
 // Example: log reads and block secret files
 FsBindings.readFileBinding.addPreMiddleware(({
-  required RuntimeBinding<String> binding,
-  required List<dynamic> positionalArgs,
-  required Map<Symbol, dynamic> namedArgs,
+  required binding,
+  required positionalArgs,
+  required namedArgs,
 }) {
   final path = positionalArgs[0] as String;
   print('Reading file $path');
@@ -38,10 +38,10 @@ Runs *after* the bound function. Use these to inspect or transform outputs befor
 ```dart
 // Example: redact secret files in the response
 FsBindings.readFileBinding.addPostMiddleware(({
-  required RuntimeBinding<String> binding,
-  required List<dynamic> positionalArgs,
-  required Map<Symbol, dynamic> namedArgs,
-  required dynamic result,
+  required binding,
+  required positionalArgs,
+  required namedArgs,
+  required result,
 }) {
   final path = positionalArgs[0] as String;
   if (path == 'secret-file.txt') {
