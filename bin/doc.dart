@@ -33,6 +33,29 @@ void main() async {
 
   sb.writeln();
 
+  sb.writeln('## Structs');
+
+  for (final struct in Struct.defaults) {
+    sb.writeln();
+    sb.writeln('### ${struct.name}');
+    sb.writeln();
+    sb.writeln(struct.description?.docstring);
+    sb.writeln();
+
+    if (struct.fields.isNotEmpty) {
+      sb.writeln('| Field | Type |');
+      sb.writeln('| --- | --- |');
+      for (final field in struct.fields.entries) {
+        sb.writeln('| ${field.key} | `${field.value}` |');
+      }
+    } else {
+      sb.writeln('This struct has no fields.');
+    }
+  }
+
+  sb.writeln();
+  sb.writeln();
+
   // Document each library
   for (final lib in libraries) {
     sb.writeln();

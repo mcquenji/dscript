@@ -679,8 +679,23 @@ class Struct extends $Type {
         'Represents an HTTP response with status code, headers, and body.',
   );
 
+  /// Return value of [json::decode].
+  static final Struct json = Struct(
+    name: 'JSON',
+    description:
+        "Result of [json::decode]. It's either a [Map<String, dynamic>] or a [List<dynamic>].",
+    fields: {
+      'map':
+          MapType(keyType: PrimitiveType.STRING, valueType: const DynamicType())
+              .asNullable(),
+      'list': ListType(elementType: const DynamicType()).asNullable(),
+      'isMap': PrimitiveType.BOOL,
+      'isList': PrimitiveType.BOOL,
+    },
+  );
+
   /// Default structs defined within the language.
-  static final defaults = [error, httpResponse];
+  static final defaults = [error, httpResponse, json];
 }
 
 /// Signature of a contract.

@@ -16,15 +16,24 @@ class JsonBindings extends LibraryBinding {
       };
 
   /// Binding for [jsonDecode].
-  static final decodeBinding = RuntimeBinding<Map<String, dynamic>>(
+  static final decodeBinding = RuntimeBinding<dynamic>(
     name: 'decode',
-    description: '''Deserializes the given [str] to a [Map<String, dynamic>].
+    description: '''Deserializes the given [str] to a [JSON] object.
         
         Throws an error if the string is not valid JSON or cannot be parsed.
         ''',
     function: (String str) {
-      return jsonDecode(str);
+      final json = jsonDecode(str);
+
+      return {
+        'map': json is Map ? json : null,
+        'list': json is List ? json : null,
+        'isMap': json is Map,
+        'isList': json is List,
+        $Type.structKey: Struct.json.name,
+      };
     },
+    returnType: Struct.json,
     positionalParams: {'str': PrimitiveType.STRING},
   );
 

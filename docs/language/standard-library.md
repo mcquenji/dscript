@@ -29,6 +29,39 @@ The following globals are available in the dscript runtime. They are not part of
 | ln2 | `double` | 0.6931471805599453 |
 | ln10 | `double` | 2.302585092994046 |
 
+## Structs
+
+### Error
+
+Represents an error with a message and stack trace.
+
+| Field | Type |
+| --- | --- |
+| message | `string` |
+| stackTrace | `string?` |
+
+### HttpResponse
+
+Represents an HTTP response with status code, headers, and body.
+
+| Field | Type |
+| --- | --- |
+| statusCode | `int` |
+| headers | `Map<string, string>` |
+| body | `string?` |
+
+### JSON
+
+Result of <code>json::decode</code>. It's either a <code>Map<String, dynamic></code> or a <code>List<dynamic></code>.
+
+| Field | Type |
+| --- | --- |
+| map | `Map<string, dynamic?>?` |
+| list | `List<dynamic?>?` |
+| isMap | `bool` |
+| isList | `bool` |
+
+
 
 ---
 
@@ -1082,13 +1115,13 @@ Library for making HTTP requests.
 
 Provides JSON encoding and decoding functions.
 
-### decode &rarr; `Map<string, dynamic>`
+### decode &rarr; `JSON`
 
 | Name | Type | Kind |
 | --- | --- | --- |
 | str | `string` | Positional (1) |
 <details>
-<summary><em>Deserializes the given <code>str</code> to a <code>Map<String, dynamic></code>.</em></summary>
+<summary><em>Deserializes the given <code>str</code> to a <code>JSON</code> object.</em></summary>
 <em>Throws an error if the string is not valid JSON or cannot be parsed.</em>
 </details>
 <br>
