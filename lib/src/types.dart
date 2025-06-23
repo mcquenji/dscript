@@ -694,6 +694,16 @@ class Struct extends $Type {
     },
   );
 
+  /// Represents a key-value pair in a map.
+  static final mapEntry = const Struct(
+    name: 'MapEntry',
+    description: 'Represents a key-value pair in a map.',
+    fields: {
+      'key': DynamicType(),
+      'value': DynamicType(),
+    },
+  );
+
   /// Default structs defined within the language.
   static final defaults = [error, httpResponse, json];
 }

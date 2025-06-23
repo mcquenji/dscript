@@ -25,6 +25,7 @@ class ListBindings extends LibraryBinding {
         indexOfBinding,
         lastIndexOfBinding,
         containsBinding,
+        copyBinding,
       };
 
   /// Binding for [List.length].
@@ -187,5 +188,15 @@ class ListBindings extends LibraryBinding {
       'element': const DynamicType(),
     },
     description: 'Returns true if the list contains [element].',
+  );
+
+  /// Binding for [List.from].
+  static final copyBinding = RuntimeBinding<List<dynamic>>(
+    name: 'copy',
+    function: (List<dynamic> list) => List.from(list),
+    positionalParams: {
+      'list': ListType(elementType: const DynamicType()),
+    },
+    description: 'Returns a copy of the [list].',
   );
 }

@@ -22,6 +22,9 @@ class MapBindings extends LibraryBinding {
         clearBinding,
         removeBinding,
         keyOfBinding,
+        keysOfBinding,
+        entriesBinding,
+        copyBinding,
       };
 
   /// Binding for [Map.length].
@@ -164,7 +167,7 @@ class MapBindings extends LibraryBinding {
         'Removes the key-value pair for the specified [key] from the map.',
   );
 
-  /// B
+  /// Returns the first key associated with the specified [value].
   static final keyOfBinding = RuntimeBinding<dynamic>(
     name: 'keyOf',
     function: (Map<dynamic, dynamic> map, dynamic value) {
@@ -182,6 +185,61 @@ class MapBindings extends LibraryBinding {
       ),
       'value': const DynamicType(),
     },
-    description: 'Returns the key associated with the specified [value].',
+    description: 'Returns the first key associated with the specified [value].',
+  );
+
+  /// Returns a list of keys associated with the specified [value].
+  static final keysOfBinding = RuntimeBinding<List<dynamic>>(
+    name: 'keysOf',
+    function: (Map<dynamic, dynamic> map, dynamic value) {
+      return map.entries
+          .where((entry) => entry.value == value)
+          .map((entry) => entry.key)
+          .toList();
+    },
+    positionalParams: {
+      'map': MapType(
+        keyType: const DynamicType(),
+        valueType: const DynamicType(),
+      ),
+      'value': const DynamicType(),
+    },
+    description:
+        'Returns a list of keys associated with the specified [value].',
+  );
+
+  /// [Map.entries] binding.
+  static final entriesBinding = RuntimeBinding<List<Map<dynamic, dynamic>>>(
+    name: 'entries',
+    function: (Map<dynamic, dynamic> map) => map.entries.map((entry) {
+      return {
+        'key': entry.key,
+        'value': entry.value,
+        $Type.structKey: Struct.mapEntry.name,
+      };
+    }).toList(),
+    positionalParams: {
+      'map': MapType(
+        keyType: const DynamicType(),
+        valueType: const DynamicType(),
+      ),
+    },
+    description: 'Returns a list of key-value pairs in the map.',
+    returnType: ListType(
+      elementType: Struct.mapEntry,
+    ),
+  );
+
+  /// Returns a copy of the [map].
+  static final copyBinding = RuntimeBinding<Map<dynamic, dynamic>>(
+    name: 'copy',
+    function: (Map<dynamic, dynamic> map) => Map.from(map),
+    positionalParams: {
+      'map': MapType(
+        keyType: const DynamicType(),
+        valueType: const DynamicType(),
+      ),
+    },
+    description: 'Returns a copy of the [map].',
   );
 }
