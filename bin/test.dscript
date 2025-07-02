@@ -1,4 +1,4 @@
-schema "";	
+schema "";
 
 author "McQuenji";
 version 0.0.1;
@@ -15,6 +15,7 @@ permissions external::math;
 
 contract Random {
   const bar = 5;
+  const srcFile = "bin/test.dscript";
 
   func test(string name) 
   {
@@ -22,12 +23,12 @@ contract Random {
   }
 
 
+
   impl randomNumber(int foo) -> double {
-    
     const l = pi * 5;
     if(5.0 == l) {
       return l;
-    }
+    } 
     else if(5 > foo && foo < 10) {
       return 4 * bar;
     }else {
@@ -37,43 +38,44 @@ contract Random {
   }
 
 
-  impl randomString() -> string 
-  {
-    while(true) {
-      log::info("Generating random string...");
-     break;
+  impl randomString() -> string {      
+    for (final int i in [1, 2, 3, 4, 5]) {
+      log::info("Iteration: " + i);
     }
-  
-  
 
-  //
-  //   try {
-  //    log::info("test");
-  //    return 'test';
-  //  } catch (e) {
-  //    log::error("Error", error: e);
-  //    return e.message;
-  //  }
+    ///try {
+    ///  log::info("Reading file: " + fs::absolute(srcFile));
+    ///  final contents = fs::read(srcFile);
+    ///  log::info("Successfully read file");
+    /// 
+    ///  return contents;
+    ///} catch(e) {
+    ///  log::error("Error reading file", error: e);
+    ///  return "Error";
+    ///}
 
-  return "RandomString";
+    return "RandomString";
   }
+
+
 
   impl test() -> void {
     final string? test = "Test";
 
+
     return;
+
 
     var string? nonNullable;
 
      final bool test2 = false;
-
      //test = "Test2";
 
-     var p = 1.3;
+     var p = 1.0;
      p = 2.0;
 
      return;
-  }
+     }
 
   hook onLogout() {
     // Hook implementation

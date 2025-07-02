@@ -1,0 +1,38 @@
+name: Update Docs
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update_docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🐦 Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: 📦 Install dependencies
+        run: dart pub get
+    
+        
+      - name: 📖 Generate documentation
+        run: dart bin/doc.dart
+        
+      - uses: fregante/setup-git-user@v2
+      - name: 📤 Commit and push changes
+        run: | 
+            if [ -z "$(git status --porcelain)" ]; then
+              echo "No changes to commit."
+              exit 0
+            fi
+            git commit -am "docs: update documentation [skip ci]"
+            git push
+        
+        
+    

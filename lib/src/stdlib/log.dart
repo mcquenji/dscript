@@ -7,7 +7,12 @@ class LogBindings extends LibraryBinding {
   late final Logger logger;
 
   /// Bindings for the logging standard library.
-  LogBindings(ScriptMetadata metadata) : super(name: 'log') {
+  LogBindings(ScriptMetadata metadata)
+      : super(
+          name: 'log',
+          description:
+              'Logging utilities.\n\n!> Log messages will not be visible when using [IsolateRuntime].',
+        ) {
     logger = Logger(
       '[Dscript] ${metadata.author}.${metadata.name}@${metadata.version}',
     );
@@ -28,9 +33,9 @@ class LogBindings extends LibraryBinding {
   late final infoBinding = RuntimeBinding<void>(
     name: 'info',
     function: (dynamic message, {dynamic error}) => logger.info(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'message': const DynamicType(),
+    },
     namedParams: {
       #error: const DynamicType(),
     },
@@ -42,9 +47,9 @@ class LogBindings extends LibraryBinding {
     name: 'warning',
     function: (dynamic message, {dynamic error}) =>
         logger.warning(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'message': const DynamicType(),
+    },
     namedParams: {
       #error: const DynamicType(),
     },
@@ -57,9 +62,9 @@ class LogBindings extends LibraryBinding {
     function: (dynamic message, {dynamic error}) {
       logger.severe(message, error);
     },
-    positionalParams: [
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'message': const DynamicType(),
+    },
     namedParams: {
       #error: const DynamicType(),
     },
@@ -70,9 +75,9 @@ class LogBindings extends LibraryBinding {
   late final debugBinding = RuntimeBinding<void>(
     name: 'debug',
     function: (dynamic message, {dynamic error}) => logger.fine(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'message': const DynamicType(),
+    },
     namedParams: {
       #error: const DynamicType(),
     },
@@ -84,9 +89,9 @@ class LogBindings extends LibraryBinding {
     name: 'verbose',
     function: (dynamic message, {dynamic error}) =>
         logger.finer(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'message': const DynamicType(),
+    },
     namedParams: {
       #error: const DynamicType(),
     },
@@ -98,9 +103,9 @@ class LogBindings extends LibraryBinding {
     name: 'fatal',
     function: (dynamic message, {dynamic error}) =>
         logger.shout(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'message': const DynamicType(),
+    },
     namedParams: {
       #error: const DynamicType(),
     },
@@ -112,9 +117,9 @@ class LogBindings extends LibraryBinding {
     name: 'critical',
     function: (dynamic message, {dynamic error}) =>
         logger.shout(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'message': const DynamicType(),
+    },
     namedParams: {
       #error: const DynamicType(),
     },

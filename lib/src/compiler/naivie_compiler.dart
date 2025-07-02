@@ -236,10 +236,21 @@ class NaiveCompiler extends Compiler {
 
     startLoop();
 
-    // Condition: index < iterable.length
-    emit(Instruction.read, indexTemp.frame, indexTemp.index);
+    // push iter on the stack.
     emit(Instruction.read, iterableTemp.frame, iterableTemp.index);
-    emit(Instruction.readProperty, addConstant('length'));
+
+    // Prepare arguments for length call.
+    emit(Instruction.array, 1);
+    emit(Instruction.pushNull);
+
+    // call dynamic::length(iterable)
+    final ns = addConstant(const DynamicBindings().name);
+    final method = addConstant(DynamicBindings.lengthBinding.name);
+    emit(Instruction.externalCall, ns, method);
+
+    emit(Instruction.read, indexTemp.frame, indexTemp.index);
+
+    // Condition: index < iterable.length
     emit(Instruction.lt);
     final idx = prepareJump(Instruction.jumpIfFalse);
 
@@ -620,6 +631,7 @@ class NaiveCompiler extends Compiler {
     ctx.throwStmt()?.accept(this);
     ctx.tryStmt()?.accept(this);
     ctx.throwStmt()?.accept(this);
+    ctx.assignment()?.accept(this);
   }
 
   @override

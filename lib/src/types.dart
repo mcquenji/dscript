@@ -226,6 +226,14 @@ sealed class $Type extends Signature {
         elementType: $Type.fromValue(value.first),
       );
     } else if (value is Map) {
+      // If the map has a special key indicating it's a struct type, return the struct type.
+      if (value.containsKey(structKey)) {
+        final structName = value[structKey];
+        if (structName is String) {
+          return Struct.shallow(structName);
+        }
+      }
+
       if (value.isEmpty) {
         return MapType(
           keyType: PrimitiveType.NULL,
@@ -596,6 +604,11 @@ class Struct extends $Type {
     super.description,
   });
 
+  /// Creates a shallow struct with only the name and no fields.
+  /// This is useful for defining hooks or implementations that reference a struct without needing to define its fields immediately.
+  const Struct.shallow(String name)
+      : this(name: name, fields: const {}, nullable: false);
+
   @override
   Map<String, dynamic> toMap() {
     return {
@@ -650,8 +663,49 @@ class Struct extends $Type {
     description: 'Represents an error with a message and stack trace.',
   );
 
+  /// Standard HTTP response struct used in Dscript.
+  static final httpResponse = Struct(
+    name: 'HttpResponse',
+    fields: {
+      'statusCode': PrimitiveType.INT,
+      'headers': MapType(
+        keyType: PrimitiveType.STRING,
+        valueType: PrimitiveType.STRING,
+      ),
+      'body': PrimitiveType.STRING.asNullable(),
+    },
+    nullable: false,
+    description:
+        'Represents an HTTP response with status code, headers, and body.',
+  );
+
+  /// Return value of [json::decode].
+  static final Struct json = Struct(
+    name: 'JSON',
+    description:
+        "Result of [json::decode]. It's either a [Map<String, dynamic>] or a [List<dynamic>].",
+    fields: {
+      'map':
+          MapType(keyType: PrimitiveType.STRING, valueType: const DynamicType())
+              .asNullable(),
+      'list': ListType(elementType: const DynamicType()).asNullable(),
+      'isMap': PrimitiveType.BOOL,
+      'isList': PrimitiveType.BOOL,
+    },
+  );
+
+  /// Represents a key-value pair in a map.
+  static final mapEntry = const Struct(
+    name: 'MapEntry',
+    description: 'Represents a key-value pair in a map.',
+    fields: {
+      'key': DynamicType(),
+      'value': DynamicType(),
+    },
+  );
+
   /// Default structs defined within the language.
-  static final defaults = [error];
+  static final defaults = [error, httpResponse, json];
 }
 
 /// Signature of a contract.

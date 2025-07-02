@@ -59,7 +59,7 @@ void main() {
       // `external::custom` permission, but the script omits it.
       final bindContract = contract('BindTest')
           .bind<double>('testBind', (int x) => x * 2)
-          .param(PrimitiveType.INT)
+          .param('x', PrimitiveType.INT)
           .permission('custom')
           .end()
           .impl('useBind', returnType: PrimitiveType.DOUBLE)

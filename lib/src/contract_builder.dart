@@ -90,7 +90,7 @@ class BindingBuilder<T> {
   final String _name;
   final List<ScriptPermission> _permissions = [];
   final Function _function;
-  final List<$Type> _params = [];
+  final Map<String, $Type> _params = {};
   final Map<Symbol, $Type> _namedParams = {};
   String _description = '';
 
@@ -104,8 +104,8 @@ class BindingBuilder<T> {
   }
 
   /// Adds a positional parameter of the given [type].
-  BindingBuilder<T> param($Type type) {
-    _params.add(type);
+  BindingBuilder<T> param(String name, $Type type) {
+    _params[name] = type;
     return this;
   }
 
@@ -141,7 +141,7 @@ class BindingBuilder<T> {
       name: _name,
       function: _function,
       permissions: _permissions,
-      positionalParams: List.unmodifiable(_params),
+      positionalParams: Map.unmodifiable(_params),
       namedParams: Map.unmodifiable(_namedParams),
       description: _description.isNotEmpty ? _description : null,
     );

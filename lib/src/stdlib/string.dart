@@ -7,6 +7,7 @@ class StringBindings extends LibraryBinding {
   const StringBindings()
       : super(
           name: 'string',
+          description: 'Library for working with strings.',
         );
 
   @override
@@ -33,9 +34,9 @@ class StringBindings extends LibraryBinding {
   static final fromCharCodeBinding = RuntimeBinding<String>(
     name: 'fromCharCode',
     function: (int code) => String.fromCharCode(code),
-    positionalParams: [
-      PrimitiveType.INT,
-    ],
+    positionalParams: {
+      'code': PrimitiveType.INT,
+    },
     description: 'Creates a string from a single character code [code].',
   );
 
@@ -43,9 +44,9 @@ class StringBindings extends LibraryBinding {
   static final fromCharCodesBinding = RuntimeBinding<String>(
     name: 'from',
     function: (List<int> codes) => String.fromCharCodes(codes),
-    positionalParams: [
-      ListType(elementType: PrimitiveType.INT),
-    ],
+    positionalParams: {
+      'codes': ListType(elementType: PrimitiveType.INT),
+    },
     description: 'Creates a string from a list of character codes [codes].',
   );
 
@@ -53,9 +54,9 @@ class StringBindings extends LibraryBinding {
   static final fromBinding = RuntimeBinding<String>(
     name: 'from',
     function: (dynamic obj) => obj.toString(),
-    positionalParams: [
-      const DynamicType(),
-    ],
+    positionalParams: {
+      'obj': const DynamicType(),
+    },
     description:
         'String representation of [obj]. If [obj] is a string, it is returned unchanged; otherwise, it is stringfied.',
   );
@@ -64,9 +65,9 @@ class StringBindings extends LibraryBinding {
   static final lengthBinding = RuntimeBinding<int>(
     name: 'length',
     function: (String str) => str.length,
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+    },
     description: 'Returns the length of [str].',
   );
 
@@ -74,10 +75,10 @@ class StringBindings extends LibraryBinding {
   static final substringBinding = RuntimeBinding<String>(
     name: 'substring',
     function: (String str, int start, {int? end}) => str.substring(start, end),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.INT,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'start': PrimitiveType.INT,
+    },
     namedParams: {
       #end: PrimitiveType.INT.asNullable(),
     },
@@ -92,9 +93,9 @@ class StringBindings extends LibraryBinding {
   static final toUpperCaseBinding = RuntimeBinding<String>(
     name: 'upper',
     function: (String str) => str.toUpperCase(),
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+    },
     description: 'Converts [str] to uppercase.',
   );
 
@@ -102,9 +103,9 @@ class StringBindings extends LibraryBinding {
   static final toLowerCaseBinding = RuntimeBinding<String>(
     name: 'lower',
     function: (String str) => str.toLowerCase(),
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+    },
     description: 'Converts [str] to lowercase.',
   );
 
@@ -112,9 +113,9 @@ class StringBindings extends LibraryBinding {
   static final trimBinding = RuntimeBinding<String>(
     name: 'trim',
     function: (String str) => str.trim(),
-    positionalParams: [
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+    },
     description:
         'Removes leading and trailing whitespace from [str] and returns the resulting string.',
   );
@@ -123,10 +124,10 @@ class StringBindings extends LibraryBinding {
   static final splitBinding = RuntimeBinding<List<String>>(
     name: 'split',
     function: (String str, String pattern) => str.split(pattern),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'pattern': PrimitiveType.STRING,
+    },
     description:
         'Splits [str] into a list of substrings using [pattern] as the delimiter.',
   );
@@ -135,11 +136,11 @@ class StringBindings extends LibraryBinding {
   static final replaceAllBinding = RuntimeBinding<String>(
     name: 'replaceAll',
     function: (String str, String from, String to) => str.replaceAll(from, to),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'from': PrimitiveType.STRING,
+      'to': PrimitiveType.STRING,
+    },
     description: 'Replaces all occurrences of [from] with [to] in [str].',
   );
 
@@ -147,10 +148,10 @@ class StringBindings extends LibraryBinding {
   static final containsBinding = RuntimeBinding<bool>(
     name: 'contains',
     function: (String str, String pattern) => str.contains(pattern),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'pattern': PrimitiveType.STRING,
+    },
     description: 'Returns true if [str] contains [pattern]. False otherwise.',
   );
 
@@ -158,10 +159,10 @@ class StringBindings extends LibraryBinding {
   static final startsWithBinding = RuntimeBinding<bool>(
     name: 'startsWith',
     function: (String str, String pattern) => str.startsWith(pattern),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'pattern': PrimitiveType.STRING,
+    },
     description:
         'Returns true if [str] starts with [pattern]. False otherwise.',
   );
@@ -170,10 +171,10 @@ class StringBindings extends LibraryBinding {
   static final endsWithBinding = RuntimeBinding<bool>(
     name: 'endsWith',
     function: (String str, String pattern) => str.endsWith(pattern),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'pattern': PrimitiveType.STRING,
+    },
     description: 'Returns true if [str] ends with [pattern]. False otherwise.',
   );
 
@@ -181,10 +182,10 @@ class StringBindings extends LibraryBinding {
   static final indexOfBinding = RuntimeBinding<int>(
     name: 'indexOf',
     function: (String str, String pattern) => str.indexOf(pattern),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'pattern': PrimitiveType.STRING,
+    },
     description:
         'Returns the index of the first occurrence of [pattern] in [str].',
   );
@@ -193,10 +194,10 @@ class StringBindings extends LibraryBinding {
   static final lastIndexOfBinding = RuntimeBinding<int>(
     name: 'lastIndexOf',
     function: (String str, String pattern) => str.lastIndexOf(pattern),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'pattern': PrimitiveType.STRING,
+    },
     description:
         'Returns the index of the last occurrence of [pattern] in [str].',
   );
@@ -206,11 +207,11 @@ class StringBindings extends LibraryBinding {
     name: 'replaceFirst',
     function: (String str, String from, String to) =>
         str.replaceFirst(from, to),
-    positionalParams: [
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-      PrimitiveType.STRING,
-    ],
+    positionalParams: {
+      'str': PrimitiveType.STRING,
+      'from': PrimitiveType.STRING,
+      'to': PrimitiveType.STRING,
+    },
     description: 'Replaces the first occurrence of [from] with [to] in [str].',
   );
 }

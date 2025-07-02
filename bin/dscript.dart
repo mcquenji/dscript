@@ -20,6 +20,14 @@ void main(List<String> arguments) async {
     );
   });
 
+  HttpBindings.getBinding.addPreMiddleware(({
+    required binding,
+    required positionalArgs,
+    required namedArgs,
+  }) {
+    print('Sending GET request to ${positionalArgs[0]}');
+  });
+
   final code = await InputStream.fromPath('./bin/test.dscript');
 
   final script = analyze(
@@ -51,7 +59,7 @@ void main(List<String> arguments) async {
           )
           .end()
           .bind<double>('double', (int x) => x * 2)
-          .param(PrimitiveType.INT)
+          .param('x', PrimitiveType.INT)
           .describe(
             'A simple function that doubles an integer.',
           )
@@ -87,5 +95,11 @@ void main(List<String> arguments) async {
   print(await runtime.run(
     'randomNumber',
     args: {'foo': 42},
+  ));
+
+  print(bytecode.implementations['randomString']!.toDebugString());
+
+  print(await runtime.run(
+    'randomString',
   ));
 }
