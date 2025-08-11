@@ -17,5 +17,8 @@ dependencies:
   result_dart: ^2.1.0
 
 dev_dependencies:
+  custom_lint: ^0.8.0
+  custom_lints:
+    path: ./custom_lints
   lints: ^5.0.0
   test: ^1.24.0

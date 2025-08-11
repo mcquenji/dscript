@@ -31,9 +31,7 @@ class RuntimeBinding<T> {
   final String? description;
 
   /// The return type of the function as a dsl type.
-  $Type get returnType => _returnType ?? $Type.from(T.toString());
-
-  final $Type? _returnType;
+  final $Type returnType;
 
   /// A list of pre-binding middlewares that are called before the binding's function is executed.
   ///
@@ -59,8 +57,8 @@ class RuntimeBinding<T> {
     this.permissions = const [],
     this.positionalParams = const {},
     required this.description,
-    $Type? returnType,
-  }) : _returnType = returnType;
+    required this.returnType,
+  });
 
   /// Adds a [PreBindingMiddleware] to this binding called in the order it was added.
   ///

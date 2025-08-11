@@ -17,6 +17,7 @@ class Base64Bindings extends LibraryBinding {
       return base64Encode(utf8.encode(str));
     },
     positionalParams: {'str': PrimitiveType.STRING},
+    returnType: PrimitiveType.STRING,
   );
 
   /// [base64Decode] binding.
@@ -27,6 +28,7 @@ class Base64Bindings extends LibraryBinding {
       return utf8.decode(base64Decode(str));
     },
     positionalParams: {'str': PrimitiveType.STRING},
+    returnType: PrimitiveType.STRING,
   );
 
   @override

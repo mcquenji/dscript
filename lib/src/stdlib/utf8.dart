@@ -25,6 +25,7 @@ class Utf8Bindings extends LibraryBinding {
     positionalParams: {
       'bytes': ListType(elementType: PrimitiveType.INT),
     },
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [utf8Encode].
@@ -37,5 +38,6 @@ class Utf8Bindings extends LibraryBinding {
     positionalParams: {
       'str': PrimitiveType.STRING,
     },
+    returnType: ListType(elementType: PrimitiveType.INT),
   );
 }

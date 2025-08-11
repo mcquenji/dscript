@@ -44,6 +44,7 @@ class FsBindings extends LibraryBinding {
     },
     permissions: [ScriptPermission.readFiles],
     description: 'Reads the contents of a file at the given path as a string.',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Writes a string to a file.
@@ -64,6 +65,7 @@ class FsBindings extends LibraryBinding {
     permissions: [ScriptPermission.writeFiles],
     description:
         'Writes a string to a file at the given [path]. If [append] is true, it appends to the file; otherwise, it overwrites the file. The file is created if it does not exist.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Deletes a file at the given path.
@@ -82,6 +84,7 @@ class FsBindings extends LibraryBinding {
     },
     permissions: [ScriptPermission.writeFiles],
     description: 'Deletes a file at the given [path].',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Checks if a file exists at the given path.
@@ -96,6 +99,7 @@ class FsBindings extends LibraryBinding {
     },
     permissions: [ScriptPermission.readFiles],
     description: 'Checks if a file exists at the given [path].',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Lists the contents of a directory.
@@ -118,6 +122,7 @@ class FsBindings extends LibraryBinding {
     permissions: [ScriptPermission.readFiles],
     description:
         'Lists the contents of a directory at the given [path]. Returns a list of file paths.',
+    returnType: ListType(elementType: PrimitiveType.STRING),
   );
 
   /// Creates a directory at the given path.
@@ -136,6 +141,7 @@ class FsBindings extends LibraryBinding {
     permissions: [ScriptPermission.writeFiles],
     description:
         'Creates a directory at the given [path]. If the directory already exists, it does nothing.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Checks if the path is a directory.
@@ -149,6 +155,7 @@ class FsBindings extends LibraryBinding {
     },
     permissions: [ScriptPermission.readFiles],
     description: 'Checks if the path is a directory.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Checks if the path is a file.
@@ -162,6 +169,7 @@ class FsBindings extends LibraryBinding {
     },
     permissions: [ScriptPermission.readFiles],
     description: 'Checks if the path is a file.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Gets the absolute path of a file or directory.
@@ -177,6 +185,7 @@ class FsBindings extends LibraryBinding {
     permissions: [ScriptPermission.readFiles],
     description:
         'Gets the absolute path of a file or directory at the given [path].',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Returns the current working directory.
@@ -185,6 +194,7 @@ class FsBindings extends LibraryBinding {
     function: () => Directory.current.path,
     permissions: [ScriptPermission.readFiles],
     description: 'Returns the current working directory.',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Moves a file or directory to a new location.
@@ -203,6 +213,7 @@ class FsBindings extends LibraryBinding {
     },
     permissions: [ScriptPermission.writeFiles, ScriptPermission.readFiles],
     description: 'Moves a file or directory from [from] to [to].',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Copies a file or directory to a new location.
@@ -221,6 +232,7 @@ class FsBindings extends LibraryBinding {
     },
     permissions: [ScriptPermission.writeFiles, ScriptPermission.readFiles],
     description: 'Copies a file or directory from [from] to [to].',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Gets the size of a file in bytes.
@@ -238,6 +250,7 @@ class FsBindings extends LibraryBinding {
     },
     permissions: [ScriptPermission.readFiles],
     description: 'Gets the size of a file at the given [path] in bytes.',
+    returnType: PrimitiveType.INT,
   );
 
   /// Gets the file extension of a file.
@@ -257,6 +270,7 @@ class FsBindings extends LibraryBinding {
     },
     description:
         'Gets the file extension of the given [path]. Returns an empty string if no extension is found.',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Gets the base name of a file or directory.
@@ -276,6 +290,7 @@ class FsBindings extends LibraryBinding {
       'path': PrimitiveType.STRING,
     },
     description: 'Gets the base name of the given [path].',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Gets the directory name of a file or directory.
@@ -294,5 +309,6 @@ Finds the final path component of a path, using the platform's path separator to
 
 Will not remove the root component of a Windows path, like "C:\" or "\\server_name\". Includes a trailing path separator in the last part of [path], and leaves no trailing path separator.
 """,
+    returnType: PrimitiveType.STRING,
   );
 }

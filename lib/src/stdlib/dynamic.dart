@@ -27,6 +27,7 @@ class DynamicBindings extends LibraryBinding {
       'value': const DynamicType(),
     },
     description: 'Converts [value] to a string.',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for converting a dynamic value to an int.
@@ -38,6 +39,7 @@ class DynamicBindings extends LibraryBinding {
       'value': const DynamicType(),
     },
     description: 'Converts [value] to an int.',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for converting a dynamic value to a double.
@@ -49,6 +51,7 @@ class DynamicBindings extends LibraryBinding {
       'value': const DynamicType(),
     },
     description: 'Converts [value] to a double.',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for converting a dynamic value to a bool.
@@ -60,6 +63,7 @@ class DynamicBindings extends LibraryBinding {
       'value': const DynamicType(),
     },
     description: 'Converts [value] to a bool.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Returns the length of a dynamic value if it is a collection or string, otherwise returns 1.
@@ -81,6 +85,7 @@ class DynamicBindings extends LibraryBinding {
     },
     description:
         'Returns the length of [value] if it is a collection or string, otherwise throws.',
+    returnType: PrimitiveType.INT,
   );
 
   /// Returns the type of the dynamic value as a string.
@@ -91,5 +96,6 @@ class DynamicBindings extends LibraryBinding {
       'value': const DynamicType(),
     },
     description: 'Returns the type of [value] as a string.',
+    returnType: PrimitiveType.STRING,
   );
 }

@@ -38,6 +38,7 @@ class StringBindings extends LibraryBinding {
       'code': PrimitiveType.INT,
     },
     description: 'Creates a string from a single character code [code].',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [String.fromCharCodes].
@@ -48,6 +49,7 @@ class StringBindings extends LibraryBinding {
       'codes': ListType(elementType: PrimitiveType.INT),
     },
     description: 'Creates a string from a list of character codes [codes].',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [Object.toString].
@@ -59,6 +61,7 @@ class StringBindings extends LibraryBinding {
     },
     description:
         'String representation of [obj]. If [obj] is a string, it is returned unchanged; otherwise, it is stringfied.',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [String.length].
@@ -69,6 +72,7 @@ class StringBindings extends LibraryBinding {
       'str': PrimitiveType.STRING,
     },
     description: 'Returns the length of [str].',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for [String.substring].
@@ -87,6 +91,7 @@ class StringBindings extends LibraryBinding {
         
         Both [start] and [end] must be non-negative and no greater than the string's length; [end], if provided, must be greater than or equal to [start].
         If [end] is omitted, the substring extends to the end of the string.''',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [String.toUpperCase].
@@ -97,6 +102,7 @@ class StringBindings extends LibraryBinding {
       'str': PrimitiveType.STRING,
     },
     description: 'Converts [str] to uppercase.',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [String.toLowerCase].
@@ -107,6 +113,7 @@ class StringBindings extends LibraryBinding {
       'str': PrimitiveType.STRING,
     },
     description: 'Converts [str] to lowercase.',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [String.trim].
@@ -118,6 +125,7 @@ class StringBindings extends LibraryBinding {
     },
     description:
         'Removes leading and trailing whitespace from [str] and returns the resulting string.',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [String.split].
@@ -130,6 +138,7 @@ class StringBindings extends LibraryBinding {
     },
     description:
         'Splits [str] into a list of substrings using [pattern] as the delimiter.',
+    returnType: ListType(elementType: PrimitiveType.STRING),
   );
 
   /// Binding for [String.replaceAll].
@@ -142,6 +151,7 @@ class StringBindings extends LibraryBinding {
       'to': PrimitiveType.STRING,
     },
     description: 'Replaces all occurrences of [from] with [to] in [str].',
+    returnType: PrimitiveType.STRING,
   );
 
   /// Binding for [String.contains].
@@ -153,6 +163,7 @@ class StringBindings extends LibraryBinding {
       'pattern': PrimitiveType.STRING,
     },
     description: 'Returns true if [str] contains [pattern]. False otherwise.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [String.startsWith].
@@ -165,6 +176,7 @@ class StringBindings extends LibraryBinding {
     },
     description:
         'Returns true if [str] starts with [pattern]. False otherwise.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [String.endsWith].
@@ -176,6 +188,7 @@ class StringBindings extends LibraryBinding {
       'pattern': PrimitiveType.STRING,
     },
     description: 'Returns true if [str] ends with [pattern]. False otherwise.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [String.indexOf].
@@ -188,6 +201,7 @@ class StringBindings extends LibraryBinding {
     },
     description:
         'Returns the index of the first occurrence of [pattern] in [str].',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for [String.lastIndexOf].
@@ -200,6 +214,7 @@ class StringBindings extends LibraryBinding {
     },
     description:
         'Returns the index of the last occurrence of [pattern] in [str].',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for [String.replaceFirst].
@@ -213,5 +228,6 @@ class StringBindings extends LibraryBinding {
       'to': PrimitiveType.STRING,
     },
     description: 'Replaces the first occurrence of [from] with [to] in [str].',
+    returnType: PrimitiveType.STRING,
   );
 }

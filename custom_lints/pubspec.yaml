@@ -1,0 +1,14 @@
+name: custom_lints
+description: Internal lint rules for Dscript core development to enforce project-specific coding constraints.
+version: 1.0.0
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  custom_lint_builder: ^0.8.0
+  analyzer: ^7.6.0
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.24.0

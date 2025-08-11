@@ -40,6 +40,7 @@ class LogBindings extends LibraryBinding {
       #error: const DynamicType(),
     },
     description: 'Logs an info message.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for warning logging.
@@ -54,6 +55,7 @@ class LogBindings extends LibraryBinding {
       #error: const DynamicType(),
     },
     description: 'Logs a warning message.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for error logging.
@@ -69,6 +71,7 @@ class LogBindings extends LibraryBinding {
       #error: const DynamicType(),
     },
     description: 'Logs an error message.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for debug logging.
@@ -82,6 +85,7 @@ class LogBindings extends LibraryBinding {
       #error: const DynamicType(),
     },
     description: 'Logs a debug message.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for verbose logging.
@@ -96,6 +100,7 @@ class LogBindings extends LibraryBinding {
       #error: const DynamicType(),
     },
     description: 'Logs a verbose message.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for fatal logging.
@@ -110,6 +115,7 @@ class LogBindings extends LibraryBinding {
       #error: const DynamicType(),
     },
     description: 'Logs a fatal message.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for critical logging.
@@ -124,5 +130,6 @@ class LogBindings extends LibraryBinding {
       #error: const DynamicType(),
     },
     description: 'Logs a critical message.',
+    returnType: PrimitiveType.VOID,
   );
 }

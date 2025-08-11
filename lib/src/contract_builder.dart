@@ -92,6 +92,7 @@ class BindingBuilder<T> {
   final Function _function;
   final Map<String, $Type> _params = {};
   final Map<Symbol, $Type> _namedParams = {};
+  $Type? _returnType;
   String _description = '';
 
   /// Internal constructor; typically obtained via [ContractSignatureBuilder.bind].
@@ -124,6 +125,12 @@ class BindingBuilder<T> {
     return this;
   }
 
+  /// Sets the return type of the binding.
+  BindingBuilder<T> returns($Type type) {
+    _returnType = type;
+    return this;
+  }
+
   /// Completes this binding and adds it back to the parent builder,
   /// returning the parent [ContractSignatureBuilder].
   ContractSignatureBuilder end() {
@@ -137,6 +144,11 @@ class BindingBuilder<T> {
 
   /// Builds the immutable [RuntimeBinding] instance.
   RuntimeBinding<T> build() {
+    if (_returnType == null) {
+      throw StateError(
+          'Return type must be set before building the binding. Call `returns`');
+    }
+
     return RuntimeBinding<T>(
       name: _name,
       function: _function,
@@ -144,6 +156,7 @@ class BindingBuilder<T> {
       positionalParams: Map.unmodifiable(_params),
       namedParams: Map.unmodifiable(_namedParams),
       description: _description.isNotEmpty ? _description : null,
+      returnType: _returnType!,
     );
   }
 }

@@ -36,6 +36,7 @@ class ListBindings extends LibraryBinding {
       'list': ListType(elementType: const DynamicType()),
     },
     description: 'Returns the number of elements in the list.',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for [List.isEmpty].
@@ -46,6 +47,7 @@ class ListBindings extends LibraryBinding {
       'list': ListType(elementType: const DynamicType()),
     },
     description: 'Returns true if the list is empty.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [List.isNotEmpty].
@@ -56,6 +58,7 @@ class ListBindings extends LibraryBinding {
       'list': ListType(elementType: const DynamicType()),
     },
     description: 'Returns true if the list is not empty.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [List.add].
@@ -66,6 +69,7 @@ class ListBindings extends LibraryBinding {
       'list': ListType(elementType: const DynamicType()),
     },
     description: 'Adds [element] to the end of the [list].',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for [List.addAll].
@@ -78,6 +82,7 @@ class ListBindings extends LibraryBinding {
       'elements': ListType(elementType: const DynamicType()),
     },
     description: 'Adds all [elements] to the end of the [list].',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for [List.clear].
@@ -88,6 +93,7 @@ class ListBindings extends LibraryBinding {
       'list': ListType(elementType: const DynamicType()),
     },
     description: 'Removes all elements from the list.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for [List.remove].
@@ -98,6 +104,7 @@ class ListBindings extends LibraryBinding {
       'list': ListType(elementType: const DynamicType()),
     },
     description: 'Removes the first occurrence of [element] from the list.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [List.removeAt].
@@ -109,6 +116,7 @@ class ListBindings extends LibraryBinding {
       'index': PrimitiveType.INT,
     },
     description: 'Removes and returns the element at [index] from the list.',
+    returnType: const DynamicType(),
   );
 
   /// Binding for [List.removeLast].
@@ -119,6 +127,7 @@ class ListBindings extends LibraryBinding {
       'list': ListType(elementType: const DynamicType()),
     },
     description: 'Removes and returns the last element from the list.',
+    returnType: const DynamicType(),
   );
 
   /// Binding for [List.insert].
@@ -132,6 +141,7 @@ class ListBindings extends LibraryBinding {
       'element': const DynamicType(),
     },
     description: 'Inserts [element] at [index] in the list.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for [List.insertAll].
@@ -145,6 +155,7 @@ class ListBindings extends LibraryBinding {
       'elements': ListType(elementType: const DynamicType()),
     },
     description: 'Inserts all [elements] at [index] in the list.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for [List.indexOf].
@@ -161,6 +172,7 @@ class ListBindings extends LibraryBinding {
     },
     description:
         'Returns the index of the first occurrence of [element] in the list, starting from [start].',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for [List.lastIndexOf].
@@ -177,6 +189,7 @@ class ListBindings extends LibraryBinding {
     },
     description:
         'Returns the index of the last occurrence of [element] in the list, starting from [start].',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for [List.contains].
@@ -188,6 +201,7 @@ class ListBindings extends LibraryBinding {
       'element': const DynamicType(),
     },
     description: 'Returns true if the list contains [element].',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [List.from].
@@ -198,5 +212,6 @@ class ListBindings extends LibraryBinding {
       'list': ListType(elementType: const DynamicType()),
     },
     description: 'Returns a copy of the [list].',
+    returnType: ListType(elementType: const DynamicType()),
   );
 }

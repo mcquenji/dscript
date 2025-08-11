@@ -15,6 +15,8 @@ sealed class Signature extends Equatable {
   /// Converts this signature to a JSON map.
   Map<String, dynamic> toJson() => {
         ...toMap(),
+        // Not used for type inference
+        // ignore: no_type_to_string
         'type': runtimeType.toString(),
         'description': description,
       };
@@ -458,7 +460,7 @@ The [double] type is contagious. Operations on [double]s return [double] results
   }
 }
 
-/// Represents a Map type (e.g., Map<String, int>).
+/// Represents a Map type (e.g., `Map<String, int>`).
 class MapType extends $Type {
   /// The type of the keys in the map.
   final $Type keyType;
@@ -466,7 +468,7 @@ class MapType extends $Type {
   /// The type of the values in the map.
   final $Type valueType;
 
-  /// Represents a Map type (e.g., Map<String, int>).
+  /// Represents a Map type (e.g., `Map<String, int>`).
   /// This class is used to represent key-value pairs in the Dscript language.
   const MapType({
     required this.keyType,
@@ -533,12 +535,12 @@ class MapType extends $Type {
   }
 }
 
-/// Represents a List type (e.g., List<int>).
+/// Represents a List type (e.g., `List<int>`).
 class ListType extends $Type {
   /// The type of the elements in the list.
   final $Type elementType;
 
-  /// Represents a List type (e.g., List<int>).
+  /// Represents a List type (e.g., `List<int>`).
   const ListType({
     required this.elementType,
     super.nullable = false,
@@ -702,6 +704,31 @@ class Struct extends $Type {
       'key': DynamicType(),
       'value': DynamicType(),
     },
+  );
+
+  /// Represents [DateTime].
+  static final dateTime = const Struct(
+    name: 'DateTime',
+    fields: {
+      'year': PrimitiveType.INT,
+      'month': PrimitiveType.INT,
+      'day': PrimitiveType.INT,
+      'hour': PrimitiveType.INT,
+      'minute': PrimitiveType.INT,
+      'second': PrimitiveType.INT,
+    },
+    description: 'Represents a date and time.',
+  );
+
+  /// Represents [TimeOfDay].
+  static final timeOfDay = const Struct(
+    name: 'TimeOfDay',
+    fields: {
+      'hour': PrimitiveType.INT,
+      'minute': PrimitiveType.INT,
+      'second': PrimitiveType.INT,
+    },
+    description: 'Represents a time of day.',
   );
 
   /// Default structs defined within the language.

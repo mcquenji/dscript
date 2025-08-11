@@ -38,6 +38,7 @@ class MapBindings extends LibraryBinding {
       ),
     },
     description: 'Returns the number of key-value pairs in the map.',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for [Map.isEmpty].
@@ -51,6 +52,7 @@ class MapBindings extends LibraryBinding {
       ),
     },
     description: 'Returns true if the map is empty.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [Map.isNotEmpty].
@@ -64,6 +66,7 @@ class MapBindings extends LibraryBinding {
       ),
     },
     description: 'Returns true if the map is not empty.',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [Map.containsKey].
@@ -78,6 +81,7 @@ class MapBindings extends LibraryBinding {
       'key': const DynamicType(),
     },
     description: 'Returns true if the map contains the specified [key].',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [Map.containsValue].
@@ -93,6 +97,7 @@ class MapBindings extends LibraryBinding {
       'value': const DynamicType(),
     },
     description: 'Returns true if the map contains the specified [value].',
+    returnType: PrimitiveType.BOOL,
   );
 
   /// Binding for [Map.keys].
@@ -106,6 +111,7 @@ class MapBindings extends LibraryBinding {
       ),
     },
     description: 'Returns a list of all keys in the map.',
+    returnType: ListType(elementType: const DynamicType()),
   );
 
   /// Binding for [Map.values].
@@ -119,6 +125,7 @@ class MapBindings extends LibraryBinding {
       ),
     },
     description: 'Returns a list of all values in the map.',
+    returnType: ListType(elementType: const DynamicType()),
   );
 
   /// Binding for [Map.addAll].
@@ -137,6 +144,7 @@ class MapBindings extends LibraryBinding {
       ),
     },
     description: 'Adds all key-value pairs from [other] to the map.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for [Map.clear].
@@ -150,6 +158,7 @@ class MapBindings extends LibraryBinding {
       ),
     },
     description: 'Removes all key-value pairs from the map.',
+    returnType: PrimitiveType.VOID,
   );
 
   /// Binding for [Map.remove].
@@ -165,6 +174,7 @@ class MapBindings extends LibraryBinding {
     },
     description:
         'Removes the key-value pair for the specified [key] from the map.',
+    returnType: const DynamicType(),
   );
 
   /// Returns the first key associated with the specified [value].
@@ -186,6 +196,7 @@ class MapBindings extends LibraryBinding {
       'value': const DynamicType(),
     },
     description: 'Returns the first key associated with the specified [value].',
+    returnType: const DynamicType(),
   );
 
   /// Returns a list of keys associated with the specified [value].
@@ -206,10 +217,11 @@ class MapBindings extends LibraryBinding {
     },
     description:
         'Returns a list of keys associated with the specified [value].',
+    returnType: ListType(elementType: const DynamicType()),
   );
 
   /// [Map.entries] binding.
-  static final entriesBinding = RuntimeBinding<List<Map<dynamic, dynamic>>>(
+  static final entriesBinding = RuntimeBinding(
     name: 'entries',
     function: (Map<dynamic, dynamic> map) => map.entries.map((entry) {
       return {
@@ -241,5 +253,9 @@ class MapBindings extends LibraryBinding {
       ),
     },
     description: 'Returns a copy of the [map].',
+    returnType: MapType(
+      keyType: const DynamicType(),
+      valueType: const DynamicType(),
+    ),
   );
 }

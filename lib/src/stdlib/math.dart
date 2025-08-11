@@ -43,6 +43,7 @@ class MathBindings extends LibraryBinding {
     },
     description:
         'Converts [x] to a [double] and returns the positive square root of the value',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [pow] function.
@@ -80,6 +81,7 @@ This corresponds to the pow function defined in the IEEE Standard 754-2008.
 
 Notice that the result may overflow. If integers are represented as 64-bit numbers, an integer result may be truncated, and a double result may overflow to positive or negative [infinity].
 ''',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [log] function.
@@ -91,6 +93,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
     },
     description:
         'Converts [x] to a [double] and returns the natural logarithm of the value.',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [exp] function.
@@ -102,6 +105,7 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
     },
     description:
         'Converts [x] to a [double] and returns the natural exponent, [e], to the power [x].',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [sin] function.
@@ -113,17 +117,20 @@ Notice that the result may overflow. If integers are represented as 64-bit numbe
     },
     description:
         'Converts [x] to a [double] and returns the sine of the value.',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [cos] function.
   static final cosBinding = RuntimeBinding<double>(
-      name: 'cos',
-      function: (num x) => cos(x),
-      positionalParams: {
-        'x': PrimitiveType.NUM,
-      },
-      description:
-          'Converts [x] to a [double] and returns the cosine of the value.');
+    name: 'cos',
+    function: (num x) => cos(x),
+    positionalParams: {
+      'x': PrimitiveType.NUM,
+    },
+    description:
+        'Converts [x] to a [double] and returns the cosine of the value.',
+    returnType: PrimitiveType.DOUBLE,
+  );
 
   /// Binding for the [tan] function.
   static final tanBinding = RuntimeBinding<double>(
@@ -137,6 +144,7 @@ Converts [x] to a [double] and returns the tangent of the value.
 
 The tangent function is equivalent to sin(x)/cos(x)
 ''',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [asin] function.
@@ -148,6 +156,7 @@ The tangent function is equivalent to sin(x)/cos(x)
     },
     description:
         'Converts [x] to a [double] and returns its arc sine in radians.',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [acos] function.
@@ -159,6 +168,7 @@ The tangent function is equivalent to sin(x)/cos(x)
     },
     description:
         'Converts [x] to a [double] and returns its arc cosine in radians.',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [atan] function.
@@ -170,6 +180,7 @@ The tangent function is equivalent to sin(x)/cos(x)
     },
     description:
         'Converts [x] to a [double] and returns its arc tangent in radians.',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [atan2] function.
@@ -193,6 +204,7 @@ The result is negative when [a] is negative (including when [a] is the double -0
 
 If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-axis, even if [b] is also equal to zero. The sign of [b] determines the direction of the vector along the x-axis.
 ''',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [abs] function.
@@ -203,6 +215,7 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'x': PrimitiveType.NUM,
     },
     description: 'Returns the absolute value of [x].',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Binding for the [floor] function.
@@ -213,6 +226,7 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'x': PrimitiveType.NUM,
     },
     description: 'Returns the largest integer less than or equal to [x].',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for the [ceil] function.
@@ -223,6 +237,7 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'x': PrimitiveType.NUM,
     },
     description: 'Returns the smallest integer greater than or equal to [x].',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for the [round] function.
@@ -233,6 +248,7 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'x': PrimitiveType.NUM,
     },
     description: 'Rounds [x] number to the nearest integer.',
+    returnType: PrimitiveType.INT,
   );
 
   /// Binding for the [clamp] function.
@@ -248,6 +264,7 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'x': PrimitiveType.NUM,
     },
     description: 'Clamps [x] number between a [min] and [max] value.',
+    returnType: PrimitiveType.NUM,
   );
 
   /// Binding for the [min] function.
@@ -259,6 +276,7 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'b': PrimitiveType.NUM,
     },
     description: 'Returns the minimum of [a] and [b].',
+    returnType: PrimitiveType.NUM,
   );
 
   /// Binding for the [max] function.
@@ -270,6 +288,7 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'b': PrimitiveType.NUM,
     },
     description: 'Returns the maximum of [a] and [b].',
+    returnType: PrimitiveType.NUM,
   );
 
   /// Converts degrees to radians.
@@ -280,6 +299,7 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'degrees': PrimitiveType.NUM,
     },
     description: 'Converts [degrees] to radians.',
+    returnType: PrimitiveType.DOUBLE,
   );
 
   /// Converts radians to degrees.
@@ -290,5 +310,6 @@ If [a] is equal to zero, the vector ([b],[a]) is considered parallel to the x-ax
       'radians': PrimitiveType.NUM,
     },
     description: 'Converts [radians] to degrees.',
+    returnType: PrimitiveType.DOUBLE,
   );
 }

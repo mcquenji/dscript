@@ -49,5 +49,6 @@ class JsonBindings extends LibraryBinding {
     positionalParams: {
       'obj': const DynamicType(),
     },
+    returnType: PrimitiveType.STRING,
   );
 }
