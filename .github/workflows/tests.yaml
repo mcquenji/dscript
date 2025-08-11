@@ -37,7 +37,7 @@ jobs:
           
       - name: 📝 Check Test Results
         run: |
-          if grep -q '"result":"failure"' test-results.json; then
+          if grep -q '"result":"error"' test-results.json; then
             echo "❌ Tests failed"
             exit 1
           fi
