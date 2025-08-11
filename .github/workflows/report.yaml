@@ -23,8 +23,6 @@ jobs:
             name: 🧪 Unit Tests
             path: test-results.json
             reporter: dart-json
-            fail-on-empty: false
-            fail-on-error: false
             max-annotations: 50
             
             
