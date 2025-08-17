@@ -27,18 +27,6 @@ class HttpBindings extends LibraryBinding {
         optionsBinding,
       };
 
-  /// Maps a [Dio] [Response] to it's dsl type representation.
-  static Map<String, dynamic> mapResponse(Response response) {
-    return {
-      $Type.structKey: Struct.httpResponse.name,
-      'statusCode': response.statusCode,
-      'data': response.data.toString(),
-      'headers': response.headers.map,
-      'isRedirect': response.isRedirect,
-      'statusMessage': response.statusMessage,
-    };
-  }
-
   /// Binding for making a GET request.
   static final getBinding = RuntimeBinding<HttpResponse>(
     name: 'get',
@@ -54,7 +42,7 @@ class HttpBindings extends LibraryBinding {
           headers: headers,
         ),
       );
-      return mapResponse(response);
+      return Struct.httpResponse.fromDart(response);
     },
     positionalParams: {
       'path': PrimitiveType.STRING,
@@ -94,7 +82,7 @@ class HttpBindings extends LibraryBinding {
           headers: headers,
         ),
       );
-      return mapResponse(response);
+      return Struct.httpResponse.fromDart(response);
     },
     positionalParams: {
       'path': PrimitiveType.STRING,
@@ -135,7 +123,7 @@ class HttpBindings extends LibraryBinding {
           headers: headers,
         ),
       );
-      return mapResponse(response);
+      return Struct.httpResponse.fromDart(response);
     },
     positionalParams: {
       'path': PrimitiveType.STRING,
@@ -176,7 +164,7 @@ class HttpBindings extends LibraryBinding {
           headers: headers,
         ),
       );
-      return mapResponse(response);
+      return Struct.httpResponse.fromDart(response);
     },
     positionalParams: {
       'path': PrimitiveType.STRING,
@@ -217,7 +205,7 @@ class HttpBindings extends LibraryBinding {
           headers: headers,
         ),
       );
-      return mapResponse(response);
+      return Struct.httpResponse.fromDart(response);
     },
     positionalParams: {
       'path': PrimitiveType.STRING,
@@ -256,7 +244,7 @@ class HttpBindings extends LibraryBinding {
           headers: headers,
         ),
       );
-      return mapResponse(response);
+      return Struct.httpResponse.fromDart(response);
     },
     positionalParams: {
       'path': PrimitiveType.STRING,
@@ -295,7 +283,7 @@ class HttpBindings extends LibraryBinding {
           method: 'OPTIONS', // Set the method to OPTIONS
         ),
       );
-      return mapResponse(response);
+      return Struct.httpResponse.fromDart(response);
     },
     positionalParams: {
       'path': PrimitiveType.STRING,
@@ -318,6 +306,3 @@ class HttpBindings extends LibraryBinding {
         'Makes an OPTIONS request to the specified [path] with optional query parameters and headers.',
   );
 }
-
-/// Typedef for the [Struct.httpResponse] type.
-typedef HttpResponse = Map<String, dynamic>;

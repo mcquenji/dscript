@@ -25,13 +25,7 @@ class JsonBindings extends LibraryBinding {
     function: (String str) {
       final json = jsonDecode(str);
 
-      return {
-        'map': json is Map ? json : null,
-        'list': json is List ? json : null,
-        'isMap': json is Map,
-        'isList': json is List,
-        $Type.structKey: Struct.json.name,
-      };
+      return Struct.json.fromDart(json);
     },
     returnType: Struct.json,
     positionalParams: {'str': PrimitiveType.STRING},

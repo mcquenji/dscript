@@ -47,7 +47,7 @@ void main(List<String> arguments) async {
           .hook('onLogin')
           .param(
             'user',
-            const Struct(name: 'User'),
+            const Struct.shallow('User'),
           )
           .describe(
             'Event emitted when a user logs in.',

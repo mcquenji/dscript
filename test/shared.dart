@@ -1,5 +1,27 @@
 import 'package:dscript_dart/dscript_dart.dart';
 
+class User {
+  String name;
+  int id;
+
+  User({required this.name, required this.id});
+}
+
+final userStruct = Struct<User>(
+    name: 'User',
+    fields: {
+      'name': PrimitiveType.STRING,
+      'id': PrimitiveType.INT,
+    },
+    toDart: (json) => User(
+          name: json['name'] as String,
+          id: json['id'] as int,
+        ),
+    fromDart: (user) => {
+          'name': user.name,
+          'id': user.id,
+        });
+
 final randomContract = ContractSignature(
   name: 'Random',
   implementations: [
@@ -30,12 +52,7 @@ final randomContract = ContractSignature(
     ),
     HookSignature(name: 'onLogout', namedParameters: []),
   ],
-  structs: const [
-    Struct(name: 'User', fields: {
-      'name': PrimitiveType.STRING,
-      'id': PrimitiveType.INT,
-    }),
-  ],
+  structs: [userStruct],
   bindings: ExternalBindings(),
 );
 

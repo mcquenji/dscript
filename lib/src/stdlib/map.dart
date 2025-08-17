@@ -224,11 +224,7 @@ class MapBindings extends LibraryBinding {
   static final entriesBinding = RuntimeBinding(
     name: 'entries',
     function: (Map<dynamic, dynamic> map) => map.entries.map((entry) {
-      return {
-        'key': entry.key,
-        'value': entry.value,
-        $Type.structKey: Struct.mapEntry.name,
-      };
+      return Struct.mapEntry.fromDart(entry);
     }).toList(),
     positionalParams: {
       'map': MapType(

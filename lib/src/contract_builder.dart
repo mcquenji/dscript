@@ -265,11 +265,14 @@ class HookBuilder {
 ///
 /// Call [field] to add fields, [describe] to add documentation,
 /// then [end] to attach it to its parent contract.
-class StructBuilder {
+class StructBuilder<T> {
   final String _name;
   final Map<String, $Type> _fields = {};
   String _description = '';
   final ContractSignatureBuilder? _parent;
+
+  T Function(Map<String, dynamic>)? _toDart;
+  Map<String, dynamic> Function(T)? _fromDart;
 
   /// Creates a struct builder with the given [name].
   StructBuilder(this._name, this._parent);
@@ -289,6 +292,18 @@ class StructBuilder {
     return this;
   }
 
+  /// See [Struct.toDart]
+  StructBuilder<T> toDart(T Function(Map<String, dynamic>) toDart) {
+    _toDart = toDart;
+    return this;
+  }
+
+  /// See [Struct.fromDart]
+  StructBuilder<T> fromDart(Map<String, dynamic> Function(T) fromDart) {
+    _fromDart = fromDart;
+    return this;
+  }
+
   /// Completes this struct and adds it to the parent,
   /// returning the parent [ContractSignatureBuilder].
   ContractSignatureBuilder end() {
@@ -302,10 +317,21 @@ class StructBuilder {
 
   /// Builds the immutable [Struct] definition.
   Struct build() {
-    return Struct(
+    if (_fields.isEmpty) {
+      throw StateError('Struct must have at least one field defined.');
+    }
+
+    if (_toDart == null || _fromDart == null) {
+      throw StateError(
+          'Struct must have both toDart and fromDart functions defined.');
+    }
+
+    return Struct<T>(
       name: _name,
       fields: Map.unmodifiable(_fields),
       description: _description.isNotEmpty ? _description : null,
+      toDart: _toDart!,
+      fromDart: _fromDart!,
     );
   }
 }
@@ -315,7 +341,7 @@ ContractSignatureBuilder contract(String name) =>
     ContractSignatureBuilder(name);
 
 /// Shorthand to start a standalone [StructBuilder].
-StructBuilder struct(String name) => StructBuilder(name, null);
+StructBuilder<T> struct<T>(String name) => StructBuilder(name, null);
 
 /// Shorthand to start a standalone [HookBuilder].
 HookBuilder hook(String name) => HookBuilder(null, name);
