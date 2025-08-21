@@ -5,12 +5,12 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:dscript_dart/dscript_dart.dart';
-import 'package:logging/logging.dart';
+import 'package:dscript_dart/src/stdlib/base64.dart';
+import 'package:dscript_dart/src/stdlib/log.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 part 'math.dart';
 part 'string.dart';
-part 'log.dart';
 part 'fs.dart';
 part 'list.dart';
 part 'map.dart';
@@ -18,7 +18,6 @@ part 'dynamic.dart';
 part 'http.dart';
 part 'json.dart';
 part 'utf8.dart';
-part 'base64.dart';
 
 /// A library binding that contains a list of runtime bindings.
 /// This class is used to group related bindings together, such as math

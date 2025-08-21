@@ -10,6 +10,7 @@
 - [http](#http)
 - [json](#json)
 - [utf8](#utf8)
+- [base64](#base64)
 - [log](#log)
 ---
 
@@ -47,8 +48,10 @@ Represents an HTTP response with status code, headers, and body.
 | Field | Type |
 | --- | --- |
 | statusCode | `int` |
-| headers | `Map<string, string>` |
-| body | `string?` |
+| headers | `Map<string, List<string>>` |
+| data | `string?` |
+| statusMessage | `string?` |
+| isRedirect | `bool` |
 
 ### JSON
 
@@ -60,6 +63,34 @@ Result of <code>json::decode</code>. It's either a <code>Map<String, dynamic></c
 | list | `List<dynamic?>?` |
 | isMap | `bool` |
 | isList | `bool` |
+
+### Duration
+
+Represents a duration of time.
+
+| Field | Type |
+| --- | --- |
+| days | `int` |
+| hours | `int` |
+| minutes | `int` |
+| seconds | `int` |
+| milliseconds | `int` |
+| microseconds | `int` |
+
+### DateTime
+
+Represents a date and time.
+
+| Field | Type |
+| --- | --- |
+| year | `int` |
+| month | `int` |
+| day | `int` |
+| hour | `int` |
+| minute | `int` |
+| second | `int` |
+| millisecond | `int` |
+| microsecond | `int` |
 
 
 
@@ -743,7 +774,7 @@ Library for working with lists.
 <em>Removes the first occurrence of <code>element</code> from the list.</em>
 
 
-### removeAt &rarr; `dynamic`
+### removeAt &rarr; `dynamic?`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -753,7 +784,7 @@ Library for working with lists.
 <em>Removes and returns the element at <code>index</code> from the list.</em>
 
 
-### removeLast &rarr; `dynamic`
+### removeLast &rarr; `dynamic?`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -816,6 +847,15 @@ Library for working with lists.
 <em>Returns true if the list contains <code>element</code>.</em>
 
 
+### copy &rarr; `List<dynamic?>`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| list | `List<dynamic?>` | Positional (1) |
+
+<em>Returns a copy of the <code>list</code>.</em>
+
+
 
 
 ---
@@ -871,7 +911,7 @@ Library for working with maps.
 <em>Returns true if the map contains the specified <code>value</code>.</em>
 
 
-### keys &rarr; `List<dynamic>`
+### keys &rarr; `List<dynamic?>`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -880,7 +920,7 @@ Library for working with maps.
 <em>Returns a list of all keys in the map.</em>
 
 
-### values &rarr; `List<dynamic>`
+### values &rarr; `List<dynamic?>`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -908,7 +948,7 @@ Library for working with maps.
 <em>Removes all key-value pairs from the map.</em>
 
 
-### remove &rarr; `dynamic`
+### remove &rarr; `dynamic?`
 
 | Name | Type | Kind |
 | --- | --- | --- |
@@ -918,14 +958,42 @@ Library for working with maps.
 <em>Removes the key-value pair for the specified <code>key</code> from the map.</em>
 
 
-### keyOf &rarr; `dynamic`
+### keyOf &rarr; `dynamic?`
 
 | Name | Type | Kind |
 | --- | --- | --- |
 | map | `Map<dynamic?, dynamic?>` | Positional (1) |
 | value | `dynamic?` | Positional (2) |
 
-<em>Returns the key associated with the specified <code>value</code>.</em>
+<em>Returns the first key associated with the specified <code>value</code>.</em>
+
+
+### keysOf &rarr; `List<dynamic?>`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| map | `Map<dynamic?, dynamic?>` | Positional (1) |
+| value | `dynamic?` | Positional (2) |
+
+<em>Returns a list of keys associated with the specified <code>value</code>.</em>
+
+
+### entries &rarr; `List<MapEntry>`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| map | `Map<dynamic?, dynamic?>` | Positional (1) |
+
+<em>Returns a list of key-value pairs in the map.</em>
+
+
+### copy &rarr; `Map<dynamic?, dynamic?>`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| map | `Map<dynamic?, dynamic?>` | Positional (1) |
+
+<em>Returns a copy of the <code>map</code>.</em>
 
 
 
@@ -1169,9 +1237,35 @@ Provides UTF-8 encoding and decoding functions.
 
 ---
 
+## base64
+
+Provides utility functions for Base64 encoding and decoding.
+
+### encode &rarr; `string`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| input | `string` | Positional (1) |
+
+<em>Encodes <code>input</code> to Base64 format.</em>
+
+
+### decode &rarr; `string`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| input | `string` | Positional (1) |
+
+<em>Decodes <code>input</code> from Base64 format.</em>
+
+
+
+
+---
+
 ## log
 
-Logging utilities.
+Provides basic logging utitlities.
 
 !> Log messages will not be visible when using <code>IsolateRuntime</code>.
 
@@ -1179,70 +1273,98 @@ Logging utilities.
 
 | Name | Type | Kind |
 | --- | --- | --- |
-| message | `dynamic?` | Positional (1) |
-| error | `dynamic?` | Named |
+| message | `dynamic` | Positional (1) |
+| error | `dynamic` | Named |
 
-<em>Logs an info message.</em>
+<em>Logs general informational messages that highlight the progress of the application at a coarse level.</em>
 
 
 ### warning &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
-| message | `dynamic?` | Positional (1) |
-| error | `dynamic?` | Named |
+| message | `dynamic` | Positional (1) |
+| error | `dynamic` | Named |
 
-<em>Logs a warning message.</em>
-
-
-### error &rarr; `void`
-
-| Name | Type | Kind |
-| --- | --- | --- |
-| message | `dynamic?` | Positional (1) |
-| error | `dynamic?` | Named |
-
-<em>Logs an error message.</em>
+<em>Logs potential problems that are not yet errors but might require attention or could lead to issues.</em>
 
 
-### debug &rarr; `void`
+### severe &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
-| message | `dynamic?` | Positional (1) |
-| error | `dynamic?` | Named |
-
-<em>Logs a debug message.</em>
-
-
-### verbose &rarr; `void`
-
-| Name | Type | Kind |
-| --- | --- | --- |
-| message | `dynamic?` | Positional (1) |
-| error | `dynamic?` | Named |
-
-<em>Logs a verbose message.</em>
+| message | `dynamic` | Positional (1) |
+| error | `dynamic` | Named |
+<details>
+<summary><em>Logs serious failures or errors that will likely</em></summary>
+<em>prevent normal program execution.</em>
+</details>
+<br>
 
 
-### fatal &rarr; `void`
+### fine &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
-| message | `dynamic?` | Positional (1) |
-| error | `dynamic?` | Named |
+| message | `dynamic` | Positional (1) |
+| error | `dynamic` | Named |
+<details>
+<summary><em>Logs tracing information for debugging purposes.</em></summary>
+<em>Less verbose than <code>finer</code> or <code>finest</code>.</em>
+</details>
+<br>
 
-<em>Logs a fatal message.</em>
 
-
-### critical &rarr; `void`
+### finer &rarr; `void`
 
 | Name | Type | Kind |
 | --- | --- | --- |
-| message | `dynamic?` | Positional (1) |
-| error | `dynamic?` | Named |
+| message | `dynamic` | Positional (1) |
+| error | `dynamic` | Named |
+<details>
+<summary><em>Logs fairly detailed tracing information.</em></summary>
+<em>Useful when debugging complex flows with more granularity than <code>fine</code>.</em>
+</details>
+<br>
 
-<em>Logs a critical message.</em>
+
+### finest &rarr; `void`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| message | `dynamic` | Positional (1) |
+| error | `dynamic` | Named |
+<details>
+<summary><em>Logs highly detailed tracing information.</em></summary>
+<em>Intended for deep debugging, usually too verbose for normal use.</em>
+</details>
+<br>
+
+
+### config &rarr; `void`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| message | `dynamic` | Positional (1) |
+| error | `dynamic` | Named |
+<details>
+<summary><em>Logs static configuration messages.</em></summary>
+<em>Typically used to record startup settings or environment details.</em>
+</details>
+<br>
+
+
+### shout &rarr; `void`
+
+| Name | Type | Kind |
+| --- | --- | --- |
+| message | `dynamic` | Positional (1) |
+| error | `dynamic` | Named |
+<details>
+<summary><em>Logs messages at the shout level.</em></summary>
+<em>Louder than <code>severe</code>; use sparingly for attention-grabbing events.</em>
+</details>
+<br>
 
 
 

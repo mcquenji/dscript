@@ -1,39 +1,25 @@
-part of 'stdlib.dart';
+import 'dart:convert';
 
-/// [base64Encode] and [base64Decode] bindings.
-class Base64Bindings extends LibraryBinding {
-  /// Base64 encoding and decoding functions.
-  const Base64Bindings()
-      : super(
-          name: 'base64',
-          description: 'Base64 encoding and decoding functions.',
-        );
+import 'package:dscript_annotations/dscript_annotations.dart';
+import 'package:dscript_dart/dscript_dart.dart';
 
-  /// [base64Encode] binding.
-  static final encodeBinding = RuntimeBinding<String>(
-    name: 'encode',
-    description: '''Encodes the given [str] to a Base64 string.''',
-    function: (String str) {
-      return base64Encode(utf8.encode(str));
-    },
-    positionalParams: {'str': PrimitiveType.STRING},
-    returnType: PrimitiveType.STRING,
-  );
+part 'base64.g.dart';
 
-  /// [base64Decode] binding.
-  static final decodeBinding = RuntimeBinding<String>(
-    name: 'decode',
-    description: '''Decodes the given Base64 [str] to a string.''',
-    function: (String str) {
-      return utf8.decode(base64Decode(str));
-    },
-    positionalParams: {'str': PrimitiveType.STRING},
-    returnType: PrimitiveType.STRING,
-  );
+/// Provides utility functions for Base64 encoding and decoding.
+@namespace
+class Base64Bindings extends _$Base64Bindings {
+  /// Provides utility functions for Base64 encoding and decoding.
+  const Base64Bindings();
 
+  /// Encodes [input] to Base64 format.
   @override
-  Set<RuntimeBinding> get bindings => {
-        encodeBinding,
-        decodeBinding,
-      };
+  String encode(String input) {
+    return base64.encode(input.codeUnits);
+  }
+
+  /// Decodes [input] from Base64 format.
+  @override
+  String decode(String input) {
+    return utf8.decode(base64.decode(input));
+  }
 }

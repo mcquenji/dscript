@@ -31,8 +31,8 @@ class ContractSignatureBuilder {
 
   /// Adds a new struct definition with the specified [name], returning
   /// a [StructBuilder] to configure fields and description.
-  StructBuilder struct(String name) {
-    final builder = StructBuilder(name, this);
+  StructBuilder<T> struct<T>(String name) {
+    final builder = StructBuilder<T>(name, this);
     return builder;
   }
 

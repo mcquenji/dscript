@@ -5,6 +5,17 @@ import 'package:antlr4/antlr4.dart';
 import 'package:dscript_dart/dscript_dart.dart';
 import 'package:logging/logging.dart';
 
+class User {
+  final int id;
+
+  final String name;
+
+  const User({
+    required this.id,
+    required this.name,
+  });
+}
+
 void main(List<String> arguments) async {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
@@ -59,15 +70,24 @@ void main(List<String> arguments) async {
           )
           .end()
           .bind<double>('double', (int x) => x * 2)
+          .returns(PrimitiveType.DOUBLE)
           .param('x', PrimitiveType.INT)
           .describe(
             'A simple function that doubles an integer.',
           )
           .permission('math')
           .end()
-          .struct('User')
+          .struct<User>('User')
           .field('name', PrimitiveType.STRING)
           .field('id', PrimitiveType.INT)
+          .fromDart((u) => {
+                'id': u.id,
+                'name': u.name,
+              })
+          .toDart((data) => User(
+                id: data['id'] as int,
+                name: data['name'] as String,
+              ))
           .end()
           .build(),
     ],

@@ -58,7 +58,12 @@ class RuntimeBinding<T> {
     this.positionalParams = const {},
     required this.description,
     required this.returnType,
-  });
+    List<PreBindingMiddleware<T>>? preMiddlewares,
+    List<PostBindingMiddleware<T>>? postMiddlewares,
+  }) {
+    _preMiddlewares.addAll(preMiddlewares ?? []);
+    _postMiddlewares.addAll(postMiddlewares ?? []);
+  }
 
   /// Adds a [PreBindingMiddleware] to this binding called in the order it was added.
   ///

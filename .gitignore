@@ -11,3 +11,4 @@
 *.interp
 *.tokens
 coverage/
+custom_lint.log

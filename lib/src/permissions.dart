@@ -18,9 +18,8 @@ class ScriptPermission {
   /// Creates a custom host-defined permission with the `external` namespace.
   const ScriptPermission.custom(this.name) : namespace = 'external';
 
-  @override
-
   /// Returns the DSL-style string representation `namespace::method`.
+  @override
   String toString() => '$namespace::$name';
 
   /// Permission to read from the filesystem (`fs::read`).
