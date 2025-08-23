@@ -15,21 +15,14 @@ include: package:lints/recommended.yaml
 
 # Uncomment the following section to specify additional rules.
 
-linter:
-  rules:
-    - prefer_const_constructors
-    - prefer_final_fields
-    - document_ignores
-    - prefer_single_quotes
-    - prefer_final_locals
-    - public_member_api_docs
-    - avoid_print
-    - sort_pub_dependencies
-analyzer:
-  exclude:
-    - lib/src/gen/antlr/**
-  plugins:
-    - custom_lint
+# linter:
+#   rules:
+#     - camel_case_types
+
+# analyzer:
+#   exclude:
+#     - path/to/excluded/files/**
+
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints
 

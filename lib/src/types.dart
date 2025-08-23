@@ -1,5 +1,6 @@
 // coverage:ignore-file
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart' show Response, Headers, RequestOptions;
 import 'package:dscript_dart/dscript_dart.dart';
 import 'package:equatable/equatable.dart';
 
@@ -15,6 +16,8 @@ sealed class Signature extends Equatable {
   /// Converts this signature to a JSON map.
   Map<String, dynamic> toJson() => {
         ...toMap(),
+        // Not used for type inference
+        // ignore: no_type_to_string
         'type': runtimeType.toString(),
         'description': description,
       };
@@ -196,7 +199,7 @@ sealed class $Type extends Signature {
             elementType: $Type.from(elementType.trim()),
           ).asNullable(nullable);
         } else {
-          return Struct(name: type, fields: {}).asNullable(nullable);
+          return Struct.shallow(type).asNullable(nullable);
         }
     }
   }
@@ -205,6 +208,8 @@ sealed class $Type extends Signature {
   static const structKey = '__type__';
 
   /// Extracts the type from a value.
+  ///
+  /// **NOTE:** If the value is a [Struct] this will return a shallow struct. Use [$Type.lookup] to get the full struct.
   factory $Type.fromValue(dynamic value) {
     if (value == null) {
       return PrimitiveType.NULL;
@@ -226,6 +231,14 @@ sealed class $Type extends Signature {
         elementType: $Type.fromValue(value.first),
       );
     } else if (value is Map) {
+      // If the map has a special key indicating it's a struct type, return the struct type.
+      if (value.containsKey(structKey)) {
+        final structName = value[structKey];
+        if (structName is String) {
+          return Struct.shallow(structName);
+        }
+      }
+
       if (value.isEmpty) {
         return MapType(
           keyType: PrimitiveType.NULL,
@@ -246,7 +259,7 @@ sealed class $Type extends Signature {
     throw ArgumentError.value(value, 'value', 'Cannot determine type of value');
   }
 
-  /// Looks up a placeholder struct by its name in the provided [types] and [Struct.defaults] list.
+  /// Looks up a shallow struct by its name in the provided [types] and [Struct.defaults] list.
   ///
   /// Returns the struct if found, otherwise returns null.
   ///
@@ -450,7 +463,7 @@ The [double] type is contagious. Operations on [double]s return [double] results
   }
 }
 
-/// Represents a Map type (e.g., Map<String, int>).
+/// Represents a Map type (e.g., `Map<String, int>`).
 class MapType extends $Type {
   /// The type of the keys in the map.
   final $Type keyType;
@@ -458,7 +471,7 @@ class MapType extends $Type {
   /// The type of the values in the map.
   final $Type valueType;
 
-  /// Represents a Map type (e.g., Map<String, int>).
+  /// Represents a Map type (e.g., `Map<String, int>`).
   /// This class is used to represent key-value pairs in the Dscript language.
   const MapType({
     required this.keyType,
@@ -525,12 +538,12 @@ class MapType extends $Type {
   }
 }
 
-/// Represents a List type (e.g., List<int>).
+/// Represents a List type (e.g., `List<int>`).
 class ListType extends $Type {
   /// The type of the elements in the list.
   final $Type elementType;
 
-  /// Represents a List type (e.g., List<int>).
+  /// Represents a List type (e.g., `List<int>`).
   const ListType({
     required this.elementType,
     super.nullable = false,
@@ -584,9 +597,51 @@ class ListType extends $Type {
 }
 
 /// Represents a custom object type.
-class Struct extends $Type {
+class Struct<T> extends $Type {
   /// The fields of the object.
   final Map<String, $Type> fields;
+
+  /// Serializes this DSL struct to a dart object of type [T]
+  final T Function(Map<String, dynamic>) _toDart;
+
+  /// Deserializes a dart object of type [T] to this DSL struct.
+  final Map<String, dynamic> Function(T) _fromDart;
+
+  /// Serializes this DSL struct to a dart object of type [T]
+  ///
+  /// Returns a Dart object of type [T]
+  T toDart(Map<String, dynamic> dsl) {
+    if (!dsl.containsKey($Type.structKey)) {
+      throw Exception(
+          'The provided data does not contain the struct key: $Type.structKey');
+    }
+
+    if (dsl[$Type.structKey] != name) {
+      throw Exception(
+          'The provided dsl struct is not of type $name; expected $name but got ${dsl[$Type.structKey]}');
+    }
+
+    return _toDart(dsl);
+  }
+
+  /// Deserializes a dart object of type [T] to this DSL struct.
+  ///
+  /// Returns a [Map] with all the fields populated and the [$Type.structKey] set to [name].
+  Map<String, dynamic> fromDart(T obj) {
+    final map = _fromDart(obj);
+    map[$Type.structKey] = name; // Add the struct key to the map
+    return map;
+  }
+
+  static T _shallowToDart<T>(Map<String, dynamic> json) {
+    throw UnimplementedError(
+        r'Cannot convert shallow struct to Dart object. Use `$Type.lookup` to get the resolved struct and call `toDart` on it.');
+  }
+
+  static Map<String, dynamic> _shallowFromDart<T>(T obj) {
+    throw UnimplementedError(
+        r'Cannot convert Dart object to shallow struct. Use `$Type.lookup` to get the resolved struct and call `fromDart` on it.');
+  }
 
   /// Represents a custom object type.
   const Struct({
@@ -594,7 +649,29 @@ class Struct extends $Type {
     this.fields = const {},
     super.nullable = false,
     super.description,
-  });
+
+    /// Serializes this DSL struct to a dart object of type [T].
+    ///
+    /// You can safely use assume that the map is well-formed and contains all the necessary fields.
+    required T Function(Map<String, dynamic>) toDart,
+
+    /// Deserializes a dart object of type [T] to this DSL struct.
+    ///
+    /// The [$Type.structKey] field will be set to the name of the struct automatically.
+    required Map<String, dynamic> Function(T) fromDart,
+  })  : _fromDart = fromDart,
+        _toDart = toDart;
+
+  /// Creates a shallow struct with only the name and no fields.
+  /// This is useful for defining hooks or implementations that reference a struct without needing to define its fields immediately.
+  const Struct.shallow(String name)
+      : this(
+          name: name,
+          fields: const {},
+          nullable: false,
+          toDart: _shallowToDart,
+          fromDart: _shallowFromDart,
+        );
 
   @override
   Map<String, dynamic> toMap() {
@@ -614,6 +691,8 @@ class Struct extends $Type {
       name: name,
       fields: fields,
       nullable: nullable,
+      toDart: _toDart,
+      fromDart: _fromDart,
     );
   }
 
@@ -640,18 +719,168 @@ class Struct extends $Type {
   }
 
   /// Stdandard error struct used in Dscript.
-  static final error = Struct(
+  static final error = Struct<Exception>(
     name: 'Error',
     fields: {
       'message': PrimitiveType.STRING,
       'stackTrace': PrimitiveType.STRING.asNullable(),
     },
-    nullable: false,
     description: 'Represents an error with a message and stack trace.',
+    toDart: (json) => Exception(
+      json['message'] as String,
+    ),
+    fromDart: (obj) => {
+      'message': obj.toString(),
+      'stackTrace': StackTrace.current.toString(),
+    },
+  );
+
+  /// Standard HTTP response struct used in Dscript.
+  static final httpResponse = Struct<Response>(
+    name: 'HttpResponse',
+    fields: {
+      'statusCode': PrimitiveType.INT,
+      'headers': MapType(
+        keyType: PrimitiveType.STRING,
+        valueType: ListType(elementType: PrimitiveType.STRING),
+      ),
+      'data': PrimitiveType.STRING.asNullable(),
+      'statusMessage': PrimitiveType.STRING.asNullable(),
+      'isRedirect': PrimitiveType.BOOL,
+    },
+    toDart: (json) => Response(
+      statusCode: json['statusCode'] as int,
+      headers: Headers.fromMap(json['headers'] as Map<String, List<String>>),
+      data: json['data'] as String?,
+      requestOptions: RequestOptions(),
+      statusMessage: json['statusMessage'] as String?,
+      isRedirect: json['isRedirect'] as bool? ?? false,
+    ),
+    fromDart: (obj) => {
+      'statusCode': obj.statusCode,
+      'data': obj.data.toString(),
+      'headers': obj.headers.map,
+      'isRedirect': obj.isRedirect,
+      'statusMessage': obj.statusMessage,
+    },
+    description:
+        'Represents an HTTP response with status code, headers, and body.',
+  );
+
+  /// Return value of [json::decode].
+  static final Struct json = Struct<dynamic>(
+      name: 'JSON',
+      description:
+          "Result of [json::decode]. It's either a [Map<String, dynamic>] or a [List<dynamic>].",
+      fields: {
+        'map': MapType(
+                keyType: PrimitiveType.STRING, valueType: const DynamicType())
+            .asNullable(),
+        'list': ListType(elementType: const DynamicType()).asNullable(),
+        'isMap': PrimitiveType.BOOL,
+        'isList': PrimitiveType.BOOL,
+      },
+      toDart: (json) {
+        if (json['isMap'] == true) {
+          return json['map'] as Map<String, dynamic>;
+        } else if (json['isList'] == true) {
+          return json['list'] as List<dynamic>;
+        }
+        throw Exception('Invalid JSON structure');
+      },
+      fromDart: (json) => {
+            'map': json is Map ? json : null,
+            'list': json is List ? json : null,
+            'isMap': json is Map,
+            'isList': json is List,
+          });
+
+  /// Represents a key-value pair in a map.
+  static final mapEntry = Struct<MapEntry>(
+    name: 'MapEntry',
+    description: 'Represents a key-value pair in a map.',
+    fields: {
+      'key': const DynamicType(),
+      'value': const DynamicType(),
+    },
+    toDart: (json) => MapEntry(
+      json['key'],
+      json['value'],
+    ),
+    fromDart: (obj) => {
+      'key': obj.key,
+      'value': obj.value,
+    },
+  );
+
+  /// Represents [DateTime].
+  static final dateTime = Struct<DateTime>(
+    name: 'DateTime',
+    fields: {
+      'year': PrimitiveType.INT,
+      'month': PrimitiveType.INT,
+      'day': PrimitiveType.INT,
+      'hour': PrimitiveType.INT,
+      'minute': PrimitiveType.INT,
+      'second': PrimitiveType.INT,
+      'millisecond': PrimitiveType.INT,
+      'microsecond': PrimitiveType.INT,
+    },
+    description: 'Represents a date and time.',
+    toDart: (json) => DateTime(
+      json['year'] as int,
+      json['month'] as int,
+      json['day'] as int,
+      json['hour'] as int,
+      json['minute'] as int,
+      json['second'] as int,
+      json['millisecond'] as int? ?? 0,
+      json['microsecond'] as int? ?? 0,
+    ),
+    fromDart: (obj) => {
+      'year': obj.year,
+      'month': obj.month,
+      'day': obj.day,
+      'hour': obj.hour,
+      'minute': obj.minute,
+      'second': obj.second,
+      'millisecond': obj.millisecond,
+      'microsecond': obj.microsecond,
+    },
+  );
+
+  /// Represents [Duration].
+  static final duration = Struct<Duration>(
+    name: 'Duration',
+    fields: {
+      'days': PrimitiveType.INT,
+      'hours': PrimitiveType.INT,
+      'minutes': PrimitiveType.INT,
+      'seconds': PrimitiveType.INT,
+      'milliseconds': PrimitiveType.INT,
+      'microseconds': PrimitiveType.INT,
+    },
+    description: 'Represents a duration of time.',
+    toDart: (json) => Duration(
+      days: json['days'] as int,
+      hours: json['hours'] as int,
+      minutes: json['minutes'] as int,
+      seconds: json['seconds'] as int,
+      milliseconds: json['milliseconds'] as int? ?? 0,
+      microseconds: json['microseconds'] as int? ?? 0,
+    ),
+    fromDart: (obj) => {
+      'days': obj.inDays,
+      'hours': obj.inHours.remainder(24),
+      'minutes': obj.inMinutes.remainder(60),
+      'seconds': obj.inSeconds.remainder(60),
+      'milliseconds': obj.inMilliseconds.remainder(1000),
+      'microseconds': obj.inMicroseconds.remainder(1000),
+    },
   );
 
   /// Default structs defined within the language.
-  static final defaults = [error];
+  static final defaults = [error, httpResponse, json, duration, dateTime];
 }
 
 /// Signature of a contract.

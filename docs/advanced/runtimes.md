@@ -2,6 +2,8 @@
 
 Dscript ships with two runtime implementations: `Runtime` and `IsolateRuntime`. Both execute compiled scripts but differ in how they isolate script code.
 
+!> As a result of each hook or implementation being executed independently in seperate VMs (regardless of the runtime) and to avoid race conditions, it is not possible to share state between them. If you need to share data, consider passing it explicitly as an argument.
+
 ## Runtime
 
 The default `Runtime` runs code in the current isolate. Host functions are invoked directly which yields the best performance but means that the script shares memory with the host application.
@@ -9,6 +11,8 @@ The default `Runtime` runs code in the current isolate. Host functions are invok
 ## IsolateRuntime
 
 `IsolateRuntime` uses Dart's `Isolate.run` to execute each invocation in a separate isolate. This provides memory isolation between script and host but comes with additional overhead due to message passing. Use `IsolateRuntime` when scripts should not affect the host isolate or when they perform heavy work that may block.
+
+!> Note that the `IsolateRuntime` does not support any logging or debugging features, as these rely on the host isolate's context. If you need logging, use `Runtime` instead.
 
 ## Custom Virtual Machines
 

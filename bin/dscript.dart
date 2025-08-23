@@ -5,6 +5,17 @@ import 'package:antlr4/antlr4.dart';
 import 'package:dscript_dart/dscript_dart.dart';
 import 'package:logging/logging.dart';
 
+class User {
+  final int id;
+
+  final String name;
+
+  const User({
+    required this.id,
+    required this.name,
+  });
+}
+
 void main(List<String> arguments) async {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
@@ -18,6 +29,14 @@ void main(List<String> arguments) async {
     print(
       '${record.time.toIso8601String()}: $msg${errorstr.isEmpty ? '' : ' '}$errorstr${stackTracestr.isEmpty ? '' : '\n\t'}$stackTracestr',
     );
+  });
+
+  HttpBindings.getBinding.addPreMiddleware(({
+    required binding,
+    required positionalArgs,
+    required namedArgs,
+  }) {
+    print('Sending GET request to ${positionalArgs[0]}');
   });
 
   final code = await InputStream.fromPath('./bin/test.dscript');
@@ -39,7 +58,7 @@ void main(List<String> arguments) async {
           .hook('onLogin')
           .param(
             'user',
-            const Struct(name: 'User'),
+            const Struct.shallow('User'),
           )
           .describe(
             'Event emitted when a user logs in.',
@@ -51,15 +70,24 @@ void main(List<String> arguments) async {
           )
           .end()
           .bind<double>('double', (int x) => x * 2)
-          .param(PrimitiveType.INT)
+          .returns(PrimitiveType.DOUBLE)
+          .param('x', PrimitiveType.INT)
           .describe(
             'A simple function that doubles an integer.',
           )
           .permission('math')
           .end()
-          .struct('User')
+          .struct<User>('User')
           .field('name', PrimitiveType.STRING)
           .field('id', PrimitiveType.INT)
+          .fromDart((u) => {
+                'id': u.id,
+                'name': u.name,
+              })
+          .toDart((data) => User(
+                id: data['id'] as int,
+                name: data['name'] as String,
+              ))
           .end()
           .build(),
     ],
@@ -87,5 +115,11 @@ void main(List<String> arguments) async {
   print(await runtime.run(
     'randomNumber',
     args: {'foo': 42},
+  ));
+
+  print(bytecode.implementations['randomString']!.toDebugString());
+
+  print(await runtime.run(
+    'randomString',
   ));
 }

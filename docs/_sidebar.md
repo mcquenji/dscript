@@ -13,3 +13,5 @@
 - Advanced
   - [Compiler](advanced/compiler.md)
   - [Choosing a Runtime](advanced/runtimes.md)
+  - [Middlewares](advanced/middlewares.md)
+  - [Extending the Standard Library](advanced/stdlib.md)

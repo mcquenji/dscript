@@ -1,5 +1,4 @@
 import 'package:dscript_dart/dscript_dart.dart';
-import 'package:dscript_dart/src/stdlib/stdlib.dart';
 
 part 'vm_impl.dart';
 

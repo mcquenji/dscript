@@ -1,123 +1,76 @@
 // coverage:ignore-file
-part of 'stdlib.dart';
 
-/// Bindings for the logging standard library.
-class LogBindings extends LibraryBinding {
+import 'package:dscript_annotations/dscript_annotations.dart';
+import 'package:logging/logging.dart';
+import 'package:dscript_dart/dscript_dart.dart';
+
+part 'log.g.dart';
+
+/// Provides basic logging utitlities.
+///
+/// !> Log messages will not be visible when using [IsolateRuntime].
+@namespace
+class LogBindings extends _$LogBindings {
   /// The logger instance for this script.
   late final Logger logger;
 
   /// Bindings for the logging standard library.
-  LogBindings(ScriptMetadata metadata) : super(name: 'log') {
+  LogBindings(ScriptMetadata metadata) {
     logger = Logger(
       '[Dscript] ${metadata.author}.${metadata.name}@${metadata.version}',
     );
   }
 
+  /// Logs general informational messages that highlight the progress of the application at a coarse level.
   @override
-  Set<RuntimeBinding> get bindings => {
-        infoBinding,
-        warningBinding,
-        errorBinding,
-        debugBinding,
-        verboseBinding,
-        fatalBinding,
-        criticalBinding,
-      };
+  void info(dynamic message, {dynamic error}) {
+    logger.info(message, error);
+  }
 
-  /// Binding for info logging.
-  late final infoBinding = RuntimeBinding<void>(
-    name: 'info',
-    function: (dynamic message, {dynamic error}) => logger.info(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
-    namedParams: {
-      #error: const DynamicType(),
-    },
-    description: 'Logs an info message.',
-  );
+  /// Logs potential problems that are not yet errors but might require attention or could lead to issues.
+  @override
+  void warning(dynamic message, {dynamic error}) {
+    logger.warning(message, error);
+  }
 
-  /// Binding for warning logging.
-  late final warningBinding = RuntimeBinding<void>(
-    name: 'warning',
-    function: (dynamic message, {dynamic error}) =>
-        logger.warning(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
-    namedParams: {
-      #error: const DynamicType(),
-    },
-    description: 'Logs a warning message.',
-  );
+  /// Logs serious failures or errors that will likely prevent normal program execution.
+  @override
+  void severe(dynamic message, {dynamic error}) {
+    logger.severe(message, error);
+  }
 
-  /// Binding for error logging.
-  late final errorBinding = RuntimeBinding<void>(
-    name: 'error',
-    function: (dynamic message, {dynamic error}) {
-      logger.severe(message, error);
-    },
-    positionalParams: [
-      const DynamicType(),
-    ],
-    namedParams: {
-      #error: const DynamicType(),
-    },
-    description: 'Logs an error message.',
-  );
+  /// Logs tracing information for debugging purposes.
+  /// Less verbose than [finer] or [finest].
+  @override
+  void fine(dynamic message, {dynamic error}) {
+    logger.fine(message, error);
+  }
 
-  /// Binding for debug logging.
-  late final debugBinding = RuntimeBinding<void>(
-    name: 'debug',
-    function: (dynamic message, {dynamic error}) => logger.fine(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
-    namedParams: {
-      #error: const DynamicType(),
-    },
-    description: 'Logs a debug message.',
-  );
+  /// Logs fairly detailed tracing information.
+  /// Useful when debugging complex flows with more granularity than [fine].
+  @override
+  void finer(dynamic message, {dynamic error}) {
+    logger.finer(message, error);
+  }
 
-  /// Binding for verbose logging.
-  late final verboseBinding = RuntimeBinding<void>(
-    name: 'verbose',
-    function: (dynamic message, {dynamic error}) =>
-        logger.finer(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
-    namedParams: {
-      #error: const DynamicType(),
-    },
-    description: 'Logs a verbose message.',
-  );
+  /// Logs highly detailed tracing information.
+  /// Intended for deep debugging, usually too verbose for normal use.
+  @override
+  void finest(dynamic message, {dynamic error}) {
+    logger.finest(message, error);
+  }
 
-  /// Binding for fatal logging.
-  late final fatalBinding = RuntimeBinding<void>(
-    name: 'fatal',
-    function: (dynamic message, {dynamic error}) =>
-        logger.shout(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
-    namedParams: {
-      #error: const DynamicType(),
-    },
-    description: 'Logs a fatal message.',
-  );
+  /// Logs static configuration messages.
+  /// Typically used to record startup settings or environment details.
+  @override
+  void config(dynamic message, {dynamic error}) {
+    logger.config(message, error);
+  }
 
-  /// Binding for critical logging.
-  late final criticalBinding = RuntimeBinding<void>(
-    name: 'critical',
-    function: (dynamic message, {dynamic error}) =>
-        logger.shout(message, error),
-    positionalParams: [
-      const DynamicType(),
-    ],
-    namedParams: {
-      #error: const DynamicType(),
-    },
-    description: 'Logs a critical message.',
-  );
+  /// Logs messages at the shout level.
+  /// Louder than [severe]; use sparingly for attention-grabbing events.
+  @override
+  void shout(dynamic message, {dynamic error}) {
+    logger.shout(message, error);
+  }
 }

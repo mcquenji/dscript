@@ -395,7 +395,7 @@ class Instruction {
   ///   1. Elements (dynamic) × count.
   ///
   /// **Results**
-  ///   1. List<dynamic>.
+  ///   1. `List<dynamic>`.
   ///
   /// {@macro instruction}
   static const array = 0x17;
@@ -411,7 +411,7 @@ class Instruction {
   ///   1. Values (dynamic) × (count*2) [key, value].
   ///
   /// **Results**
-  ///   1. Map<String, dynamic>.
+  ///   1. `Map<String, dynamic>`.
   ///
   /// {@macro instruction}
   static const map = 0x18;
@@ -557,7 +557,7 @@ class Instruction {
   ///   1. Constant pool index containing the struct's name.
   ///
   /// **Operands**
-  ///   1. A Map<String, dynamic>.
+  ///   1. A `Map<String, dynamic>`.
   ///
   /// **Results**
   ///   1. Struct instance.
@@ -574,8 +574,8 @@ class Instruction {
   ///   2. Constant pool index for the function name.
   ///
   /// **Operands**
-  ///   1. Positional arguments as List<dynamic> or null ([Instruction.pushNull]).
-  ///   2. Named arguments as Map<String, dynamic> or null ([Instruction.pushNull]).
+  ///   1. Positional arguments as `List<dynamic>` or null ([Instruction.pushNull]).
+  ///   2. Named arguments as `Map<String, dynamic>` or null ([Instruction.pushNull]).
   ///
   /// **Results**
   ///   1. Return value (dynamic).
@@ -659,8 +659,8 @@ class Instruction {
   ///   1. Constant pool index for the function name.
   ///
   /// **Operands**
-  ///   1. Positional arguments as List<dynamic> or null ([Instruction.pushNull]).
-  ///   2. Named arguments as Map<String, dynamic> or null ([Instruction.pushNull]).
+  ///   1. Positional arguments as `List<dynamic>` or null ([Instruction.pushNull]).
+  ///   2. Named arguments as `Map<String, dynamic>` or null ([Instruction.pushNull]).
   static const call = 0x27;
 
   /// Begins a try block and registers the catch handler target.

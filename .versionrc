@@ -22,5 +22,14 @@
     ],
     "packageFiles": [
         "pubspec.yaml"
-    ]
+    ],
+    "parserOpts": {
+        "noteKeywords": [
+            "BREAKING CHANGE",
+            "BREAKING CHANGES",
+            "BREAKING",
+            "BREAKING-CHANGE",
+            "BREAKING-CHANGES"
+        ]
+    }
 }

@@ -5,7 +5,6 @@ import 'package:dscript_dart/dscript_dart.dart' hide contract;
 import 'package:dscript_dart/src/gen/antlr/dscriptBaseVisitor.dart';
 import 'package:dscript_dart/src/gen/antlr/dscriptLexer.dart';
 import 'package:dscript_dart/src/gen/antlr/dscriptParser.dart';
-import 'package:dscript_dart/src/stdlib/stdlib.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 part 'metadata.dart';

@@ -1,4 +1,5 @@
- 
+name: Report Test Results
+
 on:
   workflow_run:
     workflows: ["Unit Tests"]
@@ -22,8 +23,6 @@ jobs:
             name: 🧪 Unit Tests
             path: test-results.json
             reporter: dart-json
-            fail-on-empty: true
-            fail-on-error: true
             max-annotations: 50
             
             

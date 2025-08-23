@@ -18,9 +18,8 @@ class ScriptPermission {
   /// Creates a custom host-defined permission with the `external` namespace.
   const ScriptPermission.custom(this.name) : namespace = 'external';
 
-  @override
-
   /// Returns the DSL-style string representation `namespace::method`.
+  @override
   String toString() => '$namespace::$name';
 
   /// Permission to read from the filesystem (`fs::read`).
@@ -29,11 +28,8 @@ class ScriptPermission {
   /// Permission to write to the filesystem (`fs::write`).
   static const writeFiles = ScriptPermission('fs', 'write');
 
-  /// Permission to perform network client requests (`ntwk::client`).
-  static const networkClient = ScriptPermission('http', 'client');
-
-  /// Permission to start a network server (`ntwk::server`).
-  static const networkServer = ScriptPermission('http', 'server');
+  /// Permission to perform network client requests (`http::client`).
+  static const httpClient = ScriptPermission('http', 'client');
 
   @override
   bool operator ==(Object other) {

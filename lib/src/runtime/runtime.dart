@@ -1,7 +1,6 @@
 import 'dart:isolate';
 
 import 'package:dscript_dart/dscript_dart.dart';
-import 'package:dscript_dart/src/stdlib/stdlib.dart';
 
 /// The Dscript runtime environment.
 ///

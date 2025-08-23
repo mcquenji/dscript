@@ -6,36 +6,15 @@ A lightweight [Domain-Specific Language (DSL)](https://en.wikipedia.org/wiki/Dom
 
 ---
 
+## Motivation
+
+For many applications I've built, I wished it was possible for users to extend the app with custom code, such as plugins or scripts. However, during my research I found out that dart does not support dynamic code execution like C# or Java using DLLs or JARs. A different approach would be to have plugins exist as seperate executables and communicate with the main app via grpc, but this would expose the app to severe security risks, as the plugin could do anything it wants once the executable is running.
+
+So I looked at [lua_dardo](https://pub.dev/packages/lua_dardo) and [dart_eval](https://pub.dev/packages/dart_eval) to see if I could use them to run scripts, but they were not suitable for my use case as lua lacked the strong permission system I wanted, and dart_eval seemed to have too much boilerplate for my taste. After long consideration and hesitation, I decided to create my own DSL that would be easy to use, have a strong permission system, and with strong interop with Dart code (it was also a good opportunity to learn about writing parsers and interpreters).
+
 ## Getting Started
 
-Define a script:
-
-```dscript
-author "You";
-version 0.1.0;
-name "Example";
-
-description "demo";
-
-contract Demo {
-  impl greet(string who) -> void {
-    log::info("Hello " + who);
-  }
-}
-```
-
-Register the contract in your host app:
-
-```dart
-final demo = contract('Demo')
-  .impl('greet', returnType: PrimitiveType.VOID)
-  .param('who', PrimitiveType.STRING)
-  .describe("Greets someone")
-  .end()
-  .build();
-```
-
-For full documentation see the [docs](https://mcquenji.github.io/dscript).
+The documentation can be found [here](https://mcquenji.github.io/dscript).
 
 ## Contributing
 

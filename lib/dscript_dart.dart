@@ -6,3 +6,4 @@ export 'src/contract_builder.dart';
 export 'src/compiler/compiler.dart';
 export 'src/vm/vm.dart';
 export 'src/runtime/runtime.dart';
+export 'src/stdlib/stdlib.dart';

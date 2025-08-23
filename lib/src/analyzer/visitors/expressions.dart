@@ -403,7 +403,7 @@ class ExprVisitor extends AnalysisVisitor {
     }
 
     for (var i = 0; i < posArgs.length; i++) {
-      final expected = impl.positionalParams[i];
+      final expected = impl.positionalParams.values.elementAt(i);
       final found = posArgs[i];
 
       if (!found.canCast(expected)) {

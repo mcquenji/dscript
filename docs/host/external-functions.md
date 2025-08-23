@@ -19,7 +19,7 @@ When registering an external function the host maps a permission to one or more 
 ```dart
 final contract = contract('foo')
   .bind<void>('uploadFile', (String path) async {// do something} )
-  .param(PrimitiveType.STRING)
+  .param('path', PrimitiveType.STRING)
   .describe(
     "Uploads a file to the user's cloud storage",
   )
