@@ -22,6 +22,9 @@ dev_dependencies:
   custom_lint: ^0.8.0
   custom_lints:
     path: ./custom_lints
-  dscript_gen: ^1.0.0
+  dscript_gen: ^1.1.1
   lints: ^5.0.0
   test: ^1.24.0
+# dependency_overrides:
+#   dscript_gen:
+#     path: ../dscript_gen
